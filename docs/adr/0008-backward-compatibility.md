@@ -1,6 +1,6 @@
 # ADR-0008: Backward compatibility is a golden rule
 
-- Status: Proposed (approval at HG-S0)
+- Status: Accepted (HG-S0, 2026-10-09)
 - Date: 2026-10-09
 
 ## Decision

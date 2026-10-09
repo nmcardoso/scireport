@@ -1,0 +1,135 @@
+{
+  "assets": {
+    "bytes": 0,
+    "count": 0
+  },
+  "counts": {
+    "alert": 1,
+    "bool": 1,
+    "code": 1,
+    "date": 1,
+    "flow": 1,
+    "list": 1,
+    "mapping": 1,
+    "math": 1,
+    "metrics": 1,
+    "number": 3,
+    "status": 1,
+    "text": 1
+  },
+  "issues": [],
+  "meta": {
+    "authors": [
+      {
+        "name": "N. Cardoso"
+      },
+      {
+        "affiliation": "Example Institute",
+        "name": "A. Reviewer"
+      }
+    ],
+    "date": "2026-10-09",
+    "keywords": [],
+    "language": "en",
+    "subtitle": "Written by hand in YAML",
+    "title": "Text-only report"
+  },
+  "ok": true,
+  "render": {
+    "formats": [
+      "md",
+      "html"
+    ],
+    "layout": "default@1",
+    "options": {},
+    "template": "generic@1"
+  },
+  "spec": "1.0",
+  "values": [
+    {
+      "assets": [],
+      "key": "alert",
+      "kind": "alert",
+      "summary": "warning: Redshift 999 is a sentinel."
+    },
+    {
+      "assets": [],
+      "key": "checks",
+      "kind": "mapping",
+      "summary": "4 entries"
+    },
+    {
+      "assets": [],
+      "key": "equation",
+      "kind": "math",
+      "summary": "E = mc^2"
+    },
+    {
+      "assets": [],
+      "key": "flow",
+      "kind": "flow",
+      "summary": "3 stages"
+    },
+    {
+      "assets": [],
+      "key": "kpi",
+      "kind": "metrics",
+      "summary": "2 tiles"
+    },
+    {
+      "assets": [],
+      "key": "notes.list",
+      "kind": "list",
+      "summary": "4 items"
+    },
+    {
+      "assets": [],
+      "key": "query",
+      "kind": "code",
+      "summary": "sql, 27 chars"
+    },
+    {
+      "assets": [],
+      "key": "stats.complete",
+      "kind": "bool",
+      "summary": "True"
+    },
+    {
+      "assets": [],
+      "key": "stats.completeness",
+      "kind": "number",
+      "summary": "0.9875"
+    },
+    {
+      "assets": [],
+      "key": "stats.missing",
+      "kind": "number",
+      "summary": "missing"
+    },
+    {
+      "assets": [],
+      "key": "stats.n_pairs",
+      "kind": "number",
+      "summary": "3061"
+    },
+    {
+      "assets": [],
+      "key": "status",
+      "kind": "status",
+      "summary": "success: COMPLETED SUCCESSFULLY"
+    },
+    {
+      "assets": [],
+      "key": "summary",
+      "kind": "text",
+      "summary": "plain: This report has no assets, so it is a single manifest file."
+    },
+    {
+      "assets": [],
+      "key": "when",
+      "kind": "date",
+      "summary": "2026-10-09"
+    }
+  ],
+  "verified": true
+}

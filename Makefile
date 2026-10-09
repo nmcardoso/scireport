@@ -1,5 +1,5 @@
 # Thin wrappers around uv; the pipeline also runs without make.
-.PHONY: setup check lint format typecheck test test-integration docs examples clean
+.PHONY: setup check lint format typecheck test test-integration compat schema docs examples clean
 
 setup:            ; uv sync --locked --all-extras --group dev --group docs
 check:            lint typecheck test
@@ -8,6 +8,10 @@ format:           ; uv run ruff format . && uv run ruff check --fix .
 typecheck:        ; uv run mypy scireport tests
 test:             ; uv run pytest -m "not integration" --cov=scireport --cov-report=term-missing
 test-integration: ; uv run pytest -m integration
+# The frozen compat corpus (ADR-0008); also part of `make test`.
+compat:           ; uv run pytest tests/compat
+# Regenerates the schema of the CURRENT spec version. Never for a released version: its file is frozen.
+schema:           ; uv run scireport spec schema -o scireport/spec/schemas/data-$$(uv run scireport spec version).schema.json
 docs:             ; uv run sphinx-build -W --keep-going -b html docs docs/_build/html
 # Phase S3 replaces this body with the example renders (3 examples x 2 layouts x all formats).
 examples:         ; uv run scireport --version && echo "examples are added in phase S3"

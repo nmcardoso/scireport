@@ -1,6 +1,6 @@
 # Architecture decision records
 
-Status of every record is *Proposed* until the human gate HG-S0 approves it. After approval, a record changes only by
+All records were approved at gate HG-S0 (2026-10-09). An accepted record changes only by
 a new, superseding record.
 
 ```{toctree}

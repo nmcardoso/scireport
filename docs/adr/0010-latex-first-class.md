@@ -1,6 +1,6 @@
 # ADR-0010: LaTeX is a first-class output
 
-- Status: Proposed (approval at HG-S0)
+- Status: Accepted (HG-S0, 2026-10-09)
 - Date: 2026-10-09
 
 ## Decision

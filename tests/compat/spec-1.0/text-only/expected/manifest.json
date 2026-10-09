@@ -1,0 +1,298 @@
+{
+  "scireport": "1.0",
+  "meta": {
+    "title": "Text-only report",
+    "subtitle": "Written by hand in YAML",
+    "authors": [
+      {
+        "name": "N. Cardoso"
+      },
+      {
+        "name": "A. Reviewer",
+        "affiliation": "Example Institute"
+      }
+    ],
+    "date": "2026-10-09",
+    "keywords": [],
+    "language": "en"
+  },
+  "render": {
+    "template": "generic@1",
+    "layout": "default@1",
+    "formats": [
+      "md",
+      "html"
+    ],
+    "options": {}
+  },
+  "outline": [
+    {
+      "key": "summary",
+      "children": [],
+      "in_contents": true
+    },
+    {
+      "title": "Results",
+      "children": [
+        {
+          "key": "stats.n_pairs",
+          "children": [],
+          "in_contents": true
+        },
+        {
+          "key": "stats.completeness",
+          "children": [],
+          "in_contents": true
+        },
+        {
+          "key": "checks",
+          "children": [],
+          "in_contents": true
+        }
+      ],
+      "md_file": "results.md",
+      "in_contents": true
+    },
+    {
+      "title": "Notes",
+      "children": [
+        {
+          "key": "notes.list",
+          "children": [],
+          "in_contents": true
+        },
+        {
+          "key": "equation",
+          "children": [],
+          "in_contents": true
+        },
+        {
+          "key": "query",
+          "children": [],
+          "in_contents": true
+        },
+        {
+          "key": "status",
+          "children": [],
+          "in_contents": true
+        },
+        {
+          "key": "alert",
+          "children": [],
+          "in_contents": true
+        },
+        {
+          "key": "flow",
+          "children": [],
+          "in_contents": true
+        }
+      ],
+      "in_contents": true
+    }
+  ],
+  "values": {
+    "alert": {
+      "kind": "alert",
+      "level": "warning",
+      "text": "Redshift 999 is a sentinel."
+    },
+    "checks": {
+      "kind": "mapping",
+      "entries": [
+        {
+          "key": "answer",
+          "value": {
+            "kind": "text",
+            "text": "yes",
+            "format": "plain"
+          }
+        },
+        {
+          "key": "time",
+          "value": {
+            "kind": "text",
+            "text": "12:30",
+            "format": "plain"
+          }
+        },
+        {
+          "key": "octal-looking",
+          "value": {
+            "kind": "text",
+            "text": "007",
+            "format": "plain"
+          }
+        },
+        {
+          "key": "nested",
+          "value": {
+            "kind": "mapping",
+            "entries": [
+              {
+                "key": "a",
+                "value": {
+                  "kind": "number",
+                  "value": 1
+                }
+              },
+              {
+                "key": "b",
+                "value": {
+                  "kind": "list",
+                  "items": [
+                    {
+                      "kind": "number",
+                      "value": 1
+                    },
+                    {
+                      "kind": "number",
+                      "value": 2
+                    },
+                    {
+                      "kind": "mapping",
+                      "entries": [
+                        {
+                          "key": "c",
+                          "value": {
+                            "kind": "text",
+                            "text": "three",
+                            "format": "plain"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "ordered": false
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "equation": {
+      "kind": "math",
+      "latex": "E = mc^2",
+      "display": true,
+      "numbered": true,
+      "caption": "Mass-energy equivalence"
+    },
+    "flow": {
+      "kind": "flow",
+      "stages": [
+        {
+          "label": "INGEST",
+          "detail": [
+            "12,483,921 objects"
+          ],
+          "state": "done"
+        },
+        {
+          "label": "CROSS-MATCH",
+          "detail": [],
+          "state": "reused"
+        },
+        {
+          "label": "PUBLISH",
+          "detail": [],
+          "state": "skipped"
+        }
+      ]
+    },
+    "kpi": {
+      "kind": "metrics",
+      "items": [
+        {
+          "label": "Pairs",
+          "value": {
+            "kind": "number",
+            "value": 3061
+          },
+          "detail": "after cuts"
+        },
+        {
+          "label": "Status",
+          "value": {
+            "kind": "text",
+            "text": "ok",
+            "format": "plain"
+          }
+        }
+      ]
+    },
+    "notes.list": {
+      "kind": "list",
+      "items": [
+        {
+          "kind": "text",
+          "text": "alpha",
+          "format": "plain"
+        },
+        {
+          "kind": "number",
+          "value": 2
+        },
+        {
+          "kind": "bool",
+          "value": false
+        },
+        {
+          "kind": "list",
+          "items": [
+            {
+              "kind": "text",
+              "text": "nested",
+              "format": "plain"
+            },
+            {
+              "kind": "text",
+              "text": "list",
+              "format": "plain"
+            }
+          ],
+          "ordered": false
+        }
+      ],
+      "ordered": false
+    },
+    "query": {
+      "kind": "code",
+      "source": "SELECT COUNT(*) FROM pairs;",
+      "language": "sql"
+    },
+    "stats.complete": {
+      "kind": "bool",
+      "value": true
+    },
+    "stats.completeness": {
+      "kind": "number",
+      "value": 0.9875
+    },
+    "stats.missing": {
+      "kind": "number"
+    },
+    "stats.n_pairs": {
+      "kind": "number",
+      "value": 3061
+    },
+    "status": {
+      "kind": "status",
+      "level": "success",
+      "headline": "COMPLETED SUCCESSFULLY",
+      "detail": "All checks passed."
+    },
+    "summary": {
+      "kind": "text",
+      "text": "This report has no assets, so it is a single manifest file.",
+      "format": "plain"
+    },
+    "when": {
+      "kind": "date",
+      "value": "2026-10-09"
+    }
+  },
+  "preprocess": [],
+  "provenance": {
+    "inputs": []
+  }
+}

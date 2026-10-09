@@ -1,0 +1,56 @@
+# A hand-authored, text-only report: bare JSON shorthand throughout, no assets.
+scireport: "1.0"
+meta:
+  title: Text-only report
+  subtitle: Written by hand in YAML
+  authors:
+    - N. Cardoso
+    - {name: A. Reviewer, affiliation: Example Institute}
+  date: 2026-10-09
+  language: en
+render:
+  template: generic@1
+  layout: default@1
+  formats: [md, html]
+outline:
+  - summary
+  - title: Results
+    md_file: results.md
+    children:
+      - stats.n_pairs
+      - stats.completeness
+      - checks
+  - title: Notes
+    children: [notes.list, equation, query, status, alert, flow]
+values:
+  summary: This report has no assets, so it is a single manifest file.
+  stats.n_pairs: 3061
+  stats.completeness: 0.9875
+  stats.complete: true
+  stats.missing: null
+  checks:
+    answer: yes
+    time: 12:30
+    octal-looking: 007
+    nested: {a: 1, b: [1, 2, {c: three}]}
+  notes.list: [alpha, 2, false, [nested, list]]
+  when: {kind: date, value: '20261009'}
+  equation: {kind: math, latex: 'E = mc^2', numbered: true, caption: Mass-energy equivalence}
+  query: {kind: code, source: "SELECT COUNT(*) FROM pairs;", language: sql}
+  status:
+    kind: status
+    level: success
+    headline: COMPLETED SUCCESSFULLY
+    detail: All checks passed.
+  alert: {kind: alert, level: warning, text: Redshift 999 is a sentinel.}
+  flow:
+    kind: flow
+    stages:
+      - {label: INGEST, detail: ["12,483,921 objects"]}
+      - {label: CROSS-MATCH, state: reused}
+      - {label: PUBLISH, state: skipped}
+  kpi:
+    kind: metrics
+    items:
+      - {label: Pairs, value: 3061, detail: after cuts}
+      - {label: Status, value: ok}

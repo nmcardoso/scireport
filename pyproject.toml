@@ -43,11 +43,14 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "hypothesis>=6.168.5",
+    "jsonschema>=4.26.0",
     "mypy>=2.4.0",
+    "pandas>=3.0.6 ; python_full_version < '3.15'",
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.17.0",
+    "types-jsonschema>=4.26.0.20261006",
     "types-pyyaml>=6.0.12.20260906",
 ]
 docs = [
@@ -94,6 +97,9 @@ force-single-line = false
 convention = "numpy"
 
 [tool.ruff.lint.per-file-ignores]
+# pydantic copies field defaults per instance, so `= []` is safe on the spec models (RUF012 cannot
+# see that through the `Model` base class).
+"scireport/spec/*.py" = ["RUF012"]
 # Tests are documented by their names.
 "tests/**" = ["D100", "D101", "D102", "D103", "D104"]
 
@@ -115,6 +121,7 @@ ignore_errors = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["tests"]
 addopts = "-ra --strict-markers --import-mode=importlib"
 markers = [
   "integration: needs a system toolchain (TeX Live, pango, ...); run by the dedicated CI jobs",

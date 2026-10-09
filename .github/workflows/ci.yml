@@ -30,7 +30,7 @@ jobs:
     name: test (${{ matrix.os }}, py${{ matrix.python }})
     runs-on: ${{ matrix.os }}
     # Python 3.15 is experimental while pyyaml (and brotli, via weasyprint) have no cp315 wheels
-    # (DECISIONS 2026-10-09). The flag is removed once the 3.15 jobs are green without it.
+    # (DECISIONS 2026-10-09). The flag is removed once wheels exist.
     continue-on-error: ${{ matrix.python == '3.15' }}
     strategy:
       fail-fast: false
@@ -90,6 +90,7 @@ jobs:
           brew install pango
           echo "DYLD_FALLBACK_LIBRARY_PATH=$(brew --prefix)/lib" >> "$GITHUB_ENV"
       - name: Install pango (Windows, MSYS2)
+        id: msys2
         if: runner.os == 'Windows'
         uses: msys2/setup-msys2@v2
         with:
@@ -99,7 +100,7 @@ jobs:
       - name: Point WeasyPrint at MSYS2 (Windows)
         if: runner.os == 'Windows'
         shell: bash
-        run: echo "WEASYPRINT_DLL_DIRECTORIES=C:\\msys64\\ucrt64\\bin" >> "$GITHUB_ENV"
+        run: echo "WEASYPRINT_DLL_DIRECTORIES=${{ steps.msys2.outputs.msys2-location }}\\ucrt64\\bin" >> "$GITHUB_ENV"
       - run: uv sync --group dev --extra pdf
       - run: uv run pytest -m pdf_weasyprint
 

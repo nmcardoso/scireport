@@ -3,10 +3,33 @@
 Data-centric scientific report engine. One **data file** (a report bundle), one **template** (structure) and one
 **layout** (look) go in; **Markdown** (for LLMs), **HTML**, **LaTeX** and **PDF** (for humans) come out.
 
-> **Status: pre-alpha (phase S0).** The repository skeleton, tooling, CI matrix and architecture decision records
-> exist; the engine itself is built in phases S1 to S7. Nothing here is usable for reports yet.
+> **Status: pre-alpha (phase S1).** The data file works: the specification models, the report bundle (directory,
+> ZIP, single file), the `Report` builder, JSON Schemas and the `spec`, `pack`, `unpack` and `inspect` commands.
+> Templates, layouts and the Markdown, HTML, LaTeX and PDF outputs arrive in phases S2 to S5.
 
 Inspired by the MOSAICS report engine of `datex`, but standalone and data-centric.
+
+## The data file in one minute
+
+```python
+from scireport import Report
+
+report = Report('Cross-match report', authors=['N. Cardoso'], version='1.1.0')
+report.add_number('crossmatch.n_pairs', 3061, format='int')
+report.add_table('crossmatch.pairs', table)            # pyarrow, pandas or a dict of columns
+report.add_figure('crossmatch.separations', fig, alt='Histogram of pair separations')
+report.write('crossmatch.scireport.zip')              # byte-reproducible ZIP, JSON manifest
+```
+
+```bash
+scireport inspect crossmatch.scireport.zip            # what is in it, and is it intact (--json for agents)
+scireport unpack crossmatch.scireport.zip             # -> crossmatch.scireport/ (manifest + assets)
+scireport pack my-report/ -o report.scireport.zip     # hand-authored YAML directory -> sealed ZIP
+scireport spec schema                                 # JSON Schema of the manifest
+```
+
+Exit codes: 0 ok, 1 runtime error, 2 invalid input (every problem is listed, each with a stable code such as
+`E101`), 3 missing system dependency.
 
 ## Install (from the public repository)
 
@@ -32,6 +55,7 @@ reproduce the environment. Tags are listed at <https://github.com/nmcardoso/scir
 ```bash
 uv sync --all-extras --group dev --group docs
 make check              # ruff format and lint, mypy --strict, pytest with coverage >= 90 %
+make compat             # the frozen compat corpus only (tests/compat/)
 make test-integration   # PDF engines and pandoc (need the toolchains above)
 make docs               # Sphinx site in docs/_build/html
 ```

@@ -1,6 +1,6 @@
 # ADR-0001: Data-file format is a report bundle (ZIP + JSON manifest + native assets)
 
-- Status: Proposed (approval at HG-S0)
+- Status: Accepted (HG-S0, 2026-10-09)
 - Date: 2026-10-09
 
 ## Context

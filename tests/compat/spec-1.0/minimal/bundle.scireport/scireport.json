@@ -1,0 +1,25 @@
+{
+  "scireport": "1.0",
+  "meta": {
+    "title": "Minimal report",
+    "authors": [],
+    "keywords": [],
+    "language": "en"
+  },
+  "render": {
+    "formats": [],
+    "options": {}
+  },
+  "values": {
+    "note": {
+      "kind": "text",
+      "text": "A minimal report.",
+      "format": "plain"
+    }
+  },
+  "preprocess": [],
+  "provenance": {
+    "writer": "scireport 0.1.0.dev0",
+    "inputs": []
+  }
+}

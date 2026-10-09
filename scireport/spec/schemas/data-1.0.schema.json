@@ -1,0 +1,1830 @@
+{
+  "$defs": {
+    "AlertValue": {
+      "additionalProperties": false,
+      "description": "A one-line call-out.\n\nParameters\n----------\nkind : {'alert'}\n    The kind tag.\nlevel : {'info', 'warning', 'error'}\n    Severity.\ntext : str\n    The message.",
+      "properties": {
+        "kind": {
+          "const": "alert",
+          "title": "Kind",
+          "type": "string"
+        },
+        "level": {
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ],
+          "title": "Level",
+          "type": "string"
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "level",
+        "text"
+      ],
+      "title": "AlertValue",
+      "type": "object"
+    },
+    "AssetRef": {
+      "additionalProperties": false,
+      "description": "A reference to one file in ``assets/``, with its integrity data.\n\nWhen the reader opens a hand-authored directory it passes a resolver in the validation\ncontext, and ``sha256`` and ``bytes`` may then be left out or the whole reference written as\nthe bare path; ``pack`` writes the completed manifest. In a sealed bundle both are required.\n\nParameters\n----------\npath : str\n    Relative POSIX path under ``assets/``.\nsha256 : str\n    Lowercase hexadecimal SHA-256 of the file.\nbytes : int\n    Size of the file in bytes.",
+      "properties": {
+        "bytes": {
+          "minimum": 0,
+          "title": "Bytes",
+          "type": "integer"
+        },
+        "path": {
+          "pattern": "^assets/",
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "title": "AssetRef",
+      "type": "object"
+    },
+    "AttachmentValue": {
+      "additionalProperties": false,
+      "description": "A file offered alongside the report (for example the full table behind a cut one).\n\nParameters\n----------\nkind : {'attachment'}\n    The kind tag.\nasset : AssetRef\n    The file in ``assets/attachments/``.\nfilename : str\n    Name shown to the reader and used on download: no path separators.\nmedia_type : str or None\n    MIME type, for example ``text/csv``.\ndescription : str or None\n    What the file contains.",
+      "properties": {
+        "asset": {
+          "$ref": "#/$defs/AssetRef"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "filename": {
+          "minLength": 1,
+          "title": "Filename",
+          "type": "string"
+        },
+        "kind": {
+          "const": "attachment",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Media Type"
+        }
+      },
+      "required": [
+        "kind",
+        "asset",
+        "filename"
+      ],
+      "title": "AttachmentValue",
+      "type": "object"
+    },
+    "Author": {
+      "additionalProperties": false,
+      "description": "A report author.\n\nParameters\n----------\nname : str\n    Full name.\naffiliation : str or None\n    Institution.\norcid : str or None\n    ORCID iD such as ``0000-0002-1825-0097``.",
+      "properties": {
+        "affiliation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Affiliation"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "orcid": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\dX]$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Orcid"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Author",
+      "type": "object"
+    },
+    "BoolValue": {
+      "additionalProperties": false,
+      "description": "A boolean.\n\nParameters\n----------\nkind : {'bool'}\n    The kind tag.\nvalue : bool\n    The truth value.",
+      "properties": {
+        "kind": {
+          "const": "bool",
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "value"
+      ],
+      "title": "BoolValue",
+      "type": "object"
+    },
+    "CellEmphasis": {
+      "additionalProperties": false,
+      "description": "Emphasis of one cell of a table.\n\nParameters\n----------\nrow : int\n    Zero-based row index in the table's data.\ncolumn : str\n    Column name.\nstyle : {'strong', 'muted', 'pass', 'warn', 'fail'}\n    The emphasis.",
+      "properties": {
+        "column": {
+          "minLength": 1,
+          "title": "Column",
+          "type": "string"
+        },
+        "row": {
+          "minimum": 0,
+          "title": "Row",
+          "type": "integer"
+        },
+        "style": {
+          "enum": [
+            "strong",
+            "muted",
+            "pass",
+            "warn",
+            "fail"
+          ],
+          "title": "Style",
+          "type": "string"
+        }
+      },
+      "required": [
+        "row",
+        "column",
+        "style"
+      ],
+      "title": "CellEmphasis",
+      "type": "object"
+    },
+    "CodeValue": {
+      "additionalProperties": false,
+      "description": "Source code or preformatted text: inline ``source`` or a file in ``assets/text/``.\n\nParameters\n----------\nkind : {'code'}\n    The kind tag.\nsource : str or None\n    The code, inline. Exactly one of ``source`` and ``asset`` is given.\nasset : AssetRef or None\n    A text file.\nlanguage : str or None\n    Language name for highlighting (``'python'``, ``'sql'``); none means preformatted text.\ncaption : str or None\n    Text below the block.",
+      "properties": {
+        "asset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AssetRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "caption": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Caption"
+        },
+        "kind": {
+          "const": "code",
+          "title": "Kind",
+          "type": "string"
+        },
+        "language": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Language"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "CodeValue",
+      "type": "object"
+    },
+    "Column": {
+      "additionalProperties": false,
+      "description": "Presentation of one table column.\n\nParameters\n----------\nname : str\n    The column's name in the data.\nlabel : str or None\n    Header text; the name when None.\nunit : str or None\n    Unit shown in the header.\nformat : str or None\n    Cell number format, as for :class:`NumberValue`.\nalign : {'left', 'right', 'center', 'path'} or None\n    Cell alignment; ``path`` is left-aligned monospace that may break anywhere.\nwidth : float or None\n    Share of the frame width in (0, 1]; widths are normalised by the renderer.\ndescription : str or None\n    What the column holds, for the data-model appendix.",
+      "properties": {
+        "align": {
+          "anyOf": [
+            {
+              "enum": [
+                "left",
+                "right",
+                "center",
+                "path"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Align"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Format"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "maximum": 1,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Width"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Column",
+      "type": "object"
+    },
+    "DateValue": {
+      "additionalProperties": false,
+      "description": "A calendar date or date-time, stored in canonical ISO 8601 form.\n\nParameters\n----------\nkind : {'date'}\n    The kind tag.\nvalue : str\n    ``YYYY-MM-DD`` or an ISO 8601 date-time. Normalised on load by :func:`canonical_date`.",
+      "properties": {
+        "kind": {
+          "const": "date",
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "value"
+      ],
+      "title": "DateValue",
+      "type": "object"
+    },
+    "FigureValue": {
+      "additionalProperties": false,
+      "description": "A figure with one or more renditions, required alt text and optional sidecar data.\n\nParameters\n----------\nkind : {'figure'}\n    The kind tag.\nrenditions : list of Rendition\n    At least one, at most one per format. LaTeX output prefers PDF, then PNG; SVG is never\n    used in LaTeX.\nalt : str\n    Alternative text. Required and not blank.\ncaption : str or None\n    Caption below the figure.\nwidth : float, default=1.0\n    Width as a fraction of the frame, in (0, 1].\ndata : AssetRef or None\n    A ``.parquet`` or ``.csv`` sidecar with the data the figure was drawn from.",
+      "properties": {
+        "alt": {
+          "minLength": 1,
+          "title": "Alt",
+          "type": "string"
+        },
+        "caption": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Caption"
+        },
+        "data": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AssetRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "kind": {
+          "const": "figure",
+          "title": "Kind",
+          "type": "string"
+        },
+        "renditions": {
+          "items": {
+            "$ref": "#/$defs/Rendition"
+          },
+          "minItems": 1,
+          "title": "Renditions",
+          "type": "array"
+        },
+        "width": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Width",
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind",
+        "renditions",
+        "alt"
+      ],
+      "title": "FigureValue",
+      "type": "object"
+    },
+    "FlowStage": {
+      "additionalProperties": false,
+      "description": "One stage of a :class:`FlowValue`.\n\nParameters\n----------\nlabel : str\n    Stage name.\ndetail : list of str\n    Lines of detail under the name.\nstate : {'done', 'reused', 'skipped', 'failed', 'running', 'pending'}, default='done'\n    How the stage ended.",
+      "properties": {
+        "detail": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Detail",
+          "type": "array"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "state": {
+          "default": "done",
+          "enum": [
+            "done",
+            "reused",
+            "skipped",
+            "failed",
+            "running",
+            "pending"
+          ],
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "title": "FlowStage",
+      "type": "object"
+    },
+    "FlowValue": {
+      "additionalProperties": false,
+      "description": "A pipeline drawn as numbered stages.\n\nParameters\n----------\nkind : {'flow'}\n    The kind tag.\nstages : list of FlowStage\n    At least one stage, numbered from 1 in order.",
+      "properties": {
+        "kind": {
+          "const": "flow",
+          "title": "Kind",
+          "type": "string"
+        },
+        "stages": {
+          "items": {
+            "$ref": "#/$defs/FlowStage"
+          },
+          "minItems": 1,
+          "title": "Stages",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "stages"
+      ],
+      "title": "FlowValue",
+      "type": "object"
+    },
+    "Generator": {
+      "additionalProperties": false,
+      "description": "The program that produced the content.\n\nParameters\n----------\nname : str\n    Program or package name.\nversion : str\n    Its version.",
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "title": "Generator",
+      "type": "object"
+    },
+    "ImageValue": {
+      "additionalProperties": false,
+      "description": "A picture that is not generated from data (a logo, a photo, a diagram).\n\nParameters\n----------\nkind : {'image'}\n    The kind tag.\nasset : AssetRef\n    A ``.png``, ``.jpg``, ``.jpeg``, ``.svg`` or ``.pdf`` file in ``assets/images/``.\nalt : str or None\n    Alternative text; None marks a decorative image.\ncaption : str or None\n    Caption below the image.\nwidth : float, default=1.0\n    Width as a fraction of the frame, in (0, 1].",
+      "properties": {
+        "alt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alt"
+        },
+        "asset": {
+          "$ref": "#/$defs/AssetRef"
+        },
+        "caption": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Caption"
+        },
+        "kind": {
+          "const": "image",
+          "title": "Kind",
+          "type": "string"
+        },
+        "width": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Width",
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind",
+        "asset"
+      ],
+      "title": "ImageValue",
+      "type": "object"
+    },
+    "InputRef": {
+      "additionalProperties": false,
+      "description": "One input the content was computed from.\n\nParameters\n----------\nname : str\n    A label, for example a file or table name.\nsha256 : str or None\n    SHA-256 of the input, when it is a file.\nuri : str or None\n    Where the input came from.",
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        },
+        "uri": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Uri"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "InputRef",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "ListValue": {
+      "additionalProperties": false,
+      "description": "An ordered list of values (any kind, nested).\n\nParameters\n----------\nkind : {'list'}\n    The kind tag.\nitems : list of Value\n    The members. Bare JSON members are canonicalised.\nordered : bool, default=False\n    Whether the list is numbered when rendered.",
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Value"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "kind": {
+          "const": "list",
+          "title": "Kind",
+          "type": "string"
+        },
+        "ordered": {
+          "default": false,
+          "title": "Ordered",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "items"
+      ],
+      "title": "ListValue",
+      "type": "object"
+    },
+    "MappingEntry": {
+      "additionalProperties": false,
+      "description": "One labelled entry of a :class:`MappingValue`.\n\nParameters\n----------\nkey : str\n    The display label. Free text, not a value key.\nvalue : Value\n    The entry's value.",
+      "properties": {
+        "key": {
+          "minLength": 1,
+          "title": "Key",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/Value"
+        }
+      },
+      "required": [
+        "key",
+        "value"
+      ],
+      "title": "MappingEntry",
+      "type": "object"
+    },
+    "MappingValue": {
+      "additionalProperties": false,
+      "description": "Labelled metadata entries in a fixed order (a description list).\n\nParameters\n----------\nkind : {'mapping'}\n    The kind tag.\nentries : list of MappingEntry\n    The entries, in display order.",
+      "properties": {
+        "entries": {
+          "items": {
+            "$ref": "#/$defs/MappingEntry"
+          },
+          "title": "Entries",
+          "type": "array"
+        },
+        "kind": {
+          "const": "mapping",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "entries"
+      ],
+      "title": "MappingValue",
+      "type": "object"
+    },
+    "MathValue": {
+      "additionalProperties": false,
+      "description": "A mathematical expression in LaTeX.\n\nParameters\n----------\nkind : {'math'}\n    The kind tag.\nlatex : str\n    The expression, without ``$`` delimiters.\ndisplay : bool, default=True\n    Display (own line) rather than inline style.\nnumbered : bool, default=False\n    Whether a display equation gets a number.\ncaption : str or None\n    Text below the equation.",
+      "properties": {
+        "caption": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Caption"
+        },
+        "display": {
+          "default": true,
+          "title": "Display",
+          "type": "boolean"
+        },
+        "kind": {
+          "const": "math",
+          "title": "Kind",
+          "type": "string"
+        },
+        "latex": {
+          "minLength": 1,
+          "title": "Latex",
+          "type": "string"
+        },
+        "numbered": {
+          "default": false,
+          "title": "Numbered",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "latex"
+      ],
+      "title": "MathValue",
+      "type": "object"
+    },
+    "Meta": {
+      "additionalProperties": false,
+      "description": "Document metadata (the cover and running heads).\n\nParameters\n----------\ntitle : str\n    Report title.\nsubtitle : str or None\n    Line under the title.\nauthors : list of Author\n    Authors in order; a bare string is a name.\ndate : str or None\n    ISO 8601 date, never filled in automatically (outputs hold no wall-clock time).\nversion : str or None\n    Version of the report or of the data it describes.\npipeline : str or None\n    Name of the pipeline or software that produced the content.\nfooter : str or None\n    Running footer text.\nabstract : str or None\n    Summary, Markdown.\nkeywords : list of str\n    Keywords.\nlanguage : str, default='en'\n    BCP 47 language tag of the text.",
+      "properties": {
+        "abstract": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Abstract"
+        },
+        "authors": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Author"
+          },
+          "title": "Authors",
+          "type": "array"
+        },
+        "date": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date"
+        },
+        "footer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Footer"
+        },
+        "keywords": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Keywords",
+          "type": "array"
+        },
+        "language": {
+          "default": "en",
+          "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$",
+          "title": "Language",
+          "type": "string"
+        },
+        "pipeline": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pipeline"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Subtitle"
+        },
+        "title": {
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "title": "Meta",
+      "type": "object"
+    },
+    "MetricItem": {
+      "additionalProperties": false,
+      "description": "One tile of a :class:`MetricsValue`.\n\nParameters\n----------\nlabel : str\n    What the tile measures.\nvalue : NumberValue or TextValue\n    The headline value; a bare number or string is canonicalised.\ndetail : str or None\n    A line of context under the value.",
+      "properties": {
+        "detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "discriminator": {
+            "mapping": {
+              "number": "#/$defs/NumberValue",
+              "text": "#/$defs/TextValue"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/NumberValue"
+            },
+            {
+              "$ref": "#/$defs/TextValue"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "label",
+        "value"
+      ],
+      "title": "MetricItem",
+      "type": "object"
+    },
+    "MetricsValue": {
+      "additionalProperties": false,
+      "description": "A grid of headline numbers.\n\nParameters\n----------\nkind : {'metrics'}\n    The kind tag.\nitems : list of MetricItem\n    At least one tile, in display order.",
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/MetricItem"
+          },
+          "minItems": 1,
+          "title": "Items",
+          "type": "array"
+        },
+        "kind": {
+          "const": "metrics",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "items"
+      ],
+      "title": "MetricsValue",
+      "type": "object"
+    },
+    "NumberValue": {
+      "additionalProperties": false,
+      "description": "A number with its presentation and uncertainty.\n\nParameters\n----------\nkind : {'number'}\n    The kind tag.\nvalue : int or float or None, default=None\n    The number; None means missing. Never NaN or infinite.\nunit : str or None\n    Unit, free text (``'arcsec'``, ``'deg^2'``).\nformat : str or None\n    A name from the number filters (``'int'``, ``'pct'``, ``'sci'``, ...) or a Python format\n    specification (``',.2f'``). Resolved by the renderer.\nuncertainty : float or None\n    Symmetric uncertainty, at least 0. Excludes ``interval``.\ninterval : tuple of two numbers or None\n    Lower and upper bound of an asymmetric interval. Excludes ``uncertainty``.\nmissing : str or None\n    Text shown when ``value`` is None; the renderer's placeholder when None.",
+      "properties": {
+        "format": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Format"
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                },
+                {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interval"
+        },
+        "kind": {
+          "const": "number",
+          "title": "Kind",
+          "type": "string"
+        },
+        "missing": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing"
+        },
+        "uncertainty": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Uncertainty"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "NumberValue",
+      "type": "object"
+    },
+    "OutlineNode": {
+      "additionalProperties": false,
+      "description": "One entry of the outline used by the built-in ``generic`` template.\n\nA node is either a heading (``title``, with optional ``children``) or a leaf that shows the\nvalue at ``key``. A bare string is a leaf.\n\nParameters\n----------\ntitle : str or None\n    Heading text.\nkey : str or None\n    Key of the value to show.\nchildren : list of OutlineNode\n    Entries under a heading.\nmd_file : str or None\n    For a heading: write its chapter to this separate Markdown file.\npage_break : bool or None\n    Force or forbid a page break before the heading; None lets the layout decide.\nin_contents : bool, default=True\n    List the heading in the table of contents.",
+      "properties": {
+        "children": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/OutlineNode"
+          },
+          "title": "Children",
+          "type": "array"
+        },
+        "in_contents": {
+          "default": true,
+          "title": "In Contents",
+          "type": "boolean"
+        },
+        "key": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9_-]+(?:\\.[a-z0-9_-]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Key"
+        },
+        "md_file": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*\\.md$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Md File"
+        },
+        "page_break": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Break"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        }
+      },
+      "title": "OutlineNode",
+      "type": "object"
+    },
+    "PreprocessStep": {
+      "additionalProperties": false,
+      "description": "One pre-processing step, declared by registered name (ADR-0006).\n\nParameters\n----------\nname : str\n    Registered pre-processor name such as ``core.histogram``; ``module:func`` needs\n    ``--allow-import``.\nversion : int or None\n    The pre-processor version the step was written for.\nid : str or None\n    Identifier other steps and messages can use.\ninputs : dict\n    Port name to value key.\noutputs : dict\n    Port name to the value key the result is stored under.\nparams : dict\n    JSON parameters, validated by the pre-processor.",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "inputs": {
+          "additionalProperties": {
+            "pattern": "^[a-z0-9_-]+(?:\\.[a-z0-9_-]+)*$",
+            "type": "string"
+          },
+          "default": {},
+          "title": "Inputs",
+          "type": "object"
+        },
+        "name": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_.]*(:[A-Za-z_][A-Za-z0-9_.]*)?$",
+          "title": "Name",
+          "type": "string"
+        },
+        "outputs": {
+          "additionalProperties": {
+            "pattern": "^[a-z0-9_-]+(?:\\.[a-z0-9_-]+)*$",
+            "type": "string"
+          },
+          "default": {},
+          "title": "Outputs",
+          "type": "object"
+        },
+        "params": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "default": {},
+          "title": "Params",
+          "type": "object"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "PreprocessStep",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Where the content came from.\n\nParameters\n----------\ngenerator : Generator or None\n    The producing program.\nwriter : str or None\n    ``scireport <version>`` of the writer, set by :class:`~scireport.report.Report`.\ninputs : list of InputRef\n    The inputs, with hashes where they are files.",
+      "properties": {
+        "generator": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Generator"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "inputs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/InputRef"
+          },
+          "title": "Inputs",
+          "type": "array"
+        },
+        "writer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Writer"
+        }
+      },
+      "title": "Provenance",
+      "type": "object"
+    },
+    "Render": {
+      "additionalProperties": false,
+      "description": "How to render: the template, the layout and the engines.\n\nEvery field is optional; None leaves the choice to the template, the layout or the command\nline. ``template`` and ``layout`` are ``name`` or ``name@version`` (``default@1``); ``pack``\npins the resolved version so a later render is identical (ADR-0008).\n\nParameters\n----------\ntemplate : str or None\n    Template name, for example ``generic@1``.\nlayout : str or None\n    Layout name, for example ``default@1``.\nformats : list of {'md', 'html', 'tex', 'pdf', 'docx', 'odt', 'epub'}\n    Output formats wanted.\npdf_engine : {'weasyprint', 'latex'} or None\n    PDF engine.\nlatex_engine : {'lualatex', 'xelatex', 'pdflatex'} or None\n    TeX engine for ``pdf_engine: latex``.\nmarkup_engine : {'mistletoe', 'pandoc'} or None\n    Markdown converter.\nmath_renderer : {'mathtext', 'usetex'} or None\n    How math becomes SVG for HTML and WeasyPrint.\noptions : dict\n    Layout options (paper, cover, toc, accent, chapter breaks) as scalars.",
+      "properties": {
+        "formats": {
+          "default": [],
+          "items": {
+            "enum": [
+              "md",
+              "html",
+              "tex",
+              "pdf",
+              "docx",
+              "odt",
+              "epub"
+            ],
+            "type": "string"
+          },
+          "title": "Formats",
+          "type": "array"
+        },
+        "latex_engine": {
+          "anyOf": [
+            {
+              "enum": [
+                "lualatex",
+                "xelatex",
+                "pdflatex"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latex Engine"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(@[0-9]+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Layout"
+        },
+        "markup_engine": {
+          "anyOf": [
+            {
+              "enum": [
+                "mistletoe",
+                "pandoc"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Markup Engine"
+        },
+        "math_renderer": {
+          "anyOf": [
+            {
+              "enum": [
+                "mathtext",
+                "usetex"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Math Renderer"
+        },
+        "options": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Options",
+          "type": "object"
+        },
+        "pdf_engine": {
+          "anyOf": [
+            {
+              "enum": [
+                "weasyprint",
+                "latex"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pdf Engine"
+        },
+        "template": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(@[0-9]+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Template"
+        }
+      },
+      "title": "Render",
+      "type": "object"
+    },
+    "Rendition": {
+      "additionalProperties": false,
+      "description": "One file format of a figure.\n\nParameters\n----------\nformat : {'png', 'pdf', 'svg'}\n    The format; must match the file suffix, and is taken from it when left out.",
+      "properties": {
+        "bytes": {
+          "minimum": 0,
+          "title": "Bytes",
+          "type": "integer"
+        },
+        "format": {
+          "enum": [
+            "png",
+            "pdf",
+            "svg"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "path": {
+          "pattern": "^assets/",
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "bytes",
+        "format"
+      ],
+      "title": "Rendition",
+      "type": "object"
+    },
+    "StatusValue": {
+      "additionalProperties": false,
+      "description": "An overall verdict banner.\n\nParameters\n----------\nkind : {'status'}\n    The kind tag.\nlevel : {'success', 'warning', 'partial', 'failed', 'running'}\n    The verdict.\nheadline : str\n    One line, for example ``COMPLETED SUCCESSFULLY``.\ndetail : str or None\n    Explanation under the headline.",
+      "properties": {
+        "detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        },
+        "headline": {
+          "minLength": 1,
+          "title": "Headline",
+          "type": "string"
+        },
+        "kind": {
+          "const": "status",
+          "title": "Kind",
+          "type": "string"
+        },
+        "level": {
+          "enum": [
+            "success",
+            "warning",
+            "partial",
+            "failed",
+            "running"
+          ],
+          "title": "Level",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "level",
+        "headline"
+      ],
+      "title": "StatusValue",
+      "type": "object"
+    },
+    "TableValue": {
+      "additionalProperties": false,
+      "description": "A table: a Parquet or CSV file in ``assets/tables/``, or a small inline table.\n\nParameters\n----------\nkind : {'table'}\n    The kind tag.\ncolumns : list of Column\n    Column presentation. For an inline table it also names the columns and fixes their order;\n    for a file it is optional and selects and orders the columns shown.\nasset : AssetRef or None\n    A ``.parquet`` or ``.csv`` file. Exactly one of ``asset`` and ``rows`` is given.\nrows : list of list or None\n    Inline rows of JSON scalars, one cell per column.\ncaption : str or None\n    Caption below the table.\nn_rows : int or None\n    Number of rows in the data, recorded by the writer.\nrow_status : list or None\n    Per row ``pass``, ``warn``, ``fail`` or None (inline tables). Excludes ``row_status_column``.\nrow_status_column : str or None\n    Name of a data column that holds the per-row verdicts.\nemphasis : list of CellEmphasis\n    Cells to emphasise.\nmax_rows : int or None\n    Show at most this many rows; the rest is available through ``overflow_attachment``.\noverflow_attachment : str or None\n    Key of an ``attachment`` value with the full table, linked when rows are cut.",
+      "properties": {
+        "asset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AssetRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "caption": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Caption"
+        },
+        "columns": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Column"
+          },
+          "title": "Columns",
+          "type": "array"
+        },
+        "emphasis": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/CellEmphasis"
+          },
+          "title": "Emphasis",
+          "type": "array"
+        },
+        "kind": {
+          "const": "table",
+          "title": "Kind",
+          "type": "string"
+        },
+        "max_rows": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Rows"
+        },
+        "n_rows": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "N Rows"
+        },
+        "overflow_attachment": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9_-]+(?:\\.[a-z0-9_-]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Overflow Attachment"
+        },
+        "row_status": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "pass",
+                      "warn",
+                      "fail"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Row Status"
+        },
+        "row_status_column": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Row Status Column"
+        },
+        "rows": {
+          "anyOf": [
+            {
+              "items": {
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rows"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "TableValue",
+      "type": "object"
+    },
+    "TextValue": {
+      "additionalProperties": false,
+      "description": "Prose or a short string: inline ``text`` or a file in ``assets/text/``.\n\nParameters\n----------\nkind : {'text'}\n    The kind tag.\ntext : str or None\n    The content, inline. Exactly one of ``text`` and ``asset`` is given.\nasset : AssetRef or None\n    A Markdown, plain-text or LaTeX file, for long content.\nformat : {'plain', 'markdown', 'latex'}, default='plain'\n    How the content is marked up. ``latex`` is emitted verbatim in TeX output.\nalt : dict or None\n    For ``latex`` text, the replacement used by other outputs: keys ``html`` and ``md``.",
+      "properties": {
+        "alt": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "propertyNames": {
+                "enum": [
+                  "html",
+                  "md"
+                ]
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alt"
+        },
+        "asset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AssetRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "format": {
+          "default": "plain",
+          "enum": [
+            "plain",
+            "markdown",
+            "latex"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "kind": {
+          "const": "text",
+          "title": "Kind",
+          "type": "string"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "TextValue",
+      "type": "object"
+    },
+    "Value": {
+      "discriminator": {
+        "mapping": {
+          "alert": "#/$defs/AlertValue",
+          "attachment": "#/$defs/AttachmentValue",
+          "bool": "#/$defs/BoolValue",
+          "code": "#/$defs/CodeValue",
+          "date": "#/$defs/DateValue",
+          "figure": "#/$defs/FigureValue",
+          "flow": "#/$defs/FlowValue",
+          "image": "#/$defs/ImageValue",
+          "list": "#/$defs/ListValue",
+          "mapping": "#/$defs/MappingValue",
+          "math": "#/$defs/MathValue",
+          "metrics": "#/$defs/MetricsValue",
+          "number": "#/$defs/NumberValue",
+          "status": "#/$defs/StatusValue",
+          "table": "#/$defs/TableValue",
+          "text": "#/$defs/TextValue"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/TextValue"
+        },
+        {
+          "$ref": "#/$defs/NumberValue"
+        },
+        {
+          "$ref": "#/$defs/BoolValue"
+        },
+        {
+          "$ref": "#/$defs/DateValue"
+        },
+        {
+          "$ref": "#/$defs/ListValue"
+        },
+        {
+          "$ref": "#/$defs/MappingValue"
+        },
+        {
+          "$ref": "#/$defs/TableValue"
+        },
+        {
+          "$ref": "#/$defs/FigureValue"
+        },
+        {
+          "$ref": "#/$defs/ImageValue"
+        },
+        {
+          "$ref": "#/$defs/MathValue"
+        },
+        {
+          "$ref": "#/$defs/CodeValue"
+        },
+        {
+          "$ref": "#/$defs/MetricsValue"
+        },
+        {
+          "$ref": "#/$defs/StatusValue"
+        },
+        {
+          "$ref": "#/$defs/AlertValue"
+        },
+        {
+          "$ref": "#/$defs/FlowValue"
+        },
+        {
+          "$ref": "#/$defs/AttachmentValue"
+        }
+      ]
+    }
+  },
+  "$id": "https://nmcardoso.github.io/scireport/schemas/data-1.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The canonical manifest (scireport.json) of a scireport bundle. Every value is an envelope with a \"kind\". Loaders also accept bare JSON as shorthand (a string is text, a number is a number, an array is a list, an object without \"kind\" is a mapping) and, in hand-authored directories, asset references without sha256 and bytes.",
+  "properties": {
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "outline": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/OutlineNode"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Outline"
+    },
+    "preprocess": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PreprocessStep"
+      },
+      "title": "Preprocess",
+      "type": "array"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance",
+      "default": {
+        "generator": null,
+        "inputs": [],
+        "writer": null
+      }
+    },
+    "render": {
+      "$ref": "#/$defs/Render",
+      "default": {
+        "formats": [],
+        "latex_engine": null,
+        "layout": null,
+        "markup_engine": null,
+        "math_renderer": null,
+        "options": {},
+        "pdf_engine": null,
+        "template": null
+      }
+    },
+    "scireport": {
+      "const": "1.0",
+      "description": "Spec version, MAJOR.MINOR.",
+      "type": "string"
+    },
+    "values": {
+      "additionalProperties": false,
+      "default": {},
+      "patternProperties": {
+        "^[a-z0-9_-]+(?:\\.[a-z0-9_-]+)*$": {
+          "$ref": "#/$defs/Value"
+        }
+      },
+      "title": "Values",
+      "type": "object"
+    }
+  },
+  "required": [
+    "scireport",
+    "meta"
+  ],
+  "title": "scireport data file 1.0",
+  "type": "object"
+}
