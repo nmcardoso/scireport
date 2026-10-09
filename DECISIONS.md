@@ -1,0 +1,19 @@
+# Decisions
+
+Format: date, decision, rationale, approver. Architecture decisions are the ADRs in `docs/adr/`.
+
+| Date | Decision | Rationale | Approver |
+|---|---|---|---|
+| 2026-10-09 | Layouts `default` and `modern` only. | Prompt asks for these two; a third adds maintenance with no consumer. | N. Cardoso (planning session) |
+| 2026-10-09 | Agent kit is the skill plus an MCP server (`scireport[mcp]`). | Skill alone cannot validate or render; the server lets agents call the engine. | N. Cardoso (planning session) |
+| 2026-10-09 | Licence GPL-3.0-only. | Matches the licence of `gzms` (2_dataset). | N. Cardoso (planning session) |
+| 2026-10-09 | Code style follows datex: 2-space indent, single quotes, line length 100. | Same author, same editor settings, same subagent definitions. | N. Cardoso (planning session) |
+| 2026-10-09 | Repository is public at `https://github.com/nmcardoso/scireport`; CI runs a platform and Python matrix; LaTeX is first class (ADR-0010); pandoc is optional (ADR-0011). | Reproducibility for referees; Linux, macOS and Windows users. | N. Cardoso (planning session) |
+| 2026-10-09 | `scireport/logging_utils.py` and `.agents/skills/python-logging/logging_utils.py` are byte-identical to the monorepo copy and are excluded from ruff and mypy; a test checks the two copies match. | Monorepo rule: subprojects keep byte-identical copies of skill code. Consequence: its display-name shortening lists the monorepo prefixes (`tupan_review`, `tupan`), so scireport loggers show full dotted names. | S0 |
+| 2026-10-09 | The TeX Live action is `TeX-Live/setup-texlive-action@v4` (v4.1.1), not `teatimeguest/setup-texlive-action`. | The plan named `teatimeguest/...`; that repository now returns 404 on the GitHub API and the maintained action lives under the `TeX-Live` organisation (last push 2026-09-18). | S0 |
+| 2026-10-09 | Python 3.15 jobs (`test`, `pdf-weasyprint`, `pdf-latex`) are `continue-on-error` (experimental). | `uv pip compile --python-version 3.15 --only-binary :all:` fails today because `pyyaml` 6.0.3 has no cp315 wheel and, with the `pdf` extra, `brotli` (via fonttools in WeasyPrint) has none either; every other core and extra dependency resolves to wheels. Source builds may still work on the runners; revisit when the first CI run reports. Remove the flag once the 3.15 jobs are green. | S0 (re-check at S1) |
+| 2026-10-09 | The Windows `pdf-weasyprint` jobs are `continue-on-error` until a green run is recorded here; if MSYS2 pango proves impractical they are recorded as unsupported in CI and in the docs. | The plan allows recording Windows WeasyPrint as unsupported if impractical; this is not yet verified. | S0 (re-check at S3) |
+| 2026-10-09 | `ci.yml` `examples` job runs `make examples`, which in S0 only prints the version. | No examples exist before phase S3; the job is kept so that the matrix of D13 is complete from the start, and the placeholder is stated here so it is not mistaken for coverage. | S0 |
+| 2026-10-09 | The `images` extra is not declared in S0. | It is phase S8 (after the 2_dataset migration); an empty extra would be misleading. | S0 |
+| 2026-10-09 | WeasyPrint 70 prints a `DeprecationWarning` when `libharfbuzz-subset` is absent; the toolchain smoke test ignores exactly that warning and CI installs `libharfbuzz-subset0`. | Found locally (pango present, HarfBuzz-Subset missing); pytest runs with `filterwarnings = error`, so it surfaced as a test failure. | S0 |
+| 2026-10-09 | The sdist uses `only-include`, and a unit test builds the project and checks that the packaged skill is in both artifacts. | With the `.agents/skills/scireport` symlink in the tree, hatch's sdist walk kept the symlink path and dropped the real `scireport/agent/skill/scireport/SKILL.md`, so the wheel built from the sdist (`uv build` default) lost the skill. `exclude` did not fix it (it also removed the target). | S0 |
