@@ -56,10 +56,31 @@ def parse_manifest_text(data: bytes, *, yaml_format: bool, origin: str) -> Any:
   try:
     text = data.decode('utf-8-sig')
     if yaml_format:
-      return yaml.load(text, Loader=_StrictLoader)
+      return load_yaml(text)
     return json.loads(text, object_pairs_hook=_reject_duplicates, parse_constant=_reject_constant)
   except (UnicodeDecodeError, ValueError, yaml.YAMLError) as exc:
     raise BundleError(f'{origin} cannot be parsed: {exc}', code='E408') from exc
+
+
+def load_yaml(text: str) -> Any:
+  """Parse hand-authored YAML with the strict rules described in the module docstring.
+
+  Parameters
+  ----------
+  text : str
+      The YAML document.
+
+  Returns
+  -------
+  Any
+      The parsed document.
+
+  Raises
+  ------
+  yaml.YAMLError
+      When the text is not valid YAML, uses an alias or repeats a key.
+  """
+  return yaml.load(text, Loader=_StrictLoader)
 
 
 class _StrictLoader(yaml.SafeLoader):
