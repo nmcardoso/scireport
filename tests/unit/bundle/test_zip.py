@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import stat
+import sys
 import zipfile
 from pathlib import Path
 
@@ -95,7 +96,13 @@ def test_directory_and_zip_round_trip_to_the_same_zip(tmp_path: Path, png_bytes:
     'assets/../../evil.txt',
     '/etc/passwd',
     'C:/Windows/evil.txt',
-    'assets\\tables\\x.csv',
+    pytest.param(
+      'assets\\tables\\x.csv',
+      marks=pytest.mark.skipif(
+        sys.platform == 'win32',
+        reason='zipfile turns backslashes into "/" on Windows, both when writing and reading',
+      ),
+    ),
     'assets/tables/../../../evil',
     'a//b',
     './x',
