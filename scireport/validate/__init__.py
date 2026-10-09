@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 from scireport.bundle.reader import Bundle
 from scireport.errors import Issue, TemplateError
 from scireport.render.components import COMPONENT_MACROS
@@ -22,7 +24,7 @@ def validate_bundle(
   layout: Layout,
   formats: list[Format],
   *,
-  options: dict[str, object] | None = None,
+  options: Mapping[str, object] | None = None,
   strict: bool = False,
 ) -> ValidationReport:
   """Validate a bundle for a template, a layout and the formats to write.

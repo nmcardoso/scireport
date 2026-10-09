@@ -339,7 +339,7 @@ class Components:
     if not isinstance(value, MathValue):
       return EMPTY
     spec = EquationSpec(
-      body=self._math(value.latex, value.display),
+      body=Safe(self._math(value.latex, value.display)),
       latex=value.latex,
       display=value.display,
       number=self._s.next_number('equation') if value.numbered else 0,

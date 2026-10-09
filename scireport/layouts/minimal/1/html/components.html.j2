@@ -11,7 +11,7 @@
 
 {% macro heading(text, level, entry, page_break) %}
 {% set tag = ['h2', 'h3', 'h4'][level - 1] %}
-<{{ tag }} id="{{ entry.anchor }}" class="{{ 'page-break' if page_break else '' }}">{% if entry.number %}<span class="number">{{ entry.number }}</span> {% endif %}{{ text }}</{{ tag }}>
+<{{ tag }} id="{{ entry.anchor }}"{% if page_break %} class="page-break"{% endif %}>{% if entry.number %}<span class="number">{{ entry.number }}</span> {% endif %}{{ text }}</{{ tag }}>
 {% endmacro %}
 
 {% macro contents(entries) %}

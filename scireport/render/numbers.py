@@ -175,7 +175,9 @@ def typeset_unit(unit: str, target: Target) -> str:
   out: list[str] = []
   for index, piece in enumerate(pieces):
     if index % 2 == 0:
-      out.append(escape_text(piece, target) if piece.strip() else piece)
+      core = piece.strip()
+      lead, trail = piece[: len(piece) - len(piece.lstrip())], piece[len(piece.rstrip()) :]
+      out.append(f'{lead}{escape_text(core, target)}{trail}' if core else piece)
     elif target == 'html':
       out.append(f'<sup>{html.escape(piece)}</sup>')
     elif target == 'tex':

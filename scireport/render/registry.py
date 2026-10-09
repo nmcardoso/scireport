@@ -22,6 +22,7 @@ from scireport.errors import TemplateError
 from scireport.logging_utils import get_logger
 from scireport.render.layout import LAYOUT_FILE, Layout, load_layout_dir
 from scireport.render.template import TEMPLATE_FILE, Template, load_template_dir
+from scireport.spec.manifest import Manifest
 
 log = get_logger(__name__)
 
@@ -163,6 +164,39 @@ def pin(kind: Kind, ref: str) -> str:
   """
   loaded = load_template(ref) if kind == 'template' else load_layout(ref)
   return loaded.ref
+
+
+def pin_manifest(manifest: Manifest) -> Manifest:
+  """Pin the template and layout named in a manifest to explicit versions (ADR-0008).
+
+  ``name`` becomes ``name@version`` with the newest version available here, so that a later
+  render of the packed bundle is identical even after newer versions exist. ``name@version``
+  is kept as written, and a name that cannot be resolved here (a plugin that is not installed)
+  is left alone with a warning. Nothing is pinned for a field the bundle leaves unset: the
+  defaults are frozen per version too (``generic@1``).
+
+  Parameters
+  ----------
+  manifest : Manifest
+      The manifest to pin.
+
+  Returns
+  -------
+  Manifest
+      The manifest with pinned references; the same object when nothing changed.
+  """
+  changes: dict[str, str] = {}
+  for kind in ('template', 'layout'):
+    ref = getattr(manifest.render, kind)
+    if ref is None or '@' in ref:
+      continue
+    try:
+      changes[kind] = pin(kind, ref)
+    except TemplateError as exc:
+      log.warning('cannot pin the %s %r: %s', kind, ref, exc.message)
+  if not changes:
+    return manifest
+  return manifest.model_copy(update={'render': manifest.render.model_copy(update=changes)})
 
 
 def list_templates() -> list[Listing]:

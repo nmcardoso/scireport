@@ -10,6 +10,7 @@ import typer
 
 from scireport.bundle.textio import parse_manifest_text
 from scireport.cli._common import echo_json, reporting_errors
+from scireport.errors import CODES, catalogue_markdown
 from scireport.logging_utils import get_logger
 from scireport.spec import kinds as kinds_module
 from scireport.spec.migrations import migrate
@@ -56,6 +57,30 @@ def kinds(
   for row in rows:
     typer.echo(f'{row["kind"]:<{width}}  {row["summary"]}')
     typer.echo(f'{"":<{width}}  fields: {", ".join(row["fields"])}')
+
+
+@app.command('errors')
+def errors(
+  output: Annotated[
+    Path | None, typer.Option('--output', '-o', help='Write the page here instead of stdout.')
+  ] = None,
+  as_json: Annotated[bool, typer.Option('--json', help='Print the codes as JSON.')] = False,
+) -> None:
+  """Print the error-code catalogue (the page docs/errors.md is generated from it)."""
+  if as_json:
+    echo_json(
+      [
+        {'code': code, 'severity': 'warning' if code.startswith('W') else 'error', 'title': title}
+        for code, title in sorted(CODES.items())
+      ]
+    )
+    return
+  text = catalogue_markdown()
+  if output is None:
+    typer.echo(text, nl=False)
+  else:
+    output.write_text(text, encoding='utf-8', newline='\n')
+    log.info('wrote the error catalogue to %s', output)
 
 
 @app.command('migrate')

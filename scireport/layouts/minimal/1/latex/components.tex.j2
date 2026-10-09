@@ -7,6 +7,10 @@
 ((* if options.numbered_captions *))\caption{(((text)))}((* else *))\caption*{(((text)))}((* endif *))
 ((*- endmacro *))
 
+((* macro capof(kind, text) -*))
+((* if options.numbered_captions *))\captionof{(((kind | safe)))}{(((text)))}((* else *))\captionof*{(((kind | safe)))}{(((text)))}((* endif *))
+((*- endmacro *))
+
 ((* macro chapter(title, entry, page_break) *))
 ((* if page_break *))
 \clearpage
@@ -67,7 +71,7 @@
 \begin{center}
 \small
 ((* if spec.rows | length > 25 *))
-\begin{longtable}{((* for col in spec.columns *))(((col_spec(col, widths))))((* endfor *))}
+\begin{longtable}{((* for col in spec.columns *))(((col_spec(col, widths))))((* endfor *))((* if spec.has_verdicts *))l((* endif *))}
 ((* if spec.caption *))(((cap(spec.caption))))\\(((eol)))((* endif *))
 \toprule
 (((head_row(spec))))\\
@@ -85,9 +89,9 @@
 \end{longtable}
 ((* else *))
 ((* if spec.caption *))
-{\par\captionof{table}{(((spec.caption)))}}
+{\par(((capof('table', spec.caption))))}
 ((* endif *))
-\begin{tabular}{((* for col in spec.columns *))(((col_spec(col, widths))))((* endfor *))}
+\begin{tabular}{((* for col in spec.columns *))(((col_spec(col, widths))))((* endfor *))((* if spec.has_verdicts *))l((* endif *))}
 \toprule
 (((head_row(spec))))\\
 \midrule
@@ -164,7 +168,7 @@
 ((* macro status(level, headline, detail) *))
 ((* set colors = {'success': 'pass', 'warning': 'warn', 'partial': 'warn', 'failed': 'fail', 'running': 'accent'} *))
 \begin{quote}
-\textbf{\textcolor{(((colors[level] | safe)))}{(((level | upper)))}}\quad (((headline)))((* if detail *)) \\ (((detail)))((* endif *))
+\textbf{\textcolor{(((colors[level] | safe)))}{(((level | upper)))}}\quad (((headline)))((* if detail *)) \\ (((detail)))((* endif *))(((eol)))
 \end{quote}
 
 ((* endmacro *))
@@ -180,7 +184,7 @@
 ((* macro flow(stages) *))
 \begin{enumerate}
 ((* for s in stages *))
-\item \textbf{(((s.label)))} \textit{(((s.state)))}((* for line in s.detail *)) --- (((line)))((* endfor *))
+\item \textbf{(((s.label)))} \textit{(((s.state)))}((* for line in s.detail *)) --- (((line)))((* endfor *))(((eol)))
 ((* endfor *))
 \end{enumerate}
 

@@ -29,6 +29,7 @@ from scireport.render.outputs import assemble
 from scireport.render.registry import DEFAULT_LAYOUT, DEFAULT_TEMPLATE, load_layout, load_template
 from scireport.render.session import RenderSession
 from scireport.render.template import Template
+from scireport.spec.manifest import manifest_to_json
 from scireport.spec.walk import iter_assets
 from scireport.validate import validate_bundle
 from scireport.validate.report import ValidationReport, dedupe
@@ -88,6 +89,21 @@ class RenderResult:
     return written
 
 
+@dataclass(frozen=True)
+class _Plan:
+  """Everything a render needs once the bundle's choices and the caller's are merged."""
+
+  template: Template
+  layout: Layout
+  formats: list[Format]
+  options: dict[str, Any]
+  latex_engine: str
+  markup_engine: str
+  math_renderer: str
+  flat: bool
+  md_split: bool | None
+
+
 def render_bundle(
   bundle: Bundle,
   *,
@@ -145,41 +161,139 @@ def render_bundle(
   TemplateError
       When the template or layout cannot be found or loaded, or an option is unsupported.
   """
+  plan = _plan(
+    bundle,
+    template,
+    layout,
+    formats,
+    options,
+    markup_engine,
+    math_renderer,
+    latex_engine,
+    md_split,
+    flat,
+  )
+  static = validate_bundle(
+    bundle, plan.template, plan.layout, plan.formats, options=plan.options, strict=strict
+  )
+  static.raise_for_errors()
+  files, found = _render_all(bundle, plan)
+  final = ValidationReport(tuple(dedupe([*static.issues, *found])), strict)
+  final.raise_for_errors()
+  manifest = _render_manifest(bundle, plan, files, final)
+  files[MANIFEST_NAME] = (json.dumps(manifest, indent=2, ensure_ascii=False) + '\n').encode('utf-8')
+  for issue in final.issues:
+    log.warning('%s', issue.format())
+  return RenderResult(dict(sorted(files.items())), manifest, final.issues, tuple(plan.formats))
+
+
+def check_bundle(
+  bundle: Bundle,
+  *,
+  template: str | Path | None = None,
+  layout: str | Path | None = None,
+  formats: list[Format] | None = None,
+  options: Mapping[str, object] | None = None,
+  markup_engine: str | None = None,
+  math_renderer: str | None = None,
+  latex_engine: str | None = None,
+  md_split: bool | None = None,
+  strict: bool = False,
+  render: bool = True,
+) -> ValidationReport:
+  """Validate a bundle, and render it in memory to find what only a render can show.
+
+  The static checks come first (see :func:`~scireport.validate.validate_bundle`). If they pass
+  and ``render`` is true, every format is rendered without writing anything, which adds the
+  problems of keys computed at render time (``E106``), values nobody renders (``W401``), Markdown
+  outside the supported subset (``W701``) and math that cannot be drawn (``W601``).
+
+  Parameters
+  ----------
+  bundle : Bundle
+      The opened bundle.
+  template, layout, formats, options, markup_engine, math_renderer, latex_engine, md_split
+      As for :func:`render_bundle`.
+  strict : bool, default=False
+      Treat warnings as errors.
+  render : bool, default=True
+      Also render in memory; False runs only the static checks.
+
+  Returns
+  -------
+  ValidationReport
+      Every problem found; it never raises for problems in the bundle.
+  """
+  plan = _plan(
+    bundle,
+    template,
+    layout,
+    formats,
+    options,
+    markup_engine,
+    math_renderer,
+    latex_engine,
+    md_split,
+    False,
+  )
+  static = validate_bundle(
+    bundle, plan.template, plan.layout, plan.formats, options=plan.options, strict=strict
+  )
+  if not static.ok or not render:
+    return static
+  _, found = _render_all(bundle, plan)
+  return ValidationReport(tuple(dedupe([*static.issues, *found])), strict)
+
+
+def _plan(
+  bundle: Bundle,
+  template: str | Path | None,
+  layout: str | Path | None,
+  formats: list[Format] | None,
+  options: Mapping[str, object] | None,
+  markup_engine: str | None,
+  math_renderer: str | None,
+  latex_engine: str | None,
+  md_split: bool | None,
+  flat: bool,
+) -> _Plan:
+  """Merge the caller's choices, the bundle's ``render`` block and the defaults."""
   spec = bundle.manifest.render
   chosen_template = load_template(template or spec.template or DEFAULT_TEMPLATE)
   chosen_layout = load_layout(layout or spec.layout or DEFAULT_LAYOUT)
   engine = markup_engine or spec.markup_engine or 'mistletoe'
   renderer = math_renderer or spec.math_renderer or 'mathtext'
-  latex = latex_engine or spec.latex_engine or DEFAULT_LATEX_ENGINE
   _check_supported(engine, renderer)
   wanted = _formats(formats, spec.formats, chosen_template, chosen_layout)
   if flat and len(wanted) != 1:
     raise TemplateError('flat output needs exactly one format', code='E801')
-  merged = {**spec.options, **dict(options or {})}
-  report = validate_bundle(
-    bundle, chosen_template, chosen_layout, wanted, options=merged, strict=strict
+  return _Plan(
+    template=chosen_template,
+    layout=chosen_layout,
+    formats=wanted,
+    options={**spec.options, **dict(options or {})},
+    latex_engine=latex_engine or spec.latex_engine or DEFAULT_LATEX_ENGINE,
+    markup_engine=engine,
+    math_renderer=renderer,
+    flat=flat,
+    md_split=md_split,
   )
-  report.raise_for_errors()
-  resolved = chosen_layout.resolve_options(merged)
 
-  issues: list[Issue] = list(report.issues)
+
+def _render_all(bundle: Bundle, plan: _Plan) -> tuple[dict[str, bytes], list[Issue]]:
+  """Render every format in memory; return the files and everything found on the way."""
+  resolved = plan.layout.resolve_options(plan.options)
   files: dict[str, bytes] = {}
-  for fmt in wanted:
+  issues: list[Issue] = []
+  for fmt in plan.formats:
     rendered, found = _render_format(
-      bundle, chosen_template, chosen_layout, fmt, resolved, latex, md_split
+      bundle, plan.template, plan.layout, fmt, resolved, plan.latex_engine, plan.md_split
     )
     issues.extend(found)
-    files.update({(name if flat else f'{fmt}/{name}'): data for name, data in rendered.items()})
-  final = ValidationReport(tuple(dedupe(issues)), strict)
-  final.raise_for_errors()
-
-  manifest = _render_manifest(
-    bundle, chosen_template, chosen_layout, wanted, resolved, latex, engine, renderer, files, final
-  )
-  files[MANIFEST_NAME] = (json.dumps(manifest, indent=2, ensure_ascii=False) + '\n').encode('utf-8')
-  for issue in final.issues:
-    log.warning('%s', issue.format())
-  return RenderResult(dict(sorted(files.items())), manifest, final.issues, tuple(wanted))
+    files.update(
+      {(name if plan.flat else f'{fmt}/{name}'): data for name, data in rendered.items()}
+    )
+  return files, issues
 
 
 def _render_format(
@@ -260,21 +374,10 @@ def _check_supported(engine: str, renderer: str) -> None:
 
 
 def _render_manifest(
-  bundle: Bundle,
-  template: Template,
-  layout: Layout,
-  formats: list[Format],
-  options: dict[str, Any],
-  latex_engine: str,
-  engine: str,
-  renderer: str,
-  files: dict[str, bytes],
-  report: ValidationReport,
+  bundle: Bundle, plan: _Plan, files: dict[str, bytes], report: ValidationReport
 ) -> dict[str, Any]:
   """Build the content of ``render-manifest.json``: no clock, no paths, only hashes and versions."""
   import mistletoe
-
-  from scireport.spec.manifest import manifest_to_json
 
   return {
     'scireport': __version__,
@@ -286,17 +389,17 @@ def _render_manifest(
         for _, ref in sorted(iter_assets(bundle.manifest), key=lambda p: p[1].path)
       },
     },
-    'template': {'ref': template.ref, 'sha256': template.sha256},
-    'layout': {'ref': layout.ref, 'sha256': layout.sha256},
-    'options': options,
-    'formats': list(formats),
+    'template': {'ref': plan.template.ref, 'sha256': plan.template.sha256},
+    'layout': {'ref': plan.layout.ref, 'sha256': plan.layout.sha256},
+    'options': plan.layout.resolve_options(plan.options),
+    'formats': list(plan.formats),
     'engines': {
-      'markup': engine,
+      'markup': plan.markup_engine,
       'mistletoe': mistletoe.__version__,
-      'math': renderer,
+      'math': plan.math_renderer,
       'matplotlib': matplotlib.__version__,
       'jinja2': jinja2.__version__,
-      'latex': latex_engine,
+      'latex': plan.latex_engine,
     },
     'outputs': {
       name: {'sha256': sha256_bytes(data), 'bytes': len(data)}

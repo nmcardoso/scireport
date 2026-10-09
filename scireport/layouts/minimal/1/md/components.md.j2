@@ -124,7 +124,7 @@ $$
 
 {% macro flow(stages) %}
 {% for s in stages %}
-{{ s.number }}. **{{ s.label }}** ({{ s.state }}){% for line in s.detail %}{{ ' — ' if loop.first else '; ' }}{{ line }}{% endfor %}{{ eol }}
+{{ s.number }}. **{{ s.label }}** ({{ s.state }}){% for line in s.detail %}{% if loop.first %} — {% else %}; {% endif %}{{ line }}{% endfor %}{{ eol }}
 {% endfor %}
 
 {% endmacro %}
