@@ -1,6 +1,6 @@
 # ADR-0007: A shared matplotlib style, exposed as an API
 
-- Status: Proposed (approval at HG-S0)
+- Status: Accepted (HG-S0, 2026-10-09)
 - Date: 2026-10-09
 
 ## Decision
