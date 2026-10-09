@@ -40,6 +40,7 @@ major spec version (ADR-0008). The gate also confirms that the infrastructure (p
 
 1. Confirm the repository `https://github.com/nmcardoso/scireport` is public and set **Settings -> Pages ->
    Source = GitHub Actions**.
+   - **Answer:** Yes, the repository is public and the Pages source is set to GitHub Actions.
 2. Review ADR-0001 to ADR-0011 in `docs/adr/` (status *Proposed*). The two choices with the largest downstream
    effect:
    - (a) **ZIP bundle with a JSON manifest** (ADR-0001) versus a single HDF5 file. Bundle: stdlib only, readable
@@ -48,8 +49,10 @@ major spec version (ADR-0008). The gate also confirms that the infrastructure (p
    - (b) **Semantic keys with typed values** (ADR-0002) versus type-scoped keys such as `tables.*`. Semantic keys:
      a table can become a figure without renaming; type-scoped: simpler lookup, but renames break templates and
      stored bundles. *Recommendation: semantic keys.*
+  - **Answer:** approve all
 3. Decide the Python 3.15 policy (3.15 jobs are currently experimental because `pyyaml` has no cp315 wheel on
    PyPI as of 2026-10-09): (a) keep experimental until wheels exist, (b) make 3.15 required and build from source
    in CI, (c) drop 3.15 from the matrix. *Recommendation: (a); it keeps the signal without blocking releases.*
+   - **Answer:** (a) keep experimental until wheels exist.
 
 Approving the ADRs changes their status from *Proposed* to *Accepted* (I will do this edit after your answer).
