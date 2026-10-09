@@ -1,0 +1,209 @@
+{#- HTML components of minimal@1. Autoescaping is on: plain strings are escaped, Safe ones are not. -#}
+{% macro caption_text(label, number, text) -%}
+{% if options.numbered_captions and number %}<span class="caption-label">{{ label }} {{ number }}.</span> {% endif %}{{ text }}
+{%- endmacro %}
+
+{% macro chapter(title, entry, page_break) %}
+<section class="chapter{{ ' page-break' if page_break else '' }}" id="{{ entry.anchor }}">
+<h1>{% if entry.number %}<span class="number">{{ entry.number }}</span> {% endif %}{{ title }}</h1>
+</section>
+{% endmacro %}
+
+{% macro heading(text, level, entry, page_break) %}
+{% set tag = ['h2', 'h3', 'h4'][level - 1] %}
+<{{ tag }} id="{{ entry.anchor }}" class="{{ 'page-break' if page_break else '' }}">{% if entry.number %}<span class="number">{{ entry.number }}</span> {% endif %}{{ text }}</{{ tag }}>
+{% endmacro %}
+
+{% macro contents(entries) %}
+<nav class="toc">
+<h2 class="toc-title">Contents</h2>
+{% for e in entries %}
+<div class="toc-row toc-row--{{ e.level }}"><a href="#{{ e.anchor }}">{% if e.number %}<span class="number">{{ e.number }}</span> {% endif %}{{ e.text }}</a></div>
+{% endfor %}
+</nav>
+{% endmacro %}
+
+{% macro cover(cover) %}
+<header class="cover">
+<h1 class="title">{{ cover.title }}</h1>
+{% if options.cover %}
+{% if cover.subtitle %}
+<p class="subtitle">{{ cover.subtitle }}</p>
+{% endif %}
+{% if cover.authors %}
+<p class="authors">{{ cover.authors | join(', ') }}</p>
+{% endif %}
+{% set facts = [] %}
+{% if cover.date %}{% do facts.append('Date: ' ~ cover.date) %}{% endif %}
+{% if cover.version %}{% do facts.append('Version: ' ~ cover.version) %}{% endif %}
+{% if cover.pipeline %}{% do facts.append('Pipeline: ' ~ cover.pipeline) %}{% endif %}
+{% if meta.keywords %}{% do facts.append('Keywords: ' ~ (meta.keywords | join(', '))) %}{% endif %}
+{% if facts %}
+<p class="facts">{{ facts | join(' · ') }}</p>
+{% endif %}
+{% endif %}
+</header>
+{% endmacro %}
+
+{% macro table(spec) %}
+{% if not spec.rows %}
+<p class="muted">Nothing recorded.</p>
+{% else %}
+<div class="table-block">
+<table>
+{% if spec.caption %}
+<caption>{{ caption_text('Table', spec.number, spec.caption) }}</caption>
+{% endif %}
+<colgroup>
+{% for col in spec.columns %}
+<col style="width: {{ (col.width * 100) | round(3) }}%">
+{% endfor %}
+</colgroup>
+{% if spec.headed %}
+<thead>
+<tr>
+{% for col in spec.columns %}
+<th class="align-{{ col.align }}">{{ col.label }}{% if col.unit %} <span class="unit">({{ col.unit }})</span>{% endif %}</th>
+{% endfor %}
+</tr>
+</thead>
+{% endif %}
+<tbody>
+{% for row in spec.rows %}
+<tr{% if row.verdict %} class="row--{{ row.verdict }}"{% endif %}>
+{% for cell in row.cells %}
+{% set col = spec.columns[loop.index0] %}
+{% set style = row.emphasis[loop.index0] %}
+<td class="align-{{ col.align }}{{ (' cell--' ~ style) if style else '' }}">{% if col.align == 'path' %}{{ cell | breakable }}{% else %}{{ cell }}{% endif %}</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% if spec.truncated %}
+<p class="muted">Showing the first {{ spec.rows | length | fmt_int }} of {{ spec.total | fmt_int }} rows.{% if spec.overflow and spec.overflow.href %} <a href="{{ spec.overflow.href }}" download="{{ spec.overflow.filename }}">All rows ({{ spec.overflow.filename }})</a>.{% endif %}</p>
+{% endif %}
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro figure(spec) %}
+<figure class="figure" id="figure-{{ spec.number }}">
+<img src="{{ spec.src }}" alt="{{ spec.alt }}" style="width: {{ (spec.width * 100) | round(2) }}%">
+{% if spec.caption %}
+<figcaption>{{ caption_text('Figure', spec.number, spec.caption) }}</figcaption>
+{% endif %}
+</figure>
+{% endmacro %}
+
+{% macro image(spec) %}
+<figure class="figure">
+<img src="{{ spec.src }}" alt="{{ spec.alt }}"{% if not spec.alt %} role="presentation"{% endif %} style="width: {{ (spec.width * 100) | round(2) }}%">
+{% if spec.caption %}
+<figcaption>{{ caption_text('Figure', 0, spec.caption) }}</figcaption>
+{% endif %}
+</figure>
+{% endmacro %}
+
+{% macro equation(spec) %}
+<div class="equation">{{ spec.body }}{% if spec.number %}<span class="equation-number">({{ spec.number }})</span>{% endif %}</div>
+{% if spec.caption %}
+<p class="caption">{{ spec.caption }}</p>
+{% endif %}
+{% endmacro %}
+
+{% macro metrics(entries) %}
+<div class="metric-grid">
+{% for m in entries %}
+<div class="metric">
+<div class="metric-label">{{ m.label }}</div>
+<div class="metric-value">{{ m.value }}</div>
+{% if m.detail %}
+<div class="metric-detail">{{ m.detail }}</div>
+{% endif %}
+</div>
+{% endfor %}
+</div>
+{% endmacro %}
+
+{% macro status(level, headline, detail) %}
+<div class="status status--{{ level }}">
+<span class="status-headline">{{ headline }}</span>
+{% if detail %}
+<div class="status-detail">{{ detail }}</div>
+{% endif %}
+</div>
+{% endmacro %}
+
+{% macro alert(level, text) %}
+<div class="alert alert--{{ level }}"><span class="alert-label">{{ level | upper }}</span> <span class="alert-text">{{ text }}</span></div>
+{% endmacro %}
+
+{% macro flow(stages) %}
+<ol class="flow">
+{% for s in stages %}
+<li class="flow-stage flow-stage--{{ s.state }}"><span class="flow-label">{{ s.label }}</span> <span class="flow-state">{{ s.state }}</span>{% for line in s.detail %}<div class="flow-detail">{{ line }}</div>{% endfor %}</li>
+{% endfor %}
+</ol>
+{% endmacro %}
+
+{% macro metadata(entries) %}
+<dl class="metadata">
+{% for label, value in entries %}
+<dt>{{ label }}</dt>
+<dd>{{ value }}</dd>
+{% endfor %}
+</dl>
+{% endmacro %}
+
+{% macro bullets(items, ordered) %}
+{% set tag = 'ol' if ordered else 'ul' %}
+<{{ tag }} class="bullets">
+{% for item in items %}
+<li>{{ item }}</li>
+{% endfor %}
+</{{ tag }}>
+{% endmacro %}
+
+{% macro code(source, language, caption, fence, verbatim) %}
+<div class="code-block">
+{% if language %}
+<div class="code-language">{{ language }}</div>
+{% endif %}
+<pre><code{% if language %} class="language-{{ language }}"{% endif %}>{{ source }}</code></pre>
+{% if caption %}
+<p class="caption">{{ caption }}</p>
+{% endif %}
+</div>
+{% endmacro %}
+
+{% macro details(summary, body) %}
+<details>
+<summary>{{ summary }}</summary>
+{{ body }}
+</details>
+{% endmacro %}
+
+{% macro note(body) %}
+<div class="note">{{ body }}</div>
+{% endmacro %}
+
+{% macro paragraph(body) %}
+<p>{{ body }}</p>
+{% endmacro %}
+
+{% macro fact(label, value) %}
+<p class="fact"><span class="fact-label">{{ label }}:</span> {{ value }}</p>
+{% endmacro %}
+
+{% macro attachment(link) %}
+<p class="attachment">{% if link.href %}<a href="{{ link.href }}" download="{{ link.filename }}">{{ link.filename }}</a>{% else %}{{ link.filename }}{% endif %}{% if link.description %} — {{ link.description }}{% endif %}{% if link.size %} <span class="muted">({{ link.size }})</span>{% endif %}</p>
+{% endmacro %}
+
+{% macro spacer(height) %}
+<div class="spacer" style="height: {{ height }}pt"></div>
+{% endmacro %}
+
+{% macro page_break() %}
+<div class="page-break"></div>
+{% endmacro %}

@@ -1,0 +1,13 @@
+# generic@1: renders any bundle from its outline, so a report needs no template of its own.
+# Without an outline the values are grouped by the first segment of their keys.
+spec: ">=1.0,<2.0"
+name: generic
+version: 1
+title: Generic report
+description: >-
+  Writes the cover data, then every outline entry in order: a chapter for each top-level
+  heading, a heading for each nested one, and the matching component for each value.
+formats: [md, html, tex]
+entry: report.j2
+dynamic_keys: true
+fields: []

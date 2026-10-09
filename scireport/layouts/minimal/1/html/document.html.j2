@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="{{ meta.language }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="scireport {{ info.scireport_version }}">
+<title>{{ meta.title }}</title>
+<style>
+:root { --accent: {{ options.accent }}; }
+{{ css }}
+</style>
+</head>
+<body>
+<!-- {{ info.generated }} -->
+<main>
+{{ c.cover() }}
+{% if meta.abstract %}
+<section class="abstract">
+{{ meta.abstract | md }}
+</section>
+{% endif %}
+{% if options.toc %}
+{{ c.contents() }}
+{% endif %}
+{{ body }}
+</main>
+{% if meta.footer %}
+<footer class="footer">{{ meta.footer }}</footer>
+{% endif %}
+</body>
+</html>

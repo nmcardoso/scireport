@@ -1,0 +1,43 @@
+# minimal@1: the reference layout of the engine. Plain, dependency-free, readable by people and by
+# language models. It exercises every component in Markdown, HTML and LaTeX; the designed layouts
+# (default, modern) arrive in phase S3.
+spec: ">=1.0,<2.0"
+name: minimal
+version: 1
+title: Minimal
+description: Plain reference layout for Markdown, self-contained HTML and a LaTeX project.
+formats:
+  md:
+    document: md/document.md.j2
+    components: md/components.md.j2
+  html:
+    document: html/document.html.j2
+    components: html/components.html.j2
+    css: [html/minimal.css]
+  tex:
+    document: latex/document.tex.j2
+    components: latex/components.tex.j2
+    style: latex/scireport-minimal.sty
+options:
+  - name: toc
+    type: bool
+    default: true
+    description: Write a table of contents.
+  - name: cover
+    type: bool
+    default: true
+    description: Write the title block (subtitle, authors, date, version) under the title.
+  - name: accent
+    type: str
+    default: "#1f4e79"
+    pattern: "#[0-9a-fA-F]{6}"
+    description: Accent colour as #rrggbb.
+  - name: paper
+    type: str
+    default: a4
+    choices: [a4, letter]
+    description: Paper size of the LaTeX project.
+  - name: numbered_captions
+    type: bool
+    default: true
+    description: Prefix captions with "Table N." and "Figure N.".
