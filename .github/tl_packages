@@ -1,0 +1,18 @@
+# TeX Live packages for the pdf-latex job (tlmgr names). Keep in step with the LaTeX layouts (phase S3).
+scheme-basic
+collection-latexrecommended
+collection-luatex
+collection-xetex
+collection-fontsrecommended
+latexmk
+booktabs
+longtable
+siunitx
+tcolorbox
+tikzfill
+pgf
+environ
+fancyhdr
+fontspec
+biblatex
+biber

@@ -1,0 +1,42 @@
+name: release
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.12"
+      - run: uv build
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/*
+      - uses: softprops/action-gh-release@v3
+        with:
+          files: dist/*
+          generate_release_notes: true
+
+  clean-room:
+    needs: build
+    name: clean-room (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.12"
+      # Installs from the public git URL, exactly as a consuming project does.
+      - run: uv venv
+      - run: uv pip install "scireport @ git+https://github.com/nmcardoso/scireport@${{ github.ref_name }}"
+      - run: uv run --no-project scireport --version

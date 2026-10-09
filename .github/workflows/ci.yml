@@ -1,0 +1,169 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_FROZEN: "1"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --group dev
+      - run: uv run ruff format --check .
+      - run: uv run ruff check .
+      - run: uv run mypy scireport tests
+
+  test:
+    name: test (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    # Python 3.15 is experimental while pyyaml (and brotli, via weasyprint) have no cp315 wheels
+    # (DECISIONS 2026-10-09). The flag is removed once the 3.15 jobs are green without it.
+    continue-on-error: ${{ matrix.python == '3.15' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.12", "3.13", "3.14", "3.15"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync --group dev
+      - run: uv run pytest -m "not integration" --cov=scireport --cov-report=xml
+      - uses: actions/upload-artifact@v7
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.12'
+        with:
+          name: coverage
+          path: coverage.xml
+
+  lowest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      # Checks that the lower bounds in pyproject.toml still work.
+      - run: uv sync --no-frozen --resolution lowest-direct --group dev
+      - run: uv run pytest -m "not integration"
+
+  pdf-weasyprint:
+    name: pdf-weasyprint (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    # Windows needs MSYS2 pango; experimental until a green run is recorded in DECISIONS.
+    continue-on-error: ${{ matrix.os == 'windows-latest' || matrix.python == '3.15' }}
+    env:
+      SCIREPORT_REQUIRE_TOOLCHAIN: "1"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.12", "3.15"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - name: Install pango (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0
+      - name: Install pango (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install pango
+          echo "DYLD_FALLBACK_LIBRARY_PATH=$(brew --prefix)/lib" >> "$GITHUB_ENV"
+      - name: Install pango (Windows, MSYS2)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-pango
+      - name: Point WeasyPrint at MSYS2 (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: echo "WEASYPRINT_DLL_DIRECTORIES=C:\\msys64\\ucrt64\\bin" >> "$GITHUB_ENV"
+      - run: uv sync --group dev --extra pdf
+      - run: uv run pytest -m pdf_weasyprint
+
+  pdf-latex:
+    name: pdf-latex (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.python == '3.15' }}
+    env:
+      SCIREPORT_REQUIRE_TOOLCHAIN: "1"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.12", "3.15"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: TeX-Live/setup-texlive-action@v4
+        with:
+          package-file: .github/tl_packages
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync --group dev
+      - run: uv run pytest -m pdf_latex
+
+  pandoc:
+    name: pandoc (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    env:
+      SCIREPORT_REQUIRE_TOOLCHAIN: "1"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --group dev --extra pandoc
+      - run: uv run pytest -m pandoc
+
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --group dev
+      # Phase S3 turns this into the full example render and uploads examples/_out/.
+      - run: make examples
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --group docs
+      - run: uv run sphinx-build -W --keep-going -b html docs docs/_build/html
+      - run: uv run sphinx-build -b linkcheck docs docs/_build/linkcheck
