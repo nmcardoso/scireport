@@ -1,0 +1,411 @@
+{
+  "scireport": "1.0",
+  "meta": {
+    "title": "Full-kinds report",
+    "subtitle": "Every v1.0 kind",
+    "authors": [
+      {
+        "name": "N. Cardoso"
+      }
+    ],
+    "date": "2026-10-09",
+    "version": "1.0.0",
+    "pipeline": "compat corpus",
+    "footer": "scireport compat corpus, spec 1.0",
+    "abstract": "A report that exercises **every** kind.",
+    "keywords": [
+      "compat",
+      "spec-1.0"
+    ],
+    "language": "en"
+  },
+  "render": {
+    "template": "generic@1",
+    "layout": "default@1",
+    "formats": [
+      "md",
+      "html",
+      "tex",
+      "pdf"
+    ],
+    "pdf_engine": "weasyprint",
+    "latex_engine": "lualatex",
+    "markup_engine": "mistletoe",
+    "math_renderer": "mathtext",
+    "options": {
+      "paper": "a4",
+      "toc": true,
+      "accent": null
+    }
+  },
+  "outline": [
+    {
+      "key": "kinds.text",
+      "children": [],
+      "in_contents": true
+    },
+    {
+      "title": "Values",
+      "children": [
+        {
+          "key": "kinds.number",
+          "children": [],
+          "in_contents": true
+        },
+        {
+          "key": "kinds.table-parquet",
+          "children": [],
+          "in_contents": true
+        },
+        {
+          "key": "kinds.figure",
+          "children": [],
+          "in_contents": true
+        }
+      ],
+      "md_file": "values.md",
+      "in_contents": true
+    }
+  ],
+  "values": {
+    "kinds.alert": {
+      "kind": "alert",
+      "level": "error",
+      "text": "A check failed."
+    },
+    "kinds.attachment": {
+      "kind": "attachment",
+      "asset": {
+        "path": "assets/attachments/kinds.attachment.csv",
+        "sha256": "065e003dbf3ac794abb87cb1cc372fe8057368c44e43e90f52acc3b0edd5f666",
+        "bytes": 142
+      },
+      "filename": "all_rows.csv",
+      "media_type": "text/csv",
+      "description": "The 50 rows behind the cut table"
+    },
+    "kinds.bool": {
+      "kind": "bool",
+      "value": true
+    },
+    "kinds.code": {
+      "kind": "code",
+      "source": "def f(x):\n    return x * 2\n",
+      "language": "python",
+      "caption": "Doubling"
+    },
+    "kinds.date": {
+      "kind": "date",
+      "value": "2026-10-09"
+    },
+    "kinds.figure": {
+      "kind": "figure",
+      "renditions": [
+        {
+          "path": "assets/figures/kinds.figure.png",
+          "sha256": "194fc9f3d1360d08ea67b776fac6a4a1830a30f05975666f72101b482f3b4894",
+          "bytes": 16836,
+          "format": "png"
+        },
+        {
+          "path": "assets/figures/kinds.figure.pdf",
+          "sha256": "1136b1c040267cf98896ad9c8853797df52548e5948ea79c7b1df6f0971792d5",
+          "bytes": 5117,
+          "format": "pdf"
+        },
+        {
+          "path": "assets/figures/kinds.figure.svg",
+          "sha256": "1bdc268b949d3bd3e3291ef9abb4b81e729bbd6da82dfec18101b0ce7de1f4d1",
+          "bytes": 9468,
+          "format": "svg"
+        }
+      ],
+      "alt": "A rising curve",
+      "caption": "y = x squared",
+      "width": 0.6,
+      "data": {
+        "path": "assets/figures/kinds.figure.data.parquet",
+        "sha256": "9259a90b98ac80b476d06c93038ac14123f4937c14b831c27e68f4a00ba32daa",
+        "bytes": 817
+      }
+    },
+    "kinds.flow": {
+      "kind": "flow",
+      "stages": [
+        {
+          "label": "INGEST",
+          "detail": [
+            "12 rows"
+          ],
+          "state": "done"
+        },
+        {
+          "label": "MATCH",
+          "detail": [],
+          "state": "reused"
+        },
+        {
+          "label": "PUBLISH",
+          "detail": [],
+          "state": "done"
+        }
+      ]
+    },
+    "kinds.image": {
+      "kind": "image",
+      "asset": {
+        "path": "assets/images/kinds.image.png",
+        "sha256": "b5cd99a989ca2dfb477e9315b07171cc35d498dcdba890cdd4f6cc0388fc8125",
+        "bytes": 2689
+      },
+      "alt": "A bar chart",
+      "width": 0.4
+    },
+    "kinds.latex": {
+      "kind": "text",
+      "text": "\\textbf{Raw} LaTeX with $\\alpha$",
+      "format": "latex",
+      "alt": {
+        "html": "<b>Raw</b> LaTeX with α",
+        "md": "**Raw** LaTeX with $\\alpha$"
+      }
+    },
+    "kinds.list": {
+      "kind": "list",
+      "items": [
+        {
+          "kind": "text",
+          "text": "alpha",
+          "format": "plain"
+        },
+        {
+          "kind": "number",
+          "value": 2
+        },
+        {
+          "kind": "bool",
+          "value": false
+        },
+        {
+          "kind": "list",
+          "items": [
+            {
+              "kind": "text",
+              "text": "nested",
+              "format": "plain"
+            }
+          ],
+          "ordered": false
+        }
+      ],
+      "ordered": true
+    },
+    "kinds.mapping": {
+      "kind": "mapping",
+      "entries": [
+        {
+          "key": "Release",
+          "value": {
+            "kind": "text",
+            "text": "1.0.0",
+            "format": "plain"
+          }
+        },
+        {
+          "key": "Rows",
+          "value": {
+            "kind": "number",
+            "value": 3061
+          }
+        },
+        {
+          "key": "Public",
+          "value": {
+            "kind": "bool",
+            "value": true
+          }
+        }
+      ]
+    },
+    "kinds.math": {
+      "kind": "math",
+      "latex": "\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}",
+      "display": true,
+      "numbered": true
+    },
+    "kinds.metrics": {
+      "kind": "metrics",
+      "items": [
+        {
+          "label": "Pairs",
+          "value": {
+            "kind": "number",
+            "value": 3061
+          }
+        },
+        {
+          "label": "Rate",
+          "value": {
+            "kind": "number",
+            "value": 0.5
+          },
+          "detail": "of all"
+        }
+      ]
+    },
+    "kinds.number": {
+      "kind": "number",
+      "value": 1.2345,
+      "unit": "arcsec",
+      "format": ".2f",
+      "uncertainty": 0.01
+    },
+    "kinds.number-interval": {
+      "kind": "number",
+      "value": 3061,
+      "format": "int",
+      "interval": [
+        3000,
+        3100
+      ]
+    },
+    "kinds.number-missing": {
+      "kind": "number",
+      "missing": "n/a"
+    },
+    "kinds.status": {
+      "kind": "status",
+      "level": "partial",
+      "headline": "PARTIALLY COMPLETE",
+      "detail": "One stage was skipped."
+    },
+    "kinds.table-csv": {
+      "kind": "table",
+      "columns": [
+        {
+          "name": "a"
+        },
+        {
+          "name": "b"
+        }
+      ],
+      "asset": {
+        "path": "assets/tables/kinds.table-csv.csv",
+        "sha256": "5619199fd46db7f923098b90cb91addbbb1884996e0d13f6b13766efd36c1767",
+        "bytes": 20
+      },
+      "n_rows": 2,
+      "emphasis": []
+    },
+    "kinds.table-cut": {
+      "kind": "table",
+      "columns": [
+        {
+          "name": "n"
+        }
+      ],
+      "asset": {
+        "path": "assets/tables/kinds.table-cut.parquet",
+        "sha256": "93787363ca8d8608b35cc74d8b021dd6bc973e3f5ec504576eb92ccc01ad520e",
+        "bytes": 610
+      },
+      "caption": "First rows only",
+      "n_rows": 50,
+      "emphasis": [],
+      "max_rows": 5,
+      "overflow_attachment": "kinds.attachment"
+    },
+    "kinds.table-inline": {
+      "kind": "table",
+      "columns": [
+        {
+          "name": "check"
+        },
+        {
+          "name": "result"
+        }
+      ],
+      "rows": [
+        [
+          "nesting",
+          "ok"
+        ],
+        [
+          "sizes",
+          "FAILED"
+        ]
+      ],
+      "n_rows": 2,
+      "row_status": [
+        "pass",
+        "fail"
+      ],
+      "emphasis": [
+        {
+          "row": 1,
+          "column": "result",
+          "style": "fail"
+        }
+      ]
+    },
+    "kinds.table-parquet": {
+      "kind": "table",
+      "columns": [
+        {
+          "name": "id",
+          "label": "ID",
+          "align": "right"
+        },
+        {
+          "name": "z",
+          "label": "Redshift",
+          "unit": "",
+          "format": ".3f",
+          "align": "right"
+        },
+        {
+          "name": "label",
+          "width": 0.5,
+          "description": "A label"
+        }
+      ],
+      "asset": {
+        "path": "assets/tables/kinds.table-parquet.parquet",
+        "sha256": "a7f4b7fbf8fa601f508f4b861315be55b2c482bfcfee35dd7e1b46f09e328612",
+        "bytes": 1054
+      },
+      "caption": "A Parquet table",
+      "n_rows": 3,
+      "emphasis": []
+    },
+    "kinds.text": {
+      "kind": "text",
+      "text": "Short **markdown** text.",
+      "format": "markdown"
+    },
+    "kinds.text-long": {
+      "kind": "text",
+      "asset": {
+        "path": "assets/text/kinds.text-long.md",
+        "sha256": "12a737efb82fee1988a6e97f349192ecaec532f493a82533a7dd611e20adb29f",
+        "bytes": 7200
+      },
+      "format": "markdown"
+    }
+  },
+  "preprocess": [],
+  "provenance": {
+    "generator": {
+      "name": "scireport-compat",
+      "version": "1.0"
+    },
+    "writer": "scireport 0.1.0.dev0",
+    "inputs": [
+      {
+        "name": "objects.parquet",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "uri": "file:data/objects.parquet"
+      }
+    ]
+  }
+}

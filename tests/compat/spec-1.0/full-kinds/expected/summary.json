@@ -1,0 +1,223 @@
+{
+  "assets": {
+    "bytes": 43953,
+    "count": 10
+  },
+  "counts": {
+    "alert": 1,
+    "attachment": 1,
+    "bool": 1,
+    "code": 1,
+    "date": 1,
+    "figure": 1,
+    "flow": 1,
+    "image": 1,
+    "list": 1,
+    "mapping": 1,
+    "math": 1,
+    "metrics": 1,
+    "number": 3,
+    "status": 1,
+    "table": 4,
+    "text": 3
+  },
+  "issues": [],
+  "meta": {
+    "abstract": "A report that exercises **every** kind.",
+    "authors": [
+      {
+        "name": "N. Cardoso"
+      }
+    ],
+    "date": "2026-10-09",
+    "footer": "scireport compat corpus, spec 1.0",
+    "keywords": [
+      "compat",
+      "spec-1.0"
+    ],
+    "language": "en",
+    "pipeline": "compat corpus",
+    "subtitle": "Every v1.0 kind",
+    "title": "Full-kinds report",
+    "version": "1.0.0"
+  },
+  "ok": true,
+  "render": {
+    "formats": [
+      "md",
+      "html",
+      "tex",
+      "pdf"
+    ],
+    "latex_engine": "lualatex",
+    "layout": "default@1",
+    "markup_engine": "mistletoe",
+    "math_renderer": "mathtext",
+    "options": {
+      "accent": null,
+      "paper": "a4",
+      "toc": true
+    },
+    "pdf_engine": "weasyprint",
+    "template": "generic@1"
+  },
+  "spec": "1.0",
+  "values": [
+    {
+      "assets": [],
+      "key": "kinds.alert",
+      "kind": "alert",
+      "summary": "error: A check failed."
+    },
+    {
+      "assets": [
+        "assets/attachments/kinds.attachment.csv"
+      ],
+      "key": "kinds.attachment",
+      "kind": "attachment",
+      "summary": "all_rows.csv (142 bytes)"
+    },
+    {
+      "assets": [],
+      "key": "kinds.bool",
+      "kind": "bool",
+      "summary": "True"
+    },
+    {
+      "assets": [],
+      "key": "kinds.code",
+      "kind": "code",
+      "summary": "python, 27 chars"
+    },
+    {
+      "assets": [],
+      "key": "kinds.date",
+      "kind": "date",
+      "summary": "2026-10-09"
+    },
+    {
+      "assets": [
+        "assets/figures/kinds.figure.data.parquet",
+        "assets/figures/kinds.figure.pdf",
+        "assets/figures/kinds.figure.png",
+        "assets/figures/kinds.figure.svg"
+      ],
+      "key": "kinds.figure",
+      "kind": "figure",
+      "summary": "png, pdf, svg; A rising curve"
+    },
+    {
+      "assets": [],
+      "key": "kinds.flow",
+      "kind": "flow",
+      "summary": "3 stages"
+    },
+    {
+      "assets": [
+        "assets/images/kinds.image.png"
+      ],
+      "key": "kinds.image",
+      "kind": "image",
+      "summary": "kinds.image.png"
+    },
+    {
+      "assets": [],
+      "key": "kinds.latex",
+      "kind": "text",
+      "summary": "latex: \\textbf{Raw} LaTeX with $\\alpha$"
+    },
+    {
+      "assets": [],
+      "key": "kinds.list",
+      "kind": "list",
+      "summary": "4 items"
+    },
+    {
+      "assets": [],
+      "key": "kinds.mapping",
+      "kind": "mapping",
+      "summary": "3 entries"
+    },
+    {
+      "assets": [],
+      "key": "kinds.math",
+      "kind": "math",
+      "summary": "\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}"
+    },
+    {
+      "assets": [],
+      "key": "kinds.metrics",
+      "kind": "metrics",
+      "summary": "2 tiles"
+    },
+    {
+      "assets": [],
+      "key": "kinds.number",
+      "kind": "number",
+      "summary": "1.2345 ± 0.01 arcsec"
+    },
+    {
+      "assets": [],
+      "key": "kinds.number-interval",
+      "kind": "number",
+      "summary": "3061 [3000, 3100]"
+    },
+    {
+      "assets": [],
+      "key": "kinds.number-missing",
+      "kind": "number",
+      "summary": "missing"
+    },
+    {
+      "assets": [],
+      "key": "kinds.status",
+      "kind": "status",
+      "summary": "partial: PARTIALLY COMPLETE"
+    },
+    {
+      "assets": [
+        "assets/tables/kinds.table-csv.csv"
+      ],
+      "key": "kinds.table-csv",
+      "kind": "table",
+      "summary": "2 rows, 2 columns, csv"
+    },
+    {
+      "assets": [
+        "assets/tables/kinds.table-cut.parquet"
+      ],
+      "key": "kinds.table-cut",
+      "kind": "table",
+      "summary": "50 rows, 1 columns, parquet"
+    },
+    {
+      "assets": [],
+      "key": "kinds.table-inline",
+      "kind": "table",
+      "summary": "2 rows, 2 columns, inline"
+    },
+    {
+      "assets": [
+        "assets/tables/kinds.table-parquet.parquet"
+      ],
+      "key": "kinds.table-parquet",
+      "kind": "table",
+      "summary": "3 rows, 3 columns, parquet"
+    },
+    {
+      "assets": [],
+      "key": "kinds.text",
+      "kind": "text",
+      "summary": "markdown: Short **markdown** text."
+    },
+    {
+      "assets": [
+        "assets/text/kinds.text-long.md"
+      ],
+      "key": "kinds.text-long",
+      "kind": "text",
+      "summary": "markdown: file assets/text/kinds.text-long.md"
+    }
+  ],
+  "verified": true
+}

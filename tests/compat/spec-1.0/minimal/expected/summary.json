@@ -1,0 +1,31 @@
+{
+  "assets": {
+    "bytes": 0,
+    "count": 0
+  },
+  "counts": {
+    "text": 1
+  },
+  "issues": [],
+  "meta": {
+    "authors": [],
+    "keywords": [],
+    "language": "en",
+    "title": "Minimal report"
+  },
+  "ok": true,
+  "render": {
+    "formats": [],
+    "options": {}
+  },
+  "spec": "1.0",
+  "values": [
+    {
+      "assets": [],
+      "key": "note",
+      "kind": "text",
+      "summary": "plain: A minimal report."
+    }
+  ],
+  "verified": true
+}
