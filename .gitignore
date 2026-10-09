@@ -1,0 +1,33 @@
+# Environments and secrets
+.venv/
+.env
+.mcp.json
+
+# Python
+__pycache__/
+*.py[oc]
+*.egg-info/
+build/
+dist/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.hypothesis/
+.coverage
+coverage.xml
+htmlcov/
+
+# Docs and example builds
+docs/_build/
+examples/_out/
+logs/
+wandb/
+
+# LaTeX build files
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.toc
+*.synctex.gz

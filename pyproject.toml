@@ -1,0 +1,134 @@
+[project]
+name = "scireport"
+version = "0.1.0.dev0"
+description = "Data-centric scientific report engine: one data file, a template and a layout in; Markdown, HTML, LaTeX and PDF out"
+readme = "README.md"
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+authors = [{ name = "N. Cardoso" }]
+dependencies = [
+    "jinja2>=3.1.6",
+    "matplotlib>=3.11.2",
+    "mistletoe>=1.6.0",
+    "numpy>=2.5.3",
+    "pyarrow>=26.0.0",
+    "pydantic>=2.14.0",
+    "pyyaml>=6.0.3",
+    "typer>=0.27.3",
+]
+
+[project.optional-dependencies]
+pdf = [
+    "weasyprint>=70.0",
+]
+astro = [
+    "astropy>=8.0.1",
+    "astropy-healpix>=2.0.1",
+]
+pandoc = [
+    "pypandoc-binary>=1.17",
+]
+mcp = [
+    "mcp>=2.3.0",
+]
+
+[project.scripts]
+scireport = "scireport.cli:app"
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.168.5",
+    "mypy>=2.4.0",
+    "pre-commit>=4.6.2",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.17.0",
+    "types-pyyaml>=6.0.12.20260906",
+]
+docs = [
+    "furo>=2025.12.19",
+    "myst-parser>=5.1.0",
+    "sphinx>=9.1.0",
+    "sphinx-llms-txt>=0.7.1",
+    "sphinx-markdown-builder>=0.6.11",
+    "sphinxcontrib-typer>=0.10.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["scireport"]
+
+[tool.hatch.build.targets.sdist]
+# Not `include`/`exclude`: with the `.agents/skills/scireport` symlink in the tree hatch drops the
+# real SKILL.md under scireport/agent/skill/ as a duplicate, and the wheel built from the sdist
+# would lose the packaged skill. `only-include` never walks `.agents/`.
+only-include = ["scireport", "tests", "docs", "README.md", "LICENSE", "CHANGELOG.md"]
+
+[tool.ruff]
+line-length = 100
+indent-width = 2
+target-version = "py312"
+# logging_utils.py is a byte-identical copy of the monorepo skill (docs/conventions.md): never reformatted.
+extend-exclude = ["docs/_build", "scireport/logging_utils.py", ".agents/skills/python-logging"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+# Markdown code examples are documentation.
+exclude = ["*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "SIM", "PTH", "D", "NPY", "RUF"]
+# RUF001-RUF003 would forbid the en dashes and Unicode symbols used in the documentation.
+# D206 and W191 conflict with the formatter's two-space indent; Q-rules are not selected.
+ignore = ["D203", "D213", "RUF001", "RUF002", "RUF003", "D206", "W191"]
+
+[tool.ruff.lint.isort]
+force-single-line = false
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.per-file-ignores]
+# Tests are documented by their names.
+"tests/**" = ["D100", "D101", "D102", "D103", "D104"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+# Third-party packages without type information. Never relaxed for scireport itself.
+module = ["pyarrow", "pyarrow.*", "astropy", "astropy.*", "astropy_healpix", "astropy_healpix.*",
+  "mistletoe", "mistletoe.*", "weasyprint", "weasyprint.*", "pypandoc", "pypandoc.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Byte-identical copy of the python-logging skill.
+module = ["scireport.logging_utils"]
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --import-mode=importlib"
+markers = [
+  "integration: needs a system toolchain (TeX Live, pango, ...); run by the dedicated CI jobs",
+  "pdf_weasyprint: renders a PDF through WeasyPrint (needs the pango system libraries)",
+  "pdf_latex: renders a PDF through latexmk (needs TeX Live)",
+  "pandoc: needs the scireport[pandoc] extra",
+  "slow: takes more than ~10 s",
+]
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+source = ["scireport"]
+omit = ["scireport/logging_utils.py"]
+
+[tool.coverage.report]
+fail_under = 90
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError"]
