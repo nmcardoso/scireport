@@ -22,12 +22,12 @@
 |---|---|
 | `make check` (ruff format and lint, mypy strict, pytest) | passes; 353 tests, coverage 100 % (gate 90 %) |
 | Lower bounds (`uv sync --resolution lowest-direct --group dev`, local copy) | 349 passed, 1 skipped (needs a git checkout) |
-| Local Python | 3.12 only; 3.13 to 3.15 and macOS/Windows are covered by CI only |
-| GitHub Actions matrix | see the PR checks (filled in below when the run finishes) |
+| Local Python | 3.12 only; the other versions and operating systems ran in CI |
+| GitHub Actions matrix | run 37996464600 on `632653b`: 31 of 31 jobs green, no failed step in any job (test on 3 OSes x 3.12 to 3.15, lowest, lint, docs, examples, pandoc, pdf-weasyprint, pdf-latex). The first run failed only on Windows (one test crafted a backslash ZIP entry that `zipfile` normalises there); fixed in `632653b` |
 
 ## Not verified yet
 
-- Windows and macOS runs of the new code (path handling, `newline='\n'`, the symlink test is skipped on Windows).
+- The symlink test is skipped on Windows (symlinks need privileges there), so the symlink refusal is verified on Linux and macOS only.
 - Byte-identical ZIPs across platforms: guaranteed for one Python and zlib only (DECISIONS: DEFLATED entries).
   The compat fixtures are committed bytes that tests only read, so this does not affect them.
 
@@ -41,6 +41,11 @@
 3. **Pages:** the `docs` workflow failed on its two runs on `main` at the `configure-pages` step ("Get Pages
    site failed ... verify that the repository has Pages enabled"), before the Pages source was set to GitHub
    Actions. It runs again when this PR is merged to `main`; if it still fails, that is S6 work.
+
+## Next
+
+1. Review and merge <https://github.com/nmcardoso/scireport/pull/1> (I do not merge; the kickoff continues to S2 after the merge).
+2. Start S2 (`prompts/scireport/s2_kickoff.md` in the monorepo) on branch `s2/...` from the updated `main`.
 
 ## Blocked / questions
 
