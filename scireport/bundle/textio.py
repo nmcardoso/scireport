@@ -26,6 +26,42 @@ _YAML_FLOAT = 'tag:yaml.org,2002:float'
 _YAML_TIMESTAMP = 'tag:yaml.org,2002:timestamp'
 
 
+def parse_manifest_text(data: bytes, *, yaml_format: bool, origin: str) -> Any:
+  """Parse manifest bytes as JSON or YAML.
+
+  Parameters
+  ----------
+  data : bytes
+      The manifest file content, UTF-8 (a byte-order mark is ignored).
+  yaml_format : bool
+      True to parse as YAML, False for JSON.
+  origin : str
+      Where the data came from, for error messages.
+
+  Returns
+  -------
+  Any
+      The parsed document.
+
+  Raises
+  ------
+  BundleError
+      With code ``E408`` when the manifest is too large, not UTF-8 or not valid.
+  """
+  if len(data) > MAX_MANIFEST_BYTES:
+    raise BundleError(
+      f'{origin} is {len(data):,} bytes, over the {MAX_MANIFEST_BYTES:,}-byte manifest limit',
+      code='E408',
+    )
+  try:
+    text = data.decode('utf-8-sig')
+    if yaml_format:
+      return yaml.load(text, Loader=_StrictLoader)
+    return json.loads(text, object_pairs_hook=_reject_duplicates, parse_constant=_reject_constant)
+  except (UnicodeDecodeError, ValueError, yaml.YAMLError) as exc:
+    raise BundleError(f'{origin} cannot be parsed: {exc}', code='E408') from exc
+
+
 class _StrictLoader(yaml.SafeLoader):
   """``yaml.SafeLoader`` with YAML 1.2 core scalars, no aliases and no duplicate keys."""
 
@@ -90,39 +126,3 @@ def _reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
 def _reject_constant(name: str) -> Any:
   """JSON constant hook: ``NaN`` and ``Infinity`` are not JSON."""
   raise ValueError(f'{name} is not valid JSON')
-
-
-def parse_manifest_text(data: bytes, *, yaml_format: bool, origin: str) -> Any:
-  """Parse manifest bytes as JSON or YAML.
-
-  Parameters
-  ----------
-  data : bytes
-      The manifest file content, UTF-8 (a byte-order mark is ignored).
-  yaml_format : bool
-      True to parse as YAML, False for JSON.
-  origin : str
-      Where the data came from, for error messages.
-
-  Returns
-  -------
-  Any
-      The parsed document.
-
-  Raises
-  ------
-  BundleError
-      With code ``E408`` when the manifest is too large, not UTF-8 or not valid.
-  """
-  if len(data) > MAX_MANIFEST_BYTES:
-    raise BundleError(
-      f'{origin} is {len(data):,} bytes, over the {MAX_MANIFEST_BYTES:,}-byte manifest limit',
-      code='E408',
-    )
-  try:
-    text = data.decode('utf-8-sig')
-    if yaml_format:
-      return yaml.load(text, Loader=_StrictLoader)
-    return json.loads(text, object_pairs_hook=_reject_duplicates, parse_constant=_reject_constant)
-  except (UnicodeDecodeError, ValueError, yaml.YAMLError) as exc:
-    raise BundleError(f'{origin} cannot be parsed: {exc}', code='E408') from exc

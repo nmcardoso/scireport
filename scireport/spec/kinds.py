@@ -72,25 +72,6 @@ class Model(BaseModel):
   model_config = ConfigDict(extra='forbid', frozen=True)
 
 
-def _one_of(label: str, **fields: object) -> None:
-  """Raise ``E206`` unless exactly one of ``fields`` is set (not None).
-
-  Parameters
-  ----------
-  label : str
-      Names the kind in the message.
-  **fields : object
-      Field name to value.
-  """
-  given = [name for name, value in fields.items() if value is not None]
-  if len(given) != 1:
-    raise PydanticCustomError(
-      'E206',
-      '{label} needs exactly one of {names}, got {given}',
-      {'label': label, 'names': ', '.join(fields), 'given': ', '.join(given) or 'none'},
-    )
-
-
 def canonical_date(text: str) -> str:
   """Normalise an ISO 8601 date or date-time string.
 
@@ -794,3 +775,22 @@ KINDS: tuple[str, ...] = (
 
 value_adapter: TypeAdapter[Any] = TypeAdapter(Value)
 """Validates one value, bare or enveloped: ``value_adapter.validate_python(raw)``."""
+
+
+def _one_of(label: str, **fields: object) -> None:
+  """Raise ``E206`` unless exactly one of ``fields`` is set (not None).
+
+  Parameters
+  ----------
+  label : str
+      Names the kind in the message.
+  **fields : object
+      Field name to value.
+  """
+  given = [name for name, value in fields.items() if value is not None]
+  if len(given) != 1:
+    raise PydanticCustomError(
+      'E206',
+      '{label} needs exactly one of {names}, got {given}',
+      {'label': label, 'names': ', '.join(fields), 'given': ', '.join(given) or 'none'},
+    )

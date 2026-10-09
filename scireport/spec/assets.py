@@ -75,16 +75,6 @@ def asset_path_problem(path: object) -> str | None:
   return None
 
 
-def _check_path(value: Any) -> str:
-  """Pydantic hook: return ``value`` when it is an acceptable asset path, else raise ``E404``."""
-  problem = asset_path_problem(value)
-  if problem is not None:
-    raise PydanticCustomError(
-      'E404', 'invalid asset path {path}: {problem}', {'path': repr(value), 'problem': problem}
-    )
-  return str(value)
-
-
 class AssetRef(BaseModel):
   """A reference to one file in ``assets/``, with its integrity data.
 
@@ -126,3 +116,13 @@ class AssetRef(BaseModel):
           ) from None
         data = {**data, 'sha256': data.get('sha256', digest), 'bytes': data.get('bytes', size)}
     return data
+
+
+def _check_path(value: Any) -> str:
+  """Pydantic hook: return ``value`` when it is an acceptable asset path, else raise ``E404``."""
+  problem = asset_path_problem(value)
+  if problem is not None:
+    raise PydanticCustomError(
+      'E404', 'invalid asset path {path}: {problem}', {'path': repr(value), 'problem': problem}
+    )
+  return str(value)
