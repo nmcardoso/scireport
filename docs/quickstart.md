@@ -38,7 +38,7 @@ Markdown, HTML and LaTeX output need nothing beyond the base install. Two PDF ro
   `sudo apt install texlive-latex-extra texlive-luatex texlive-xetex latexmk texlive-fonts-recommended`.
 
 If one of these is missing, `scireport render -f pdf` does not crash with a traceback. It prints the error `E901` with
-the install command for your system and exits with code 3 (see {doc}`errors`).
+the install command for your system and exits with code 3 (see [Error codes](errors.md)).
 
 Run the commands below with `uv run scireport ...`, or with plain `scireport ...` inside an activated environment.
 
@@ -206,7 +206,7 @@ Pairs closer than **1 arcsec** are kept: a pair is accepted when $d < r_{\mathrm
 ```
 
 (The excerpt drops the generated-file comment, the contents list and some table rows.) The `generic` template labels
-a number with its key ("N pairs", "Sep mean"); a template of your own chooses its own labels, see {doc}`templates`.
+a number with its key ("N pairs", "Sep mean"); a template of your own chooses its own labels, see [Writing a template](templates.md).
 
 For a PDF, ask for it. A PDF is never a default format. This needs the `pdf` extra and pango (see above); on a machine
 without them the command exits with code 3 and tells you what to install.
@@ -277,7 +277,7 @@ values:
 ```
 
 Every value is a mapping with a `kind`. Quote the version (`'1.0'`) and the date, because YAML would read them as
-numbers or dates. Plain strings, numbers and lists are shortcuts for the common kinds ({doc}`spec`). A small table
+numbers or dates. Plain strings, numbers and lists are shortcuts for the common kinds ([The data-file specification](spec.md)). A small table
 can be written inline as above; a large one belongs in `assets/tables/` as a Parquet or CSV file.
 
 Validate the directory, render it directly, then **pack** it:
@@ -303,12 +303,12 @@ with `scireport inspect`, or turn it back into a directory with `scireport unpac
 
 ## Where to go next
 
-- {doc}`guide`: the mental model (bundle, keys, outline, template, layout) and the everyday workflow, with recipes
+- [User guide](guide.md): the mental model (bundle, keys, outline, template, layout) and the everyday workflow, with recipes
   for CI and for a LaTeX paper.
-- {doc}`spec`: every manifest block and value kind, field by field.
-- {doc}`cli`: every command and option, and the exit codes.
-- {doc}`errors`: every error and warning code (`E1xx`, `W4xx`, ...) and what to do about it.
-- {doc}`templates` and {doc}`layouts`: what the built-in templates read and how the layouts differ; to write your own,
-  see {doc}`layout-authoring`.
-- {doc}`examples`: three complete reports (a dataset report, a metrics dashboard, a text-only report).
-- {doc}`agent`: the packaged skill and the MCP server, for coding agents that write and check data files.
+- [The data-file specification](spec.md): every manifest block and value kind, field by field.
+- [Command line](cli.md): every command and option, and the exit codes.
+- [Error codes](errors.md): every error and warning code (`E1xx`, `W4xx`, ...) and what to do about it.
+- [Writing a template](templates.md) and [Built-in layouts](layouts.md): what the built-in templates read and how the layouts differ; to write your own,
+  see [Writing a layout](layout-authoring.md).
+- [Example gallery](examples.md): three complete reports (a dataset report, a metrics dashboard, a text-only report).
+- [The agent skill](agent.md): the packaged skill and the MCP server, for coding agents that write and check data files.

@@ -3,7 +3,7 @@
 Data-centric scientific report engine. One **data file** (a report bundle), one **template** (the structure) and one
 **layout** (the look) go in; Markdown, HTML, LaTeX and PDF come out, and with pandoc also Word, ODT and EPUB. The data
 file is the contract: it is versioned, validated with coded errors, and every older minor version keeps rendering the
-same ({doc}`compatibility`).
+same ([Compatibility policy](compatibility.md)).
 
 ```console
 $ uv add "scireport[pdf] @ git+https://github.com/nmcardoso/scireport"
@@ -11,7 +11,7 @@ $ scireport new report.scireport.yaml        # a starter data file
 $ scireport render report.scireport.yaml -o out -f md -f html
 ```
 
-Start with the {doc}`quickstart`, read the {doc}`guide` for the model behind it, and look at the {doc}`examples` to
+Start with the [Quickstart](quickstart.md), read the [User guide](guide.md) for the model behind it, and look at the [Example gallery](examples.md) to
 see the output of both layouts.
 
 ## For language models and coding agents
@@ -28,7 +28,7 @@ this page, and every page has a Markdown twin next to its HTML (replace `.html` 
 | The JSON Schema of the data file | [data-1.0.schema.json](https://nmcardoso.github.io/scireport/schemas/data-1.0.schema.json) |
 
 `llms-full.txt` is built from the page sources, so the tables that are generated from the code (commands, value kinds,
-error codes, pre-processors) are in it as plain text. See {doc}`agent` for the skill and {doc}`mcp` for the MCP server.
+error codes, pre-processors) are in it as plain text. See [The agent skill](agent.md) for the skill and [MCP server](mcp.md) for the MCP server.
 
 ```{toctree}
 :caption: Getting started

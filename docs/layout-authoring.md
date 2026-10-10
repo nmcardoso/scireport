@@ -1,8 +1,8 @@
 # Writing a layout
 
-A **layout** says what a report looks like; a template says what it contains ({doc}`templates`). The same template and
+A **layout** says what a report looks like; a template says what it contains ([Writing a template](templates.md)). The same template and
 the same data file give a different report with another layout, and the layout never has to know which values it
-draws. Write a layout when the built-in looks ({doc}`layouts`) do not fit: a house style, a journal template, a
+draws. Write a layout when the built-in looks ([Built-in layouts](layouts.md)) do not fit: a house style, a journal template, a
 simpler page for a language model.
 
 A layout is a directory with one definition file, one palette and, for each output format, a document skeleton, a file
@@ -29,7 +29,7 @@ so that a second version can sit next to it ([Versions are frozen](#versions-are
 
 ## Make a layout from minimal@1
 
-The steps use the bundle and the template of {doc}`templates` (`bundle/` and `tpl/`). Each ends with a command that
+The steps use the bundle and the template of [Writing a template](templates.md) (`bundle/` and `tpl/`). Each ends with a command that
 you can run, so a mistake shows up in the step that caused it.
 
 ### 1. Copy it
@@ -439,7 +439,7 @@ style file, and the components emit the same structure.
 
 ### 6. The matplotlib style
 
-Figures drawn for this report should look like it ({doc}`styles`). `styles/lab-notes.mplstyle` repeats the palette
+Figures drawn for this report should look like it ([Matplotlib style guide](styles.md)). `styles/lab-notes.mplstyle` repeats the palette
 colours in the cycle, the axes and the grid; it is applied only inside `scireport.mplstyle()`:
 
 ```text
@@ -511,7 +511,7 @@ it is `class="density-normal"`. The HTML holds four `@font-face` rules with the 
 `out/tex/` is a standalone project: `latexmk report.tex` there makes the PDF with no scireport installed. The
 `fonts/` folder, with its licence `OFL.txt`, is there because `layout.yaml` lists fonts.
 
-The PDF needs the system libraries ({doc}`outputs`): pango for the WeasyPrint engine and TeX Live for the LaTeX engine.
+The PDF needs the system libraries ([Outputs](outputs.md)): pango for the WeasyPrint engine and TeX Live for the LaTeX engine.
 Both were checked with this layout:
 
 ```console
@@ -721,7 +721,7 @@ family of the stack, so end every stack with a generic keyword (`sans-serif`, `m
 `weasyprint` prints the HTML, and `latex` compiles the LaTeX project in a scratch directory. A layout that lists neither
 has no PDF (`E903`); one that lists only one refuses the other. A missing library (pango, TeX Live or one TeX package)
 exits with code 3 (`E901`) and an install hint; a failed compile is `E902` with the `file:line` of each error in the
-LaTeX log. {doc}`outputs` has the details.
+LaTeX log. [Outputs](outputs.md) has the details.
 
 For the **WeasyPrint** engine, the HTML is printed with CSS Paged Media, so the stylesheet also decides the pages. The
 built-in layouts record what they learned, in the comments of `html/components.css`, `html/print.css` and
@@ -855,4 +855,4 @@ $ scireport render bundle -t ./tpl -l minimal@1 -o out -f pdf
 E903 layout minimal@1 does not support the weasyprint PDF engine (it supports none)
 ```
 
-{doc}`errors` has the full catalogue.
+[Error codes](errors.md) has the full catalogue.

@@ -2,7 +2,7 @@
 
 `scireport` is one command with subcommands. Every command exits with 0 (success), 1 (failure that is not a
 validation problem), 2 (the data file, template or layout is invalid) or 3 (a system dependency or an extra is
-missing); the codes are explained on {doc}`errors`. Logs go to standard error; a command's result goes to standard
+missing); the codes are explained on [Error codes](errors.md). Logs go to standard error; a command's result goes to standard
 output, and `--json` (on the commands agents use) prints it as JSON.
 
 ## Exit codes

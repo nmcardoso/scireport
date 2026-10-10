@@ -2,7 +2,7 @@
 
 A **template** says what a report contains and in what order; a **layout** says what it looks like. The data file
 holds the values. `scireport render` joins the three (ADR-0003). This page is about the first: how to write a
-template of your own. For the look, see {doc}`layout-authoring`; for the built-in looks, {doc}`layouts`.
+template of your own. For the look, see [Writing a layout](layout-authoring.md); for the built-in looks, [Built-in layouts](layouts.md).
 
 Most jobs need no template of your own. `generic@1` renders any bundle from its outline. Write one when a report must
 have a fixed structure, with its own prose around the numbers, and when you want a missing value to be an error
@@ -32,7 +32,7 @@ We will write a template for a small cross-match report: two counts, a median an
 data comes first, because the template is a promise about it.
 
 A bundle can be a directory with a `scireport.yaml` (or `scireport.json`) manifest, a ZIP or a single file; see
-{doc}`spec`. This one is a directory, `bundle/scireport.yaml`:
+[The data-file specification](spec.md). This one is a directory, `bundle/scireport.yaml`:
 
 ```yaml
 scireport: '1.0'
@@ -374,7 +374,7 @@ A component given a value of the wrong kind is `E208`. Structure comes from `c.c
 | `c.value` | `(ref: 'Any', *, label: 'str \| None' = None) -> 'Safe'` | Draw any value with the component for its kind. |
 <!-- /generated -->
 
-A layout that lacks the macro for a component is `E707` ({doc}`layout-authoring`).
+A layout that lacks the macro for a component is `E707` ([Writing a layout](layout-authoring.md)).
 
 ## Filters
 
@@ -406,7 +406,7 @@ and a `breakable` that escapes for TeX.
 
 Prose is Markdown. Write it inside `{% filter md %}...{% endfilter %}`, or pass a string through `| md`, and the
 converter turns it into the current format: bold, lists, links and `$math$` work in all three. The subset it reads, and
-what is shown as plain text with `W701`, is in {doc}`markup`. Headings (`#`) and images (`![](...)`) are outside the
+what is shown as plain text with `W701`, is in [Markdown in reports](markup.md). Headings (`#`) and images (`![](...)`) are outside the
 subset: use `c.chapter`, `c.heading` and `c.figure`, so that the table of contents and the numbering stay right and
 every asset is checked.
 
@@ -466,7 +466,7 @@ LaTeX one but missing in the bundle is `E106` too.
 A bundle with a `bibliography` value (`Report.add_bibliography`) lets prose cite with `[@key]`. A template draws the
 list with `c.references(data.refs)`; put a heading before it. Only cited works are listed, unless you pass
 `everything=True`. LaTeX output uses `biblatex` and `biber`; Markdown and HTML are formatted by pandoc
-(`scireport[pandoc]`, see {doc}`pandoc`). The bundle for this example is built with
+(`scireport[pandoc]`, see [pandoc: markup engine, citations and office formats](pandoc.md)). The bundle for this example is built with
 `report.add_bibliography('refs', 'refs.bib')` and a text value `intro` with the citation `[@budavari2008]`:
 
 ```jinja
@@ -500,7 +500,7 @@ That is what keeps the output deterministic: the same inputs and versions give b
 ## Checking a template
 
 `scireport validate` checks a bundle against a template and a layout without writing anything. It reports every
-problem at once (see {doc}`errors`), each with a stable code, the key, the JSON pointer, the template `file:line` and a
+problem at once (see [Error codes](errors.md)), each with a stable code, the key, the JSON pointer, the template `file:line` and a
 "did you mean" suggestion where it has one. For a bundle with a missing source count and a renamed column:
 
 ```console
@@ -537,7 +537,7 @@ The codes you will meet while writing a template:
 | `W403` | a key is computed at render time (silenced by `dynamic_keys: true`) |
 | `W701` | Markdown outside the supported subset was shown as plain text |
 
-`E804` also reports a layout macro that was called with arguments it does not take; see {doc}`layout-authoring`.
+`E804` also reports a layout macro that was called with arguments it does not take; see [Writing a layout](layout-authoring.md).
 
 ## Share a template
 
@@ -584,5 +584,5 @@ The templates installed here:
 | `kitchen-sink@1` | md, html, tex | builtin | Kitchen sink |
 <!-- /generated -->
 
-Everything a template may call is in {doc}`api` (the Python side) and {doc}`cli` (the commands); the layouts that draw
-the components are in {doc}`layouts`.
+Everything a template may call is in [Python API](api.md) (the Python side) and [Command line](cli.md) (the commands); the layouts that draw
+the components are in [Built-in layouts](layouts.md).

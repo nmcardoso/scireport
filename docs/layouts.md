@@ -72,7 +72,7 @@ Formats: md, html, tex. PDF engines: weasyprint, latex.
 - **WeasyPrint workarounds** from MOSAICS: no flex container inside another one, a named cover page
   (`@page cover`), no `break-inside: avoid` on tables (a table taller than a page would never fit).
 - **One palette file** (`palette.yaml` in the layout) is the source of truth for the stylesheet, the
-  LaTeX colours and the matplotlib style; a test fails when they drift (see {doc}`styles`).
+  LaTeX colours and the matplotlib style; a test fails when they drift (see [Matplotlib style guide](styles.md)).
 
 ## Known limits
 

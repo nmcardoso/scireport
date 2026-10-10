@@ -7,7 +7,7 @@ exposes the matplotlib style and the palette of every layout, so a project draws
 report it will be part of.
 
 This page is for the person who draws the figures. To make a style for a layout of your own, see
-{doc}`layout-authoring`; the built-in looks are in {doc}`layouts`.
+[Writing a layout](layout-authoring.md); the built-in looks are in [Built-in layouts](layouts.md).
 
 ## A complete example
 
@@ -281,4 +281,4 @@ with the full Inter family installed may draw it and another may not.
 read them in a diff. `tests/unit/styles/test_consistency.py` parses all four and fails when one drifts, when the CSS
 uses a colour that is not a token, or when a layout lists a font that does not ship. Changing a colour is therefore
 one edit in `palette.yaml` plus the three copies, and a test that tells you which one you forgot. Because a changed
-colour is a changed look, a released layout gets a new version for it (ADR-0008, {doc}`layout-authoring`).
+colour is a changed look, a released layout gets a new version for it (ADR-0008, [Writing a layout](layout-authoring.md)).

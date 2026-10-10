@@ -3,7 +3,7 @@
 `scireport mcp serve` is a [Model Context Protocol](https://modelcontextprotocol.io/) server over standard input and
 output. A coding agent that connects to it can look up what scireport offers (templates, layouts, pre-processors, the
 JSON Schema of the data file, the meaning of an error code), and can inspect, validate and render bundles in a
-directory you choose. Its resources are the pages of the packaged skill ({doc}`agent`), so an agent that has the
+directory you choose. Its resources are the pages of the packaged skill ([The agent skill](agent.md)), so an agent that has the
 server also has the instructions.
 
 ## Install and start
@@ -86,14 +86,14 @@ an answer: that is the loop the server's instructions tell an agent to follow.
 
 A problem in a bundle is returned as data, `{"ok": false, "issues": [...]}`, never as a protocol error, so the agent
 can read the codes and fix the file. Each issue carries the code, the key, the JSON pointer, what was expected and what
-was found, the template line and a hint ({doc}`errors`). A successful `render_bundle` returns
+was found, the template line and a hint ([Error codes](errors.md)). A successful `render_bundle` returns
 `{"ok": true, "output": ..., "files": [...], "warnings": [...]}`.
 
 ## Resources
 
 Every Markdown page of the skill is a resource with the URI `skill://scireport/<page>`, for example
 `skill://scireport/SKILL.md` and `skill://scireport/references/data-file.md`. The same pages are served on this site
-as one download ({doc}`agent`).
+as one download ([The agent skill](agent.md)).
 
 ## What the server will not do
 

@@ -4,14 +4,14 @@ A report is data that outlives the program that wrote it. A bundle written today
 five years, and it must say the same thing. This page states what `scireport` promises about that, how the promise is
 enforced by tests, what counts as breaking it, how a change is made without breaking it, and what is not promised. The
 decisions behind it are ADR-0008 (backward compatibility) and ADR-0005 (stable error codes); the data format itself is
-in {doc}`spec`.
+in [The data-file specification](spec.md).
 
 ```{note}
 **Pre-release caveat.** The promises on this page take full effect with the final `1.0.0` release. Until then
 (`1.0.0rc1` and development versions) spec 1.0 and the built-in layouts are not yet frozen: additions to the spec can
 still happen (the `bibliography` kind was added after the first draft), and a visual change to `default@1` or
 `modern@1` can still be made in place. After the final release the same change needs `default@2`. The changelog
-({doc}`changelog`) lists every change either way. Do not rely on byte identity across pre-releases.
+([changelog](changelog.md)) lists every change either way. Do not rely on byte identity across pre-releases.
 ```
 
 ## What is promised
@@ -46,7 +46,7 @@ version**.
   defaults are the explicit `generic@1` and `default@1`, and those do not move.
 - The palette and the matplotlib style of a layout belong to it: a change of either is a visual change.
 - Pre-processors are versioned in the same way; a step that names `version: 1` keeps getting version 1
-  ({doc}`preprocessors`).
+  ([Pre-processors](preprocessors.md)).
 
 Templates and layouts declare the spec versions they support (`spec: ">=1.0,<2.0"`). A bundle outside that range is
 `E505`.
@@ -57,7 +57,7 @@ Errors are aggregated and coded (ADR-0005), and the codes are part of the public
 
 - A code never changes meaning once released. A retired code is never reused, and codes are never renumbered.
 - The families are fixed by the first digit (`E1xx` keys, `E2xx` kinds, `E3xx` tables, `E4xx` assets, `E5xx` versions,
-  and so on, see {doc}`errors`). New codes take the next free number of their family.
+  and so on, see [Error codes](errors.md)). New codes take the next free number of their family.
 - The exit codes of the command line are:
 
 <!-- generated:exit-codes -->
@@ -80,9 +80,9 @@ The public Python API is `scireport.__all__` and follows semantic versioning (AD
 - A name is removed only after **at least one minor version** in which using it gives a deprecation warning.
 - The exception classes and their `exit_code` attributes are part of the API.
 
-The snapshot test covers `scireport.__all__`, listed in {doc}`api`. Other modules that a documentation page presents as
+The snapshot test covers `scireport.__all__`, listed in [Python API](api.md). Other modules that a documentation page presents as
 an extension point (writing a pre-processor with `scireport.preprocess`, the figure helpers of `scireport.styles`) are
-documented where they are used ({doc}`preprocessors`, {doc}`styles`); ADR-0008 does not say whether they are covered by
+documented where they are used ([Pre-processors](preprocessors.md), [Matplotlib style guide](styles.md)); ADR-0008 does not say whether they are covered by
 the same promise, so treat anything outside `__all__` and the documentation as internal.
 
 ### Determinism
@@ -100,7 +100,7 @@ The same inputs and the same versions of scireport and its dependencies give the
   the PDF text, not its bytes.
 
 Every render writes `render-manifest.json` with the hashes of its inputs and outputs and the versions that produced them
-({doc}`outputs`), which is where to look when two renders differ.
+([Outputs](outputs.md)), which is where to look when two renders differ.
 
 ## How it is enforced
 
@@ -180,12 +180,12 @@ Check the corpus any time with `make compat`; it is also part of `make test`.
 | Adding an error or warning code | no | New codes take the next free number. See the note on `--strict` below. |
 | Changing a frozen compat fixture | **yes** | Add a case instead. |
 | PDF bytes differ after a pango, HarfBuzz or TeX Live upgrade | no | Best effort; the compat corpus compares the PDF text. |
-| Output of pandoc differs after a pandoc upgrade | no | pandoc's version is recorded (`W501`); see {doc}`pandoc`. |
+| Output of pandoc differs after a pandoc upgrade | no | pandoc's version is recorded (`W501`); see [pandoc: markup engine, citations and office formats](pandoc.md). |
 
 ## How to make a change
 
 These procedures are derived from ADR-0008, the `Makefile` and the tests; the repository has no separate checklist. Read
-the ADRs in {doc}`adr/index` first: a change that contradicts one needs a new ADR, not a quiet edit.
+the ADRs in [Architecture decision records](adr/index.md) first: a change that contradicts one needs a new ADR, not a quiet edit.
 
 **A new layout or template version.**
 
@@ -194,7 +194,7 @@ the ADRs in {doc}`adr/index` first: a change that contradicts one needs a new AD
 2. Add golden tests for the new version, and add its renders to the compat corpus as new files with a new script that
    appends to `FROZEN.sha256` (see `tests/compat/make_render_layouts_1_0.py`).
 3. Leave version N as it is. A bundle that names `NAME@N` keeps rendering with it; a bare `NAME` now means `N+1`.
-4. Update {doc}`layouts` or {doc}`templates` and the changelog.
+4. Update [Built-in layouts](layouts.md) or [Writing a template](templates.md) and the changelog.
 
 **A new spec minor.**
 
@@ -203,7 +203,7 @@ the ADRs in {doc}`adr/index` first: a change that contradicts one needs a new AD
 2. Raise `SPEC_VERSION` in `scireport/spec/version.py`. Check the `spec:` range of every template and layout.
 3. Write the new schema file with `make schema` (it writes `data-<version>.schema.json`). Never run it for a released
    version: that file is frozen.
-4. Add a compat case for what is new, update {doc}`spec` and the changelog.
+4. Add a compat case for what is new, update [The data-file specification](spec.md) and the changelog.
 
 **A new spec major.** Do the same, and add the migration in `scireport/spec/migrations/` as a pure function from a manifest
 dict of the old major to the new one, registered with `register_migration`. Test it against the old corpus. The old
@@ -222,7 +222,7 @@ that names the code. Never renumber a code and never reuse a retired one.
 ## What to do as a user
 
 - **Pin the version.** Pin scireport in your project (a lock file, and for an install from the GitHub repository a tag or
-  a commit) so that an upgrade is something you decide. Read {doc}`changelog` before upgrading.
+  a commit) so that an upgrade is something you decide. Read [Changelog](changelog.md) before upgrading.
 - **Pack your bundles.** `scireport pack` completes a data file, records the hash of every asset and pins the template
   and layout to `name@version` (and the pandoc version when pandoc is used). A packed ZIP is the form to archive.
 
@@ -259,14 +259,14 @@ that names the code. Never renumber a code and never reuse a retired one.
 - **The wording of messages and log lines.** Codes, keys and JSON pointers are stable; the text next to them can be
   improved.
 - **Command-line flags and the shape of `--json` output beyond the codes.** No ADR makes them part of the contract, though
-  {doc}`cli` documents them and the changelog records changes.
+  [Command line](cli.md) documents them and the changelog records changes.
 - **Third-party templates, layouts and pre-processors.** Those that come from plugins are as stable as their authors make
   them. Only the built-in ones are frozen by scireport.
 - **Anything before the final `1.0.0`**, as described in the note at the top of this page.
 
 ## See also
 
-- {doc}`spec`: the data-file format and its versioning.
-- {doc}`errors`: every error and warning code.
-- {doc}`changelog`: what changed in each release.
-- ADR-0005 (validation and codes) and ADR-0008 (backward compatibility), in {doc}`adr/index`.
+- [The data-file specification](spec.md): the data-file format and its versioning.
+- [Error codes](errors.md): every error and warning code.
+- [Changelog](changelog.md): what changed in each release.
+- ADR-0005 (validation and codes) and ADR-0008 (backward compatibility), in [Architecture decision records](adr/index.md).

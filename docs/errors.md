@@ -46,7 +46,7 @@ The letter (`E` error, `W` warning) and the first digit of a code say what it is
 ## Catalogue
 
 Generated from `scireport.errors.CODES` and `scireport.error_help.HELP`; a test fails when this page is stale. The
-same text is returned by the MCP tool `error_help` (see {doc}`mcp`).
+same text is returned by the MCP tool `error_help` (see [MCP server](mcp.md)).
 
 <!-- generated:error-catalogue -->
 ### `E1xx`: keys: the key grammar, and values the template reads

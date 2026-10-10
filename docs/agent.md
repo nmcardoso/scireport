@@ -3,7 +3,7 @@
 A coding agent that has to produce or debug a report needs more than `--help`: the data-file format, the template
 rules, what the error codes mean and the usual recipes. `scireport` ships all of that as a **skill** (a folder with a
 `SKILL.md` and reference pages, in the format Claude Code and other agents load) and, in addition, serves it through an
-{doc}`MCP server <mcp>`. Both are generated from, or served by, the installed package, so they cannot describe another
+[MCP server](mcp.md). Both are generated from, or served by, the installed package, so they cannot describe another
 version.
 
 ## Get the skill
@@ -37,6 +37,6 @@ the site agree.
 |---|---|
 | The **skill** | the agent works in a project that installs `scireport`; it needs the instructions offline, in its own context |
 | This site's **`llms.txt`** and **`llms-full.txt`** | the agent has no install yet (it must decide whether to use `scireport`, or write the first bundle); [llms.txt](https://nmcardoso.github.io/scireport/llms.txt) lists the pages, [llms-full.txt](https://nmcardoso.github.io/scireport/llms-full.txt) is all of them in one file |
-| The **MCP server** | the agent should call scireport as tools (describe a template, validate, render) inside a directory you choose: see {doc}`mcp` |
+| The **MCP server** | the agent should call scireport as tools (describe a template, validate, render) inside a directory you choose: see [MCP server](mcp.md) |
 
 Every page of the site also has a Markdown twin: replace `.html` by `.md` in its address.

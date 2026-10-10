@@ -134,7 +134,7 @@ one, and a step that names `version: 1` keeps getting version 1 (ADR-0008).
 Every entry has version 1. The `astro` plots that need no astropy (colour diagrams, number counts and the
 photometry diagnostics) run in the core install; the sky maps need the `astro` extra (astropy and astropy-healpix;
 no `mocpy`, no `hats`) and give `E607` with an install hint when it is missing. Run `scireport preprocessors NAME`
-for the ports and parameters of one, and see {doc}`errors` for the codes. Both tables are generated from the
+for the ports and parameters of one, and see [Error codes](errors.md) for the codes. Both tables are generated from the
 registry; a test fails when this page is stale.
 
 <!-- generated:preprocessors -->

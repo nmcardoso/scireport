@@ -1,8 +1,8 @@
 # User guide
 
 This page explains how `scireport` thinks and how you work with it day to day. If you have not built a report yet,
-start with the {doc}`quickstart`. Exact fields, options and codes are in the reference pages: {doc}`spec`, {doc}`cli`,
-{doc}`api` and {doc}`errors`.
+start with the [Quickstart](quickstart.md). Exact fields, options and codes are in the reference pages: [The data-file specification](spec.md), [Command line](cli.md),
+[Python API](api.md) and [Error codes](errors.md).
 
 ## The mental model
 
@@ -68,7 +68,7 @@ number is a `number`, a list is a `list`. The kinds:
 | `attachment` | a file offered next to the report, such as the full table behind a cut one |
 | `bibliography` | a BibTeX file that `[@key]` citations in text refer to |
 
-Fields, defaults and one example per kind are in {doc}`spec`. In Python you add values with `Report.add_number`,
+Fields, defaults and one example per kind are in [The data-file specification](spec.md). In Python you add values with `Report.add_number`,
 `add_table`, `add_figure` and so on; `Report.add` takes any bare JSON or envelope.
 
 ### The outline
@@ -95,8 +95,8 @@ changes its look without touching its template, and the other way round (ADR-000
 `scireport templates` and `scireport layouts` list what is installed; add a name to describe one. The name after `@`
 is a version. Built-in versions are frozen: a look change is a new version, so a bundle that names `default@1`
 renders the same years from now. A bare name means the newest. Your own template or layout is a directory, passed as
-`-t ./my-template` or `-l ./my-layout` (the `./` matters), see {doc}`templates`, {doc}`layouts` and
-{doc}`layout-authoring`.
+`-t ./my-template` or `-l ./my-layout` (the `./` matters), see [Writing a template](templates.md), [Built-in layouts](layouts.md) and
+[Writing a layout](layout-authoring.md).
 
 ### Formats and PDF engines
 
@@ -107,8 +107,8 @@ renders the same years from now. A bare name means the newest. Your own template
 | `docx`, `odt`, `epub` | pandoc, from the Markdown (needs the `pandoc` extra) |
 
 With no `-f`, a render writes the formats the bundle lists in `render.formats`, else `md`, `html` and `tex`. A PDF
-is never a default; ask for it. What each format writes is in {doc}`outputs`; the prose dialect is in {doc}`markup`;
-Word, ODT, EPUB and citations are in {doc}`pandoc`.
+is never a default; ask for it. What each format writes is in [Outputs](outputs.md); the prose dialect is in [Markdown in reports](markup.md);
+Word, ODT, EPUB and citations are in [pandoc: markup engine, citations and office formats](pandoc.md).
 
 ### Pre-processors
 
@@ -135,7 +135,7 @@ report.write('pre.scireport.zip')
 `scireport render pre.scireport.zip -o out -f md` runs the step first and then renders the table and the new figure.
 `scireport preprocessors` lists the registered steps and `scireport preprocessors core.histogram` shows the ports and
 parameters of one. A step that names `module:function` runs code from the data file, so it needs `--allow-import`;
-use that only for files you trust. See {doc}`preprocessors`.
+use that only for files you trust. See [Pre-processors](preprocessors.md).
 
 ## The workflow
 
@@ -144,9 +144,9 @@ Author the data, validate it, render it, and pack it when it is final.
 ### 1. Author the data
 
 **From Python**, with `Report`: it checks each call at once and raises a coded error at the line that made the
-mistake, and `report.write(...)` produces a bundle. The {doc}`quickstart` shows the whole sequence. Two things
+mistake, and `report.write(...)` produces a bundle. The [Quickstart](quickstart.md) shows the whole sequence. Two things
 to remember: `add_figure` needs `alt`, and you draw figures inside `with scireport.mplstyle():` with
-`scireport.figure(width, height)` so that they match the report (see {doc}`styles`).
+`scireport.figure(width, height)` so that they match the report (see [Matplotlib style guide](styles.md)).
 
 **By hand**, with a directory and a `scireport.yaml`. `scireport new my-report` writes a starter that already
 validates; edit it. The YAML reader is stricter than most: only `true` and `false` are booleans (`yes` and `on`
@@ -154,7 +154,7 @@ are strings), a date stays a string, aliases (`*a`) are rejected, and a duplicat
 spec version, `'1.0'`.
 
 **For an agent**, `scireport agent install-skill -d .claude/skills` installs a skill that teaches a coding agent
-all of this, and `scireport mcp serve` exposes the tools over MCP (see {doc}`agent` and {doc}`mcp`).
+all of this, and `scireport mcp serve` exposes the tools over MCP (see [The agent skill](agent.md) and [MCP server](mcp.md)).
 
 ### 2. Validate
 
@@ -200,7 +200,7 @@ Read an issue field by field:
 
 | Field | Meaning |
 |---|---|
-| `code` | the stable identifier; look it up in {doc}`errors`, or with `scireport spec errors --json` |
+| `code` | the stable identifier; look it up in [Error codes](errors.md), or with `scireport spec errors --json` |
 | `severity` | `error` or `warning` |
 | `message` | what is wrong, in a sentence |
 | `pointer` | a JSON pointer into the manifest: `/values/crossmatch.sep_hist/width` is the `width` field of that value |
@@ -257,7 +257,7 @@ $ scireport render my-report -o out -f html -l modern -O toc=false -O cover=fals
 ```
 
 Options come from the layout's defaults, then the bundle's `render.options`, then `-O`. An unknown option or a value
-outside the choices is `E806`. Everything you can pass is in {doc}`cli`; the same choices can be stored in the
+outside the choices is `E806`. Everything you can pass is in [Command line](cli.md); the same choices can be stored in the
 bundle's `render` block (`template`, `layout`, `formats`, `pdf_engine`, `latex_engine`, `options`), and the command
 line wins.
 
@@ -422,7 +422,7 @@ jobs:
 ```
 
 For a PDF in CI, install the system packages first (pango for WeasyPrint, or TeX Live for `--pdf-engine latex`), see
-the {doc}`quickstart`. To keep an invalid file out of the repository, run the same `validate` as a pre-commit hook.
+the [Quickstart](quickstart.md). To keep an invalid file out of the repository, run the same `validate` as a pre-commit hook.
 Pin scireport to a tag or commit so the job is reproducible.
 
 ### Numbers for a LaTeX paper
@@ -469,15 +469,15 @@ The first lines of each fragment say which packages it needs. Two keys that give
 rename one or export them separately. `--bare` writes a plain `tabular` and `\includegraphics` without a float,
 `--max-rows` cuts tables, and `--graphics-prefix` changes the path used for figures. Re-run the export whenever the
 data changes and commit the fragments, or run it in the paper's build. The same function is available in Python as
-`export_tex`. See {doc}`export`.
+`export_tex`. See [LaTeX fragments for manuscripts](export.md).
 
 ## Where to go next
 
-- {doc}`spec`: the manifest blocks and every value kind.
-- {doc}`cli`: every command and option.
-- {doc}`api`: the public Python names.
-- {doc}`errors`: every code, with what to do.
-- {doc}`templates`, {doc}`layouts` and {doc}`layout-authoring`: choose or write the structure and the look.
-- {doc}`preprocessors`, {doc}`outputs`, {doc}`markup`, {doc}`pandoc` and {doc}`export`: the reference pages for each
+- [The data-file specification](spec.md): the manifest blocks and every value kind.
+- [Command line](cli.md): every command and option.
+- [Python API](api.md): the public Python names.
+- [Error codes](errors.md): every code, with what to do.
+- [Writing a template](templates.md), [Built-in layouts](layouts.md) and [Writing a layout](layout-authoring.md): choose or write the structure and the look.
+- [Pre-processors](preprocessors.md), [Outputs](outputs.md), [Markdown in reports](markup.md), [pandoc: markup engine, citations and office formats](pandoc.md) and [LaTeX fragments for manuscripts](export.md): the reference pages for each
   stage.
-- {doc}`compatibility`: what the package promises about reading old data files.
+- [Compatibility policy](compatibility.md): what the package promises about reading old data files.

@@ -3,7 +3,7 @@
 Everything below is importable from the top-level package: `from scireport import Report, render_bundle`. The heavier
 names (`render_bundle`, `check_bundle`, `export_tex`, ...) load on first use, so `import scireport` stays fast. The API
 follows semantic versioning; a name is removed only after at least one minor version of deprecation warnings
-({doc}`compatibility`).
+([Compatibility policy](compatibility.md)).
 
 ## Public names
 
@@ -153,7 +153,7 @@ The complete docstrings of the main classes and functions, as the source states 
 
 ## Exceptions
 
-Every exception derives from `ScireportError` and carries an error `code` ({doc}`errors`).
+Every exception derives from `ScireportError` and carries an error `code` ([Error codes](errors.md)).
 
 ```{eval-rst}
 .. llms-txt-ignore-start

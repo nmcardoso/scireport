@@ -3,7 +3,7 @@
 The data file (a *report bundle*) is the one input that carries the content of a report: its metadata, its text, its
 numbers and the files behind its tables and figures. A template and a layout decide how that content is laid out and
 how it looks; they never change what it says. This page is the reference for anyone, person or program, who writes or
-reads a bundle. For a guided tour see {doc}`guide`; for the commands see {doc}`cli`.
+reads a bundle. For a guided tour see [User guide](guide.md); for the commands see [Command line](cli.md).
 
 ## Purpose and status
 
@@ -13,7 +13,7 @@ format and on nothing else. Because of that:
 - The spec version is stored in every bundle, in the top-level `scireport` entry (`'1.0'`), and in every template
   and layout, as the range of spec versions it supports (`spec: ">=1.0,<2.0"` in `template.yaml` and `layout.yaml`).
 - This package reads every older minor version of the major it supports natively. A change that alters how an old
-  bundle renders is a bug, not a feature (see {doc}`compatibility`).
+  bundle renders is a bug, not a feature (see [Compatibility policy](compatibility.md)).
 - A bundle holds **summaries, not raw catalogues** (ADR-0001). Aggregate first (a histogram, HEALPix counts, a
   per-bin table) and store the result. The size cap of a ZIP bundle (1 GiB by default) is a safety limit, not a target.
 
@@ -22,7 +22,7 @@ The newest version this package reads and writes is printed by `scireport spec v
 
 Spec 1.0 becomes frozen with the final 1.0.0 release. Until then it can still receive additions: the `bibliography`
 kind was added after the first draft, as a new case of the compat corpus and not as a change of an existing one. The
-policy that applies after the release is in {doc}`compatibility`.
+policy that applies after the release is in [Compatibility policy](compatibility.md).
 
 ## The three physical forms
 
@@ -58,7 +58,7 @@ my-report.scireport/
 - YAML is accepted **only** here (and for a single-file manifest). It exists so that a person or an agent can write
   a data file by hand. `scireport pack` turns it into the canonical form.
 - A hand-authored manifest may leave out the `sha256` and `bytes` of an asset, or write the reference as a bare path;
-  the reader computes them from the files. See {ref}`assets-and-hashes`.
+  the reader computes them from the files. See [References and hashes](#references-and-hashes).
 - Symbolic links are refused (`E404`): a file that is a link, or that resolves outside the bundle directory, is not
   read.
 
@@ -140,7 +140,7 @@ The manifest is a mapping with these top-level blocks. Unknown top-level entries
 | `render` | no | The choices that travel with the data: template, layout, output formats, engines, layout options. Command-line flags override them. |
 | `outline` | no | The structure used by the built-in `generic` template: headings and the keys they show. |
 | `values` | no (empty by default) | Key to value. This is where the content is. |
-| `preprocess` | no | Steps that make figures and tables from values, by registered name (ADR-0006, {doc}`preprocessors`). |
+| `preprocess` | no | Steps that make figures and tables from values, by registered name (ADR-0006, [Pre-processors](preprocessors.md)). |
 | `provenance` | no | Where the content came from. Informational: nothing renders it. |
 
 A minimal data file that validates and renders as it stands (hand-authored YAML):
@@ -167,13 +167,13 @@ Points that the field tables below do not say:
 
 - **`render.template` and `render.layout`** are `name` or `name@VERSION` (`generic@1`, `default@1`). A path to a
   directory is accepted on the command line, not in the manifest. A bare name means the newest version available, so
-  `scireport pack` rewrites it to an explicit version; see {doc}`compatibility`. Left unset, the defaults are
+  `scireport pack` rewrites it to an explicit version; see [Compatibility policy](compatibility.md). Left unset, the defaults are
   `generic@1` and `default@1`.
 - **`render.options`** holds scalar layout options (`paper: letter`, `toc: false`). Which ones exist is defined by the
-  layout ({doc}`layouts`).
+  layout ([Built-in layouts](layouts.md)).
 - **`outline`** is a list. A bare string is a leaf: the value at that key is drawn. A mapping with `title` is a heading,
   and its `children` are the entries below it. A node has exactly one of `title` and `key` (`E206`). Only the `generic`
-  template reads the outline; a template of your own ignores it ({doc}`templates`). A value that no template draws and
+  template reads the outline; a template of your own ignores it ([Writing a template](templates.md)). A value that no template draws and
   that the outline does not list is `W401`.
 - **`meta.date`** is ISO 8601 and is never filled in for you (outputs hold no wall-clock time). A date is normalised on
   load (`20261009` becomes `2026-10-09`).
@@ -375,7 +375,7 @@ There are 17 kinds in spec 1.0 (`scireport spec kinds` lists them with their fie
 | `alert` | A one-line call-out. |
 | `flow` | A pipeline drawn as numbered stages. |
 | `attachment` | A file offered next to the report. |
-| `bibliography` | The BibTeX file that `[@key]` citations in prose refer to; at most one per bundle (`E211`). See {doc}`markup` and {doc}`pandoc`. |
+| `bibliography` | The BibTeX file that `[@key]` citations in prose refer to; at most one per bundle (`E211`). See [Markdown in reports](markup.md) and [pandoc: markup engine, citations and office formats](pandoc.md). |
 
 ### An example with five kinds
 
@@ -644,7 +644,6 @@ everywhere:
   `lpt1` to `lpt9`);
 - two assets that differ only by case would collide on some systems and are refused when a bundle is written (`E404`).
 
-(assets-and-hashes)=
 ### References and hashes
 
 In a sealed bundle (a ZIP, or the JSON that `pack` writes) every asset is a mapping with its path, its SHA-256 and
@@ -700,7 +699,7 @@ reader follows the YAML 1.2 core schema where it matters:
 
 Validation reports every problem at once, never the first one only (ADR-0005). Each problem has a stable code, the key,
 the JSON pointer into the manifest, what was expected and what was found, the template `file:line` that read the key
-(when a template did) and a "did you mean" hint where a close spelling exists. The codes are listed in {doc}`errors`.
+(when a template did) and a "did you mean" hint where a close spelling exists. The codes are listed in [Error codes](errors.md).
 
 Three layers apply to a data file.
 
@@ -815,9 +814,9 @@ enforces them.
 
 ## See also
 
-- {doc}`guide`: building a bundle step by step, in Python and by hand.
-- {doc}`errors`: every error and warning code.
-- {doc}`templates` and {doc}`layouts`: what reads the values and how they look.
-- {doc}`compatibility`: what is promised about this format across versions.
+- [User guide](guide.md): building a bundle step by step, in Python and by hand.
+- [Error codes](errors.md): every error and warning code.
+- [Writing a template](templates.md) and [Built-in layouts](layouts.md): what reads the values and how they look.
+- [Compatibility policy](compatibility.md): what is promised about this format across versions.
 - ADR-0001 (the format), ADR-0002 (keys and kinds), ADR-0005 (validation) and ADR-0008 (compatibility), in
-  {doc}`adr/index`.
+  [Architecture decision records](adr/index.md).
