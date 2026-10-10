@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import shutil
+from pathlib import Path
 from typing import Any
 
 from helpers import PNG_BYTES
 
+import scireport
 from scireport import Bundle, Report
 
 PDF_BYTES = (
@@ -113,7 +116,10 @@ def kitchen_sink(*, split: bool = True, outline: bool = True, real: bool = False
     'tables.csv', {'k': ['x', 'y'], 'n': [10, 20]}, format='csv', caption='A CSV table'
   )
   report.add_attachment(
-    'files.all_rows', CSV_ALL_ROWS, filename='all_rows.csv', media_type='text/csv',
+    'files.all_rows',
+    CSV_ALL_ROWS,
+    filename='all_rows.csv',
+    media_type='text/csv',
     description='All 40 rows behind the cut table',
   )
   report.add_table(
@@ -130,7 +136,7 @@ def kitchen_sink(*, split: bool = True, outline: bool = True, real: bool = False
     alt='A rising curve',
     caption='y = x squared',
     width=0.6,
-    **({'formats': ('png', 'pdf', 'svg')} if real else {}),
+    formats=('png', 'pdf', 'svg') if real else ('png', 'pdf'),
   )
   report.add_image('figures.logo', png, suffix='png', alt='The project logo', caption='Logo')
   report.add_math('math.mass', 'E = mc^2', numbered=True, caption='Mass-energy equivalence')
@@ -196,3 +202,65 @@ def kitchen_sink(*, split: bool = True, outline: bool = True, real: bool = False
     report.set_outline(nodes)
   report.set_render(template='generic@1', layout='minimal@1')
   return report.build()
+
+
+TEMPLATE_YAML = """\
+spec: ">=1.0,<2.0"
+name: {name}
+version: {version}
+title: Test template
+formats: [md, html, tex]
+{extra}
+"""
+
+
+def write_template(
+  root: Path, *, name: str = 'mine', version: int = 1, body: str = '', extra: str = ''
+) -> Path:
+  """Write a template directory under ``root`` and return it.
+
+  Parameters
+  ----------
+  root : pathlib.Path
+      The directory to create the template in.
+  name, version : str, int
+      The template name and version.
+  body : str
+      The content of ``report.j2``.
+  extra : str
+      More YAML lines for ``template.yaml`` (for example ``fields:``).
+
+  Returns
+  -------
+  pathlib.Path
+      ``root``.
+  """
+  root.mkdir(parents=True, exist_ok=True)
+  (root / 'template.yaml').write_text(
+    TEMPLATE_YAML.format(name=name, version=version, extra=extra), encoding='utf-8'
+  )
+  (root / 'report.j2').write_text(body, encoding='utf-8')
+  return root
+
+
+def write_layout(root: Path, *, name: str = 'mine', version: int = 1) -> Path:
+  """Copy the built-in ``minimal`` layout to ``root`` under another name.
+
+  Parameters
+  ----------
+  root : pathlib.Path
+      The directory to create the layout in.
+  name, version : str, int
+      The layout name and version.
+
+  Returns
+  -------
+  pathlib.Path
+      ``root``.
+  """
+  source = Path(scireport.__file__).parent / 'layouts' / 'minimal' / '1'
+  shutil.copytree(source, root)
+  text = (root / 'layout.yaml').read_text(encoding='utf-8')
+  text = text.replace('name: minimal', f'name: {name}').replace('version: 1', f'version: {version}')
+  (root / 'layout.yaml').write_text(text, encoding='utf-8')
+  return root

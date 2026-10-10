@@ -54,10 +54,12 @@ def exception_location(exc: BaseException, roots: list[Path]) -> str | None:
   """
   found = None
   tb: TracebackType | None = exc.__traceback__
-  for entry, _ in traceback.walk_tb(tb):
-    template = entry.f_globals.get('__jinja_template__')
+  for frame, lineno in traceback.walk_tb(tb):
+    template = frame.f_globals.get('__jinja_template__')
     if template is not None:
-      found = _format(template.filename, template.get_corresponding_lineno(entry.f_lineno), roots)
+      found = _format(template.filename, template.get_corresponding_lineno(lineno), roots)
+    elif '__jinja_exception__' in frame.f_globals:
+      found = _format(frame.f_code.co_filename, lineno, roots)
   return found
 
 
