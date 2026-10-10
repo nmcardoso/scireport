@@ -1,7 +1,8 @@
 # TeX Live packages for the pdf-latex and examples jobs (tlmgr names). Keep in step with the
 # \RequirePackage lines of the layouts' .sty files (phase S3: default and modern need tcolorbox,
-# tikz, fancyhdr, fontspec, changepage, enumitem and needspace). siunitx, biblatex and biber are
-# not used before phase S5, so they are not installed.
+# tikz, fancyhdr, fontspec, changepage, enumitem and needspace). Phase S5 adds biblatex and biber
+# (citations in the LaTeX output; names and dependencies checked against texlive.tlpdb). siunitx is
+# still not used: quantities are typeset with \ensuremath macros.
 # ulem is in collection-plaingeneric, which none of the collections below pulls in. longtable is not a
 # package of its own (it ships in "tools", part of scheme-basic), so it is not listed.
 scheme-basic
@@ -22,3 +23,5 @@ changepage
 enumitem
 needspace
 pdfcol
+biblatex
+biber

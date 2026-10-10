@@ -39,7 +39,8 @@ Planned layout (`docs/conventions.md`). Phase S0 ships only the skeleton; the re
   - `render/` Jinja environments, components, filters, outputs (`md`, `html`, `tex`), PDF engines
   - `layouts/{default,modern}/1/`, `templates/{generic,kitchen-sink}/1/`
   - `styles/` mplstyle files; `preprocess/{core,astro}/` registered pre-processors
-  - `agent/` packaged skill and MCP server; `cli/` Typer commands
+  - `agent/` packaged skill, MCP server, catalogue and skill generator; `export/` LaTeX fragments;
+    `cli/` Typer commands
   - `logging_utils.py`: byte-identical copy of the monorepo `python-logging` skill (never edit, never reformat)
 - `tests/{unit,property,golden,integration,compat,fixtures}`, `examples/`, `docs/`, `docs/adr/`
 - `.agents/`: this file, `agents/` (subagent definitions), `skills/` (`python-logging` copy; `scireport` is a

@@ -6,6 +6,26 @@ specification (ADR-0008).
 
 ## [Unreleased]
 
+### Added (phase S5)
+
+- **pandoc** (ADR-0011, `scireport[pandoc]`, `pypandoc-binary`, imported lazily): `--markup-engine pandoc` / `render.markup_engine: pandoc` next to the default `mistletoe`, never chosen automatically; prose is read with pandoc's CommonMark (footnotes, definition lists, task lists) under `--sandbox`, with the same rules for what is outside the subset (`W701`); the pandoc version goes into `render-manifest.json` and `render.pandoc_version` (set by `pack`) warns with `W501` when it differs. The differences between the engines are listed in `docs/markup.md` and committed as golden files for both.
+- **Citations**: the `bibliography` kind (BibTeX asset, optional CSL asset, optional biblatex style; at most one per bundle, `E211`), `Report.add_bibliography`, `[@key]` / `[see @a, p. 3; @b]` / `[-@key]` in Markdown text values, `c.references()`. Markdown and HTML go through pandoc's `citeproc`, run once over the whole document so numeric styles number consistently; LaTeX uses `biblatex` with `biber` and needs no pandoc. Unknown key: `E212`.
+- **Word, OpenDocument and EPUB**: `-f docx`, `-f odt`, `-f epub`, converted from the unsplit Markdown or from the HTML (`--office-source`), with an optional `reference.docx` (`--reference-doc`, or `reference_docx:` in `layout.yaml`); archives are reproducible.
+- **LaTeX fragments for manuscripts**: `scireport export tex BUNDLE --keys ... -o DIR` writes `tab_<key>.tex`, `fig_<key>.tex` (+ the figure file) and `numbers.tex` with one `\newcommand` per number (CamelCase, digits spelled out, `--prefix`, collision `E807`); `scireport.export_tex`, `write_export`. A test compiles a stub manuscript that inputs every fragment.
+- **The full command line**: `new`, `export tex`, `mplstyle path|show|palette`, `agent install-skill [--check]`, `agent mcp-config`, `mcp serve`; `templates NAME` and `layouts NAME` describe one; `--json` on the commands agents use; `validate` takes `--markup-engine` and `--office-source`.
+- **The MCP server** (`scireport[mcp]`, official `mcp` SDK 2.x, `MCPServer` over stdio): tools `list_templates`, `describe_template`, `list_layouts`, `list_preprocessors`, `describe_preprocessor`, `spec_schema`, `inspect_bundle`, `validate_bundle`, `render_bundle`, `error_help`; the skill pages are resources; paths are confined to `--root` (`E412`); problems come back as data.
+- **The skill** (`scireport/agent/skill/scireport/`): `SKILL.md` and eight reference pages, with tables generated from the code by `make skill` and a drift test; `scireport.error_help.HELP` gives a usual cause and fix for every code.
+- **Public API**: `scireport.__all__` (37 names; the heavier ones load on first use) and a snapshot test (`tests/unit/public_api.txt`).
+- Error codes `E211`, `E212`, `E412`, `E506`, `E507`, `E807`, `E808`, `E904`, `W501`.
+- The spec-1.0 compat corpus gains the `bibliography` case (appended to `FROZEN.sha256`; no existing line changed).
+
+### Changed (phase S5)
+
+- `.github/tl_packages` gains `biblatex` and `biber`; CI gains an `mcp` job and installs the pandoc extra in the `pdf-latex` job.
+- `pandoc`-dependent and `mcp`-dependent tests are marked `integration` and skip when the extra is missing (they fail with `SCIREPORT_REQUIRE_TOOLCHAIN=1`).
+- A format `docx`, `odt` or `epub` in a bundle's `render.formats` is now written (it was skipped with a log line).
+- `scireport.preprocess` CLI listing code moved to `scireport.agent.catalogue` (shared with the MCP server).
+
 ### Added (phase S4)
 
 - Pre-processors (ADR-0006): `@preprocessor(name, version, inputs, outputs)` with typed `Port`s, pydantic validation of the parameters from the function signature, the registry (built-ins, the entry-point group `scireport.preprocessors`, `register_preprocessor()`), name-only references in data files (`module:function` needs `--allow-import`), the DAG check before anything runs (every problem reported at once), outputs written to a work directory with the input bundle untouched unless `--write-back`, and a content-hash cache (name, version, parameters, input hashes, output keys, seed, scireport version, style hash). `Context` offers `value`, `load_table`, `mplstyle`, `figure`, `save_figure` (the sidecar data is required), `save_table`, `seed`, `rng`, `look` and `log`.

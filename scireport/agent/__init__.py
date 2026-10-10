@@ -1,1 +1,1 @@
-"""Agent kit: the packaged skill and, from phase S5, the MCP server."""
+"""Agent kit: the packaged skill, the MCP server, the catalogue they share and the skill generator."""

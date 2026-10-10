@@ -3,9 +3,10 @@
 Data-centric scientific report engine. One **data file** (a report bundle), one **template** (structure) and one
 **layout** (look) go in; **Markdown** (for LLMs), **HTML**, **LaTeX** and **PDF** (for humans) come out.
 
-> **Status: pre-alpha (phase S3).** The data file, templates, the `default` and `modern` layouts, and the
-> Markdown, HTML, LaTeX and PDF (WeasyPrint and LaTeX) outputs work. Pre-processors, pandoc and the agent kit
-> arrive in phases S4 to S5.
+> **Status: release candidate (phase S5).** The data file, templates, the `default` and `modern` layouts, the
+> Markdown, HTML, LaTeX and PDF outputs, pre-processors, pandoc (citations, Word/ODT/EPUB), LaTeX fragments for
+> manuscripts, the full command line, the MCP server and the agent skill work. The documentation site arrives in
+> S6 and the 1.0 freeze in S7.
 
 Inspired by the MOSAICS report engine of `datex`, but standalone and data-centric.
 

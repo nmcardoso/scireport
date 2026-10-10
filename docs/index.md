@@ -12,7 +12,10 @@ specification, API and reference pages arrive with phases S1 to S6.
 templates
 layouts
 markup
+pandoc
 outputs
+export
+agent
 styles
 preprocessors
 examples

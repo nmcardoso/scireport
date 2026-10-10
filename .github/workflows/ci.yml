@@ -102,7 +102,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           enable-cache: true
-      - run: uv sync --group dev
+      - run: uv sync --group dev --extra pandoc
       - run: uv run pytest -m pdf_latex
 
   pandoc:
@@ -117,6 +117,19 @@ jobs:
           enable-cache: true
       - run: uv sync --group dev --extra pandoc
       - run: uv run pytest -m pandoc
+
+  mcp:
+    runs-on: ubuntu-latest
+    env:
+      SCIREPORT_REQUIRE_TOOLCHAIN: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --group dev --extra mcp
+      - run: uv run pytest -m mcp
 
   examples:
     runs-on: ubuntu-latest
