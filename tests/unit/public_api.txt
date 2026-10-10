@@ -1,0 +1,127 @@
+class Bundle
+  def __init__(self, manifest, backend, *, form, source=None)
+  def close(self)
+  def with_manifest(self, manifest)
+  def with_files(self, manifest, files)
+  property asset_paths
+  def asset_ref(self, path)
+  def read_asset(self, ref)
+  def open_asset(self, ref)
+  def read_text(self, key)
+  def read_table(self, key)
+  def verify(self)
+class BundleError
+  bases ScireportError
+  exit_code 2
+class ExportError
+  bases ScireportError
+  exit_code 2
+class ExportResult
+  def __init__(self, files, macros)
+class Issue
+  property severity
+  def to_dict(self)
+  def describe(self)
+  def format(self)
+  def __init__(self, code, message, pointer='', key=None, expected=None, found=None, hint=None, location=None)
+class KeyConflictError
+  bases ScireportError
+  exit_code 2
+class Manifest
+  field scireport
+  field meta
+  field render
+  field outline
+  field values
+  field preprocess
+  field provenance
+class MissingDependencyError
+  bases ScireportError
+  exit_code 3
+class PandocError
+  bases ScireportError
+  exit_code 1
+class PdfError
+  bases ScireportError
+  exit_code 1
+class PreprocessError
+  bases ScireportError
+  exit_code 2
+  def __init__(self, issues)
+class PreprocessRunError
+  bases ScireportError
+  exit_code 1
+class RenderError
+  bases ScireportError
+  exit_code 2
+  def __init__(self, issues)
+class RenderResult
+  def write(self, out_dir)
+  def __init__(self, files, manifest, issues, formats)
+class Report
+  def __init__(self, title, *, subtitle=None, authors=(), date=None, version=None, pipeline=None, footer=None, abstract=None, keywords=(), language='en', generator=None)
+  property keys
+  def set_render(self, **options)
+  def set_outline(self, nodes)
+  def add_preprocess(self, name, *, inputs=None, outputs=None, params=None, version=None, id=None)
+  def add_input(self, name, *, sha256=None, uri=None)
+  def add(self, key, value)
+  def add_text(self, key, text, *, format='plain', alt=None, as_asset=None)
+  def add_number(self, key, value, *, unit=None, format=None, uncertainty=None, interval=None, missing=None)
+  def add_bool(self, key, value)
+  def add_date(self, key, value)
+  def add_list(self, key, items, *, ordered=False)
+  def add_mapping(self, key, entries)
+  def add_table(self, key, data, *, columns=None, caption=None, format='parquet', inline=False, row_status=None, row_status_column=None, emphasis=(), max_rows=None, overflow_attachment=None)
+  def add_figure(self, key, figure, *, alt, caption=None, width=1.0, data=None, formats=('png', 'pdf'), dpi=200)
+  def add_image(self, key, source, *, suffix=None, alt=None, caption=None, width=1.0)
+  def add_math(self, key, latex, *, display=True, numbered=False, caption=None)
+  def add_code(self, key, source, *, language=None, caption=None, as_asset=None)
+  def add_metrics(self, key, items)
+  def add_status(self, key, level, headline, detail=None)
+  def add_alert(self, key, level, text)
+  def add_flow(self, key, stages)
+  def add_attachment(self, key, source, *, filename=None, media_type=None, description=None)
+  def add_bibliography(self, key, source, *, csl=None, style=None)
+  def manifest(self)
+  def build(self)
+  def write(self, dest, *, form=None, overwrite=False)
+const SPEC_VERSION = '1.0'
+class ScireportError
+  bases Exception
+  exit_code 2
+  def __init__(self, message, *, code, hint=None, issues=None)
+class SpecError
+  bases ScireportError
+  exit_code 2
+  def __init__(self, issues)
+class SpecVersionError
+  bases ScireportError
+  exit_code 2
+class TemplateError
+  bases ScireportError
+  exit_code 2
+class ValidationReport
+  property errors
+  property warnings
+  property ok
+  property exit_code
+  def to_dict(self)
+  def raise_for_errors(self)
+  def __init__(self, issues, strict=False)
+const __version__ = '0.1.0.dev0'
+def check_bundle(bundle, *, template=None, layout=None, formats=None, options=None, markup_engine=None, math_renderer=None, pdf_engine=None, latex_engine=None, md_split=None, strict=False, render=True, preprocess=True, allow_import=False, cache_dir=None, office_source=None, reference_doc=None)
+def export_tex(bundle, keys=None, *, prefix='', bare=False, graphics_prefix='', max_rows=None)
+def figure(width=1.0, height=3.6, nrows=1, ncols=1, *, layout='default', paper='a4', subplot_kw=None)
+def list_layouts()
+def list_templates()
+def mplstyle(layout='default', *, rc=None)
+def mplstyle_path(layout='default')
+def open_bundle(path, *, max_bytes=1073741824)
+def palette(layout='default')
+def parse_manifest(raw, *, resolver=None)
+def preprocess_bundle(bundle, *, work_dir=None, cache_dir=None, allow_import=False, layout=None, seed=0, use_cache=True)
+def preprocessor(name, *, version, inputs=None, outputs=None, render=None, requires=None)
+def render_bundle(bundle, *, template=None, layout=None, formats=None, options=None, markup_engine=None, math_renderer=None, pdf_engine=None, latex_engine=None, md_split=None, flat=False, strict=False, preprocess=True, allow_import=False, cache_dir=None, office_source=None, reference_doc=None)
+def write_bundle(bundle, dest, *, form=None, overwrite=False, max_bytes=1073741824)
+def write_export(result, out_dir)
