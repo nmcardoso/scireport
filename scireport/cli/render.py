@@ -12,8 +12,14 @@ from scireport.bundle.backends import DEFAULT_MAX_BYTES
 from scireport.cli._common import MEGABYTE, echo_json, reporting_errors
 from scireport.errors import TemplateError
 from scireport.logging_utils import get_logger
-from scireport.render.definition import FORMATS, Format
-from scireport.render.pipeline import DEFAULT_LATEX_ENGINE, check_bundle, render_bundle
+from scireport.render.definition import FORMATS
+from scireport.render.pdf import PDF_ENGINES
+from scireport.render.pipeline import (
+  DEFAULT_LATEX_ENGINE,
+  DEFAULT_PDF_ENGINE,
+  check_bundle,
+  render_bundle,
+)
 from scireport.render.registry import list_layouts, list_templates
 
 log = get_logger(__name__)
@@ -28,7 +34,7 @@ LayoutOpt = Annotated[
 ]
 FormatOpt = Annotated[
   list[str] | None,
-  typer.Option('--format', '-f', help='Output format: md, html or tex (repeat for several).'),
+  typer.Option('--format', '-f', help='Output format: md, html, tex or pdf (repeat for several).'),
 ]
 OptionOpt = Annotated[
   list[str] | None,
@@ -96,17 +102,26 @@ def render(
   layout: LayoutOpt = None,
   formats: FormatOpt = None,
   option: OptionOpt = None,
+  pdf_engine: Annotated[
+    str | None,
+    typer.Option(
+      '--pdf-engine',
+      help=f'How a PDF is made: {", ".join(PDF_ENGINES)} (default {DEFAULT_PDF_ENGINE}).',
+    ),
+  ] = None,
   latex_engine: Annotated[
     str | None,
     typer.Option(
-      '--latex-engine', help=f'TeX engine of the LaTeX project (default {DEFAULT_LATEX_ENGINE}).'
+      '--latex-engine',
+      help=f'TeX engine of the LaTeX project and the PDF (default {DEFAULT_LATEX_ENGINE}).',
     ),
   ] = None,
   markup_engine: Annotated[
     str | None, typer.Option('--markup-engine', help='Markdown converter (mistletoe).')
   ] = None,
   math_renderer: Annotated[
-    str | None, typer.Option('--math-renderer', help='Math renderer for HTML (mathtext).')
+    str | None,
+    typer.Option('--math-renderer', help='Math renderer for HTML: mathtext or usetex.'),
   ] = None,
   md_split: Annotated[
     bool | None,
@@ -122,10 +137,12 @@ def render(
   as_json: JsonOpt = False,
   max_size: MaxSize = DEFAULT_MAX_BYTES // MEGABYTE,
 ) -> None:
-  """Render a bundle to Markdown, HTML and/or a LaTeX project.
+  """Render a bundle to Markdown, HTML, a LaTeX project and/or a PDF.
 
-  Each format goes to its own folder of the output directory (md/, html/, tex/), next to
-  render-manifest.json. Nothing is written when validation or rendering finds an error.
+  Each format goes to its own folder of the output directory (md/, html/, tex/, pdf/), next to
+  render-manifest.json. A PDF needs system libraries: pango for --pdf-engine weasyprint, TeX Live
+  for --pdf-engine latex (exit code 3 when they are missing). Nothing is written when validation
+  or rendering finds an error.
   """
   with (
     reporting_errors(as_json=as_json),
@@ -139,6 +156,7 @@ def render(
       options=_options(option),
       markup_engine=markup_engine,
       math_renderer=math_renderer,
+      pdf_engine=pdf_engine,
       latex_engine=latex_engine,
       md_split=md_split,
       flat=flat,
@@ -190,17 +208,18 @@ def _echo_listing(listing: list[Any], as_json: bool) -> None:
     )
 
 
-def _formats(names: list[str] | None) -> list[Format] | None:
+def _formats(names: list[str] | None) -> list[str] | None:
   """Check the formats given on the command line."""
   if not names:
     return None
-  chosen: list[Format] = []
+  allowed = (*FORMATS, 'pdf')
+  chosen: list[str] = []
   for name in names:
-    if name not in FORMATS:
-      later = {'pdf': 'phase S3', 'docx': 'phase S5', 'odt': 'phase S5', 'epub': 'phase S5'}
+    if name not in allowed:
+      later = {'docx': 'phase S5', 'odt': 'phase S5', 'epub': 'phase S5'}
       hint = f'{name} output arrives in {later[name]}.' if name in later else None
       raise TemplateError(
-        f'unknown output format {name!r} (this version writes: {", ".join(FORMATS)})',
+        f'unknown output format {name!r} (this version writes: {", ".join(allowed)})',
         code='E805' if name in later else 'E801',
         hint=hint,
       )

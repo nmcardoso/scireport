@@ -26,6 +26,7 @@ from scireport.render.definition import FORMATS, Format
 from scireport.render.layout import Layout
 from scireport.render.markup import default_converter
 from scireport.render.outputs import assemble
+from scireport.render.pdf import LATEX_ENGINES, PDF_ENGINES, PDF_NAME, source_date_epoch
 from scireport.render.registry import DEFAULT_LAYOUT, DEFAULT_TEMPLATE, load_layout, load_template
 from scireport.render.session import RenderSession
 from scireport.render.template import Template
@@ -39,7 +40,8 @@ log = get_logger(__name__)
 MANIFEST_NAME = 'render-manifest.json'
 """Name of the file that records the inputs, versions and outputs of a render."""
 DEFAULT_LATEX_ENGINE = 'lualatex'
-_DEFERRED_FORMATS = {'pdf': 'S3', 'docx': 'S5', 'odt': 'S5', 'epub': 'S5'}
+DEFAULT_PDF_ENGINE = 'weasyprint'
+_DEFERRED_FORMATS = {'docx': 'S5', 'odt': 'S5', 'epub': 'S5'}
 
 
 @dataclass(frozen=True)
@@ -56,13 +58,13 @@ class RenderResult:
   issues : tuple of Issue
       The warnings found while validating and rendering; a render with errors raises instead.
   formats : tuple of str
-      The formats that were written.
+      The formats that were written (``pdf`` last).
   """
 
   files: dict[str, bytes]
   manifest: dict[str, Any]
   issues: tuple[Issue, ...]
-  formats: tuple[Format, ...]
+  formats: tuple[str, ...]
 
   def write(self, out_dir: Path | str) -> list[Path]:
     """Write every file under ``out_dir`` and return their paths.
@@ -96,6 +98,8 @@ class _Plan:
   template: Template
   layout: Layout
   formats: list[Format]
+  pdf: bool
+  pdf_engine: str
   options: dict[str, Any]
   latex_engine: str
   markup_engine: str
@@ -109,10 +113,11 @@ def render_bundle(
   *,
   template: str | Path | None = None,
   layout: str | Path | None = None,
-  formats: list[Format] | None = None,
+  formats: Sequence[str] | None = None,
   options: Mapping[str, object] | None = None,
   markup_engine: str | None = None,
   math_renderer: str | None = None,
+  pdf_engine: str | None = None,
   latex_engine: str | None = None,
   md_split: bool | None = None,
   flat: bool = False,
@@ -131,16 +136,21 @@ def render_bundle(
       ``name``, ``name@version`` or a template directory.
   layout : str or pathlib.Path or None, default=None
       ``name``, ``name@version`` or a layout directory.
-  formats : list of {'md', 'html', 'tex'} or None, default=None
-      Formats to write; the bundle's, or all that the template and layout support.
+  formats : list of {'md', 'html', 'tex', 'pdf'} or None, default=None
+      Formats to write; the bundle's, or all text formats that the template and layout support.
+      ``pdf`` is made from the HTML (``weasyprint``) or the LaTeX project (``latex``); it is never
+      a default, because it needs system libraries.
   options : mapping or None, default=None
       Layout options; they override the bundle's ``render.options`` and the layout defaults.
   markup_engine : str or None, default=None
       ``mistletoe`` (the only engine in this version).
   math_renderer : str or None, default=None
-      ``mathtext`` (the only renderer in this version).
+      ``mathtext`` (pure Python) or ``usetex`` (real LaTeX through matplotlib).
+  pdf_engine : str or None, default=None
+      ``weasyprint`` (default) or ``latex``: how a PDF is made.
   latex_engine : str or None, default=None
-      ``lualatex``, ``xelatex`` or ``pdflatex``: the engine the LaTeX project is meant for.
+      ``lualatex``, ``xelatex`` or ``pdflatex``: the engine of the LaTeX project and of the
+      ``latex`` PDF engine.
   md_split : bool or None, default=None
       Split Markdown into one file per chapter with an ``md_file``; by default it splits when
       the template or outline names such files.
@@ -160,6 +170,10 @@ def render_bundle(
       Carrying every problem when validation or rendering found errors (or warnings, if strict).
   TemplateError
       When the template or layout cannot be found or loaded, or an option is unsupported.
+  MissingDependencyError
+      With ``E901`` (exit code 3) when a PDF engine needs pango or TeX Live and it is missing.
+  PdfError
+      With ``E902`` when a PDF engine fails.
   """
   plan = _plan(
     bundle,
@@ -169,12 +183,19 @@ def render_bundle(
     options,
     markup_engine,
     math_renderer,
+    pdf_engine,
     latex_engine,
     md_split,
     flat,
   )
   static = validate_bundle(
-    bundle, plan.template, plan.layout, plan.formats, options=plan.options, strict=strict
+    bundle,
+    plan.template,
+    plan.layout,
+    _sources(plan),
+    options=plan.options,
+    strict=strict,
+    math_renderer=plan.math_renderer,
   )
   static.raise_for_errors()
   files, found = _render_all(bundle, plan)
@@ -184,7 +205,8 @@ def render_bundle(
   files[MANIFEST_NAME] = (json.dumps(manifest, indent=2, ensure_ascii=False) + '\n').encode('utf-8')
   for issue in final.issues:
     log.warning('%s', issue.format())
-  return RenderResult(dict(sorted(files.items())), manifest, final.issues, tuple(plan.formats))
+  outputs = (*plan.formats, 'pdf') if plan.pdf else tuple(plan.formats)
+  return RenderResult(dict(sorted(files.items())), manifest, final.issues, outputs)
 
 
 def check_bundle(
@@ -192,10 +214,11 @@ def check_bundle(
   *,
   template: str | Path | None = None,
   layout: str | Path | None = None,
-  formats: list[Format] | None = None,
+  formats: Sequence[str] | None = None,
   options: Mapping[str, object] | None = None,
   markup_engine: str | None = None,
   math_renderer: str | None = None,
+  pdf_engine: str | None = None,
   latex_engine: str | None = None,
   md_split: bool | None = None,
   strict: bool = False,
@@ -212,7 +235,8 @@ def check_bundle(
   ----------
   bundle : Bundle
       The opened bundle.
-  template, layout, formats, options, markup_engine, math_renderer, latex_engine, md_split
+  template, layout, formats, options, markup_engine, math_renderer, pdf_engine, latex_engine
+  md_split
       As for :func:`render_bundle`.
   strict : bool, default=False
       Treat warnings as errors.
@@ -232,16 +256,23 @@ def check_bundle(
     options,
     markup_engine,
     math_renderer,
+    pdf_engine,
     latex_engine,
     md_split,
     False,
   )
   static = validate_bundle(
-    bundle, plan.template, plan.layout, plan.formats, options=plan.options, strict=strict
+    bundle,
+    plan.template,
+    plan.layout,
+    _sources(plan),
+    options=plan.options,
+    strict=strict,
+    math_renderer=plan.math_renderer,
   )
   if not static.ok or not render:
     return static
-  _, found = _render_all(bundle, plan)
+  _, found = _render_all(bundle, plan, with_pdf=False)
   return ValidationReport(tuple(dedupe([*static.issues, *found])), strict)
 
 
@@ -249,10 +280,11 @@ def _plan(
   bundle: Bundle,
   template: str | Path | None,
   layout: str | Path | None,
-  formats: list[Format] | None,
+  formats: Sequence[str] | None,
   options: Mapping[str, object] | None,
   markup_engine: str | None,
   math_renderer: str | None,
+  pdf_engine: str | None,
   latex_engine: str | None,
   md_split: bool | None,
   flat: bool,
@@ -264,15 +296,22 @@ def _plan(
   engine = markup_engine or spec.markup_engine or 'mistletoe'
   renderer = math_renderer or spec.math_renderer or 'mathtext'
   _check_supported(engine, renderer)
-  wanted = _formats(formats, spec.formats, chosen_template, chosen_layout)
-  if flat and len(wanted) != 1:
+  pdf_name = pdf_engine or spec.pdf_engine or DEFAULT_PDF_ENGINE
+  tex_engine = latex_engine or spec.latex_engine or DEFAULT_LATEX_ENGINE
+  _check_engines(pdf_name, tex_engine)
+  wanted, pdf = _formats(formats, spec.formats, chosen_template, chosen_layout)
+  if pdf:
+    _check_pdf(chosen_layout, chosen_template, pdf_name)
+  if flat and len(wanted) + int(pdf) != 1:
     raise TemplateError('flat output needs exactly one format', code='E801')
   return _Plan(
     template=chosen_template,
     layout=chosen_layout,
     formats=wanted,
+    pdf=pdf,
+    pdf_engine=pdf_name,
     options={**spec.options, **dict(options or {})},
-    latex_engine=latex_engine or spec.latex_engine or DEFAULT_LATEX_ENGINE,
+    latex_engine=tex_engine,
     markup_engine=engine,
     math_renderer=renderer,
     flat=flat,
@@ -280,20 +319,74 @@ def _plan(
   )
 
 
-def _render_all(bundle: Bundle, plan: _Plan) -> tuple[dict[str, bytes], list[Issue]]:
+def _source_format(plan: _Plan) -> Format:
+  """Return the text format a PDF is made from: HTML for WeasyPrint, the LaTeX project else."""
+  return 'html' if plan.pdf_engine == 'weasyprint' else 'tex'
+
+
+def _sources(plan: _Plan) -> list[Format]:
+  """List the text formats to render and validate: the requested ones and the PDF's source."""
+  wanted = list(plan.formats)
+  if plan.pdf and _source_format(plan) not in wanted:
+    wanted.append(_source_format(plan))
+  return [fmt for fmt in FORMATS if fmt in wanted]
+
+
+def _render_all(
+  bundle: Bundle, plan: _Plan, *, with_pdf: bool = True
+) -> tuple[dict[str, bytes], list[Issue]]:
   """Render every format in memory; return the files and everything found on the way."""
   resolved = plan.layout.resolve_options(plan.options)
-  files: dict[str, bytes] = {}
+  rendered: dict[str, dict[str, bytes]] = {}
   issues: list[Issue] = []
-  for fmt in plan.formats:
-    rendered, found = _render_format(
-      bundle, plan.template, plan.layout, fmt, resolved, plan.latex_engine, plan.md_split
+  to_render: list[Format] = _sources(plan) if with_pdf else list(plan.formats)
+  for fmt in to_render:
+    out, found = _render_format(
+      bundle,
+      plan.template,
+      plan.layout,
+      fmt,
+      resolved,
+      plan.latex_engine,
+      plan.md_split,
+      plan.math_renderer,
     )
     issues.extend(found)
+    rendered[fmt] = out
+  if plan.pdf and with_pdf and not any(issue.severity == 'error' for issue in issues):
+    data, found = _make_pdf(bundle, plan, rendered)
+    issues.extend(found)
+    rendered['pdf'] = {PDF_NAME: data}
+  names: list[str] = [*plan.formats, 'pdf'] if plan.pdf and with_pdf else list(plan.formats)
+  files: dict[str, bytes] = {}
+  for out_fmt in names:
     files.update(
-      {(name if plan.flat else f'{fmt}/{name}'): data for name, data in rendered.items()}
+      {
+        (name if plan.flat else f'{out_fmt}/{name}'): data
+        for name, data in rendered.get(out_fmt, {}).items()
+      }
     )
   return files, issues
+
+
+def _make_pdf(
+  bundle: Bundle, plan: _Plan, rendered: dict[str, dict[str, bytes]]
+) -> tuple[bytes, list[Issue]]:
+  """Make the PDF from the HTML (WeasyPrint) or the LaTeX project (latexmk)."""
+  if plan.pdf_engine == 'weasyprint':
+    from scireport.render.pdf.weasy import html_to_pdf
+
+    return html_to_pdf(
+      rendered['html']['report.html'].decode('utf-8'),
+      epoch=source_date_epoch(bundle.manifest.meta.date),
+    )
+  from scireport.render.pdf.latex import compile_project
+
+  return compile_project(
+    rendered['tex'],
+    engine=plan.latex_engine,
+    epoch=source_date_epoch(bundle.manifest.meta.date),
+  )
 
 
 def _render_format(
@@ -304,6 +397,7 @@ def _render_format(
   options: dict[str, Any],
   latex_engine: str,
   md_split: bool | None,
+  math_renderer: str = 'mathtext',
 ) -> tuple[dict[str, bytes], list[Issue]]:
   """Render one format; Markdown is rendered a second time when it turns out to be split."""
   split = bool(md_split) if fmt == 'md' else False
@@ -318,6 +412,7 @@ def _render_format(
       converter=default_converter(),
       md_split=with_split,
       latex_engine=latex_engine,
+      math_renderer=math_renderer,
     )
     body, document = session.render()
     return session, body, document
@@ -332,29 +427,68 @@ def _render_format(
 
 
 def _formats(
-  requested: list[Format] | None,
+  requested: Sequence[str] | None,
   from_bundle: Sequence[str],
   template: Template,
   layout: Layout,
-) -> list[Format]:
-  """Choose the formats: the caller's, the bundle's, or everything both sides support."""
+) -> tuple[list[Format], bool]:
+  """Choose the text formats and whether a PDF is wanted.
+
+  The caller's formats win, then the bundle's; with neither, every text format that both the
+  template and the layout support (never a PDF, which needs system libraries).
+  """
   if requested:
-    return [fmt for fmt in FORMATS if fmt in requested]
+    return [fmt for fmt in FORMATS if fmt in requested], 'pdf' in requested
   declared = [fmt for fmt in FORMATS if fmt in from_bundle]
+  pdf = 'pdf' in from_bundle
   for name in from_bundle:
-    if name not in FORMATS:
+    if name not in FORMATS and name != 'pdf':
       log.info(
         'format %r is not written by this step (%s); skipping it',
         name,
         _DEFERRED_FORMATS.get(name, 'later'),
       )
-  if declared:
-    return declared
+  if declared or pdf:
+    return declared, pdf
   return [
     fmt
     for fmt in FORMATS
     if fmt in template.definition.formats and fmt in layout.definition.formats
-  ]
+  ], False
+
+
+def _check_engines(pdf_engine: str, latex_engine: str) -> None:
+  """Refuse a PDF engine or a TeX engine this version does not know."""
+  if pdf_engine not in PDF_ENGINES:
+    raise TemplateError(
+      f'unknown PDF engine {pdf_engine!r}',
+      code='E805',
+      hint=f'Choose one of: {", ".join(PDF_ENGINES)}.',
+    )
+  if latex_engine not in LATEX_ENGINES:
+    raise TemplateError(
+      f'unknown TeX engine {latex_engine!r}',
+      code='E805',
+      hint=f'Choose one of: {", ".join(LATEX_ENGINES)}.',
+    )
+
+
+def _check_pdf(layout: Layout, template: Template, pdf_engine: str) -> None:
+  """Check that the layout supports the PDF engine and the template its source format."""
+  if pdf_engine not in layout.definition.pdf_engines:
+    have = ', '.join(layout.definition.pdf_engines) or 'none'
+    raise TemplateError(
+      f'layout {layout.ref} does not support the {pdf_engine} PDF engine (it supports {have})',
+      code='E903',
+    )
+  source: Format = 'html' if pdf_engine == 'weasyprint' else 'tex'
+  layout.files(source)
+  if source not in template.definition.formats:
+    raise TemplateError(
+      f'template {template.ref} does not support the {source} format that the {pdf_engine} '
+      'PDF engine needs',
+      code='E706',
+    )
 
 
 def _check_supported(engine: str, renderer: str) -> None:
@@ -365,11 +499,11 @@ def _check_supported(engine: str, renderer: str) -> None:
       code='E805',
       hint='Only mistletoe is available; pandoc arrives in phase S5.',
     )
-  if renderer != 'mathtext':
+  if renderer not in ('mathtext', 'usetex'):
     raise TemplateError(
-      f'math renderer {renderer!r} is not available in this version',
+      f'unknown math renderer {renderer!r}',
       code='E805',
-      hint='Only mathtext is available; usetex arrives in phase S3.',
+      hint='Choose mathtext (pure Python) or usetex (real LaTeX through matplotlib).',
     )
 
 
@@ -392,7 +526,7 @@ def _render_manifest(
     'template': {'ref': plan.template.ref, 'sha256': plan.template.sha256},
     'layout': {'ref': plan.layout.ref, 'sha256': plan.layout.sha256},
     'options': plan.layout.resolve_options(plan.options),
-    'formats': list(plan.formats),
+    'formats': [*plan.formats, 'pdf'] if plan.pdf else list(plan.formats),
     'engines': {
       'markup': plan.markup_engine,
       'mistletoe': mistletoe.__version__,
@@ -400,6 +534,8 @@ def _render_manifest(
       'matplotlib': matplotlib.__version__,
       'jinja2': jinja2.__version__,
       'latex': plan.latex_engine,
+      'pdf': plan.pdf_engine if plan.pdf else None,
+      **_pdf_versions(plan),
     },
     'outputs': {
       name: {'sha256': sha256_bytes(data), 'bytes': len(data)}
@@ -407,3 +543,16 @@ def _render_manifest(
     },
     'warnings': [issue.to_dict() for issue in report.issues if issue.severity == 'warning'],
   }
+
+
+def _pdf_versions(plan: _Plan) -> dict[str, str]:
+  """Record the version of the PDF engine that ran: WeasyPrint's, or the TeX engine's banner."""
+  if not plan.pdf:
+    return {}
+  if plan.pdf_engine == 'weasyprint':
+    from scireport.render.pdf.weasy import weasyprint_version
+
+    return {'weasyprint': weasyprint_version()}
+  from scireport.render.pdf.latex import latex_version
+
+  return {'latex_version': latex_version(plan.latex_engine)}

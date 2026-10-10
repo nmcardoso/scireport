@@ -47,6 +47,7 @@ dev = [
     "mypy>=2.4.0",
     "pandas>=3.0.6 ; python_full_version < '3.15'",
     "pre-commit>=4.6.2",
+    "pypdf>=6.20.0",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.17.0",
@@ -109,6 +110,8 @@ convention = "numpy"
 python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
+# The examples are plain modules next to render_all.py; the tests import them by name.
+mypy_path = ["examples"]
 
 [[tool.mypy.overrides]]
 # Third-party packages without type information. Never relaxed for scireport itself.
@@ -138,7 +141,8 @@ markers = [
   "pandoc: needs the scireport[pandoc] extra",
   "slow: takes more than ~10 s",
 ]
-filterwarnings = ["error"]
+# WeasyPrint 70 warns when libharfbuzz-subset is missing; CI installs it, a laptop may not.
+filterwarnings = ["error", "ignore:HarfBuzz-Subset:DeprecationWarning"]
 
 [tool.coverage.run]
 source = ["scireport"]

@@ -1,0 +1,25 @@
+% ((( info.generated | safe )))
+\documentclass[10pt]{article}
+\usepackage[(((options.paper | safe)))]{(((style | safe)))}
+\hypersetup{pdftitle={(((meta.title | pdfstring)))},%
+  ((* if meta.authors *))pdfauthor={(((meta.authors | map(attribute='name') | join(', ') | pdfstring)))},%
+  ((* endif *))((* if meta.keywords *))pdfkeywords={(((meta.keywords | join(', ') | pdfstring)))},%
+  ((* endif *))pdflang={(((meta.language | pdfstring)))},%
+  pdfcreator={scireport (((info.scireport_version | pdfstring)))}}
+((* if options.header *))
+\scsetrunning{(((meta.pipeline or meta.title)))}{(((meta.authors[0].name ~ (' et al.' if meta.authors | length > 1 else '') if meta.authors else '')))}{(((meta.footer or ([meta.title, meta.version, meta.date] | select | join(' · ')))))}
+((* else *))
+\pagestyle{empty}
+((* endif *))
+\begin{document}
+((( c.cover() )))
+((* if meta.abstract *))
+\par{\fontsize{14}{17}\selectfont\bfseries Abstract}\par\vspace{4pt}
+(((meta.abstract | md)))
+((* endif *))
+((* if options.toc *))
+((( c.contents() )))
+((* endif *))
+
+((( body )))
+\end{document}

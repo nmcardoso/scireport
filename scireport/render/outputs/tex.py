@@ -1,7 +1,8 @@
 """LaTeX output: a project that compiles with plain ``latexmk`` outside scireport (ADR-0010).
 
 The project holds ``report.tex``, the layout's style file, a ``latexmkrc`` that selects the TeX
-engine, and ``figures/`` with PDF renditions preferred over PNG (SVG is never used).
+engine, ``fonts/`` with the vendored fonts the layout lists (and their licence), and ``figures/``
+with PDF renditions preferred over PNG (SVG is never used).
 """
 
 from __future__ import annotations
@@ -10,6 +11,7 @@ from pathlib import PurePosixPath
 from typing import TYPE_CHECKING, Any
 
 from scireport.render.outputs import tidy
+from scireport.styles.fonts import FONTS_DIR, face_path
 
 if TYPE_CHECKING:
   from scireport.render.session import RenderSession
@@ -47,4 +49,9 @@ def assemble(session: RenderSession, document: str, parts: dict[str, str]) -> di
     out[PurePosixPath(files.style).name] = session.layout.read(files.style).encode('utf-8')
   for name in files.assets:
     out[name] = (session.layout.root / name).read_bytes()
+  fonts = session.layout.definition.fonts
+  for name in fonts:
+    out[f'fonts/{name}'] = face_path(name).read_bytes()
+  if fonts:
+    out['fonts/OFL.txt'] = (FONTS_DIR / 'OFL.txt').read_bytes()
   return out

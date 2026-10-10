@@ -1,0 +1,251 @@
+((=- LaTeX components of default@1 (the MOSAICS look). Delimiters: ((* block *)), ((( variable ))), ((= comment =)).
+     Most of the typesetting is in scireport-default.sty; the macros here only choose and fill it.
+     A line that ends with a block tag loses its newline; (((eol))) puts it back. -=))
+((* set lp = '(' *))
+((* set rp = ')' *))
+((* set fills = {'done': ['sc-green', 'sc-green'], 'reused': ['sc-blue', 'sc-blue'], 'running': ['sc-cyan', 'sc-cyan'], 'failed': ['sc-red', 'sc-red'], 'skipped': ['sc-paper', 'sc-gray-500'], 'pending': ['sc-paper', 'sc-cyan']} *))
+
+((* macro chapter(title, entry, page_break) *))
+((* set flow = (0 if page_break else 1) if page_break is not none else (0 if options.chapter_breaks else 1) *))
+\scchapter{(((('%02d' % (entry.number | int)) if entry.number else '')))}{(((title)))}{(((entry.anchor)))}{(((title | pdfstring)))}{(((flow)))}
+
+((* endmacro *))
+
+((* macro heading(text, level, entry, page_break) *))
+\scheading{(((level)))}{(((text)))}{(((entry.anchor)))}{(((text | pdfstring)))}{(((1 if entry.number else 0)))}{(((1 if page_break else 0)))}
+
+((* endmacro *))
+
+((* macro contents(entries) *))
+\clearpage
+\scanchor{sc-toc}{Contents}{}%
+{\fontsize{20}{24}\selectfont\bfseries\color{sc-navy}Contents\par}%
+\vspace{2pt}\scrule{sc-gray-200}{1pt}\vspace{4pt}
+((* for e in entries *))
+\sctocrow{(((e.level)))}{(((('%02d' % (e.number | int)) if (e.level == 0 and e.number) else '')))}{(((e.text)))}{(((e.anchor)))}
+((* endfor *))
+
+((* endmacro *))
+
+((* macro cover(cover) *))
+((* if options.cover *))
+((* set rows -*))
+((* if cover.date *))Date & (((cover.date)))\\(((eol)))((* endif *))
+((* if cover.version *))Version & (((cover.version)))\\(((eol)))((* endif *))
+((* if meta.keywords *))Keywords & (((meta.keywords | join(', '))))\\(((eol)))((* endif *))
+((*- endset *))
+\sccover{(((cover.pipeline)))}{(((cover.title)))}{(((cover.subtitle)))}{((* for a in cover.authors *))(((a)))\par ((* endfor *))}{(((rows | safe)))}
+((* else *))
+\sctitleblock{(((cover.title)))}{(((cover.subtitle)))}
+((* endif *))
+
+((* endmacro *))
+
+((* macro tcol(col, strip) -*))
+((* set w = '\\dimexpr ' ~ (col.width | round(5)) ~ '\\sctablew-2\\tabcolsep\\relax' -*))
+((* if col.align == 'right' *))>{\raggedleft\arraybackslash\ttfamily}p{(((w | safe)))}((* elif col.align == 'center' *))>{\centering\arraybackslash}p{(((w | safe)))}((* elif col.align == 'path' *))>{\raggedright\arraybackslash\ttfamily}p{(((w | safe)))}((* else *))>{\raggedright\arraybackslash}p{(((w | safe)))}((* endif *))
+((*- endmacro *))
+
+((* macro head_row(spec) -*))
+\rowcolor{sc-gray-50}((* if spec.has_verdicts *)) & ((* endif *))((* for col in spec.columns *)){\bfseries\color{sc-ink-soft}(((col.label)))((* if col.unit *)) {\mdseries\color{sc-gray-500}(((lp)))(((col.unit)))(((rp)))}((* endif *))}((* if not loop.last *)) & ((* endif *))((* endfor *))
+((*- endmacro *))
+
+((* macro body_row(spec, row) -*))
+((* set tints = {'pass': ['sc-green-light', 'sc-green'], 'warn': ['sc-accent-light', 'sc-accent'], 'fail': ['sc-red-light', 'sc-red']} *))
+((* if row.verdict *))\rowcolor{(((tints[row.verdict][0] | safe)))}((* endif *))((* if spec.has_verdicts *))((* if row.verdict *))\cellcolor{(((tints[row.verdict][1] | safe)))}((* endif *)) & ((* endif *))((* for cell in row.cells *))((* set style = row.emphasis[loop.index0] *))((* set col = spec.columns[loop.index0] *))((* if style == 'strong' *)){\bfseries (((cell)))}((* elif style == 'muted' *))\textcolor{sc-gray-500}{(((cell)))}((* elif style == 'pass' *))\textcolor{sc-green}{(((cell)))}((* elif style == 'warn' *))\textcolor{sc-accent}{(((cell)))}((* elif style == 'fail' *))\textcolor{sc-red}{(((cell)))}((* elif col.align == 'path' *))(((cell | breakable)))((* else *))(((cell)))((* endif *))((* if not loop.last *)) & ((* endif *))((* endfor *))
+((*- endmacro *))
+
+((* macro table(spec) *))
+((* if not spec.rows *))
+\emph{Nothing recorded.}\par
+
+((* else *))
+{\fontsize{8}{11}\selectfont\renewcommand{\arraystretch}{1.45}
+((* if spec.has_verdicts *))\setlength{\sctablew}{\dimexpr\scfullwidth-3pt\relax}((* else *))\setlength{\sctablew}{\scfullwidth}((* endif *))
+\begin{longtable}{((* if spec.has_verdicts *))@{}p{3pt}@{}((* endif *))((* for col in spec.columns *))(((tcol(col))))((* endfor *))}
+(((head_row(spec)))) \\
+\scheadrule
+\endfirsthead
+(((head_row(spec)))) \\
+\scheadrule
+\endhead
+((* for row in spec.rows *))
+(((body_row(spec, row)))) \\
+\scrowrule
+((* endfor *))
+\end{longtable}}
+((* if spec.truncated *))
+{\fontsize{8.5}{13}\selectfont\color{sc-ink-soft}Showing the first (((spec.rows | length | fmt_int))) of (((spec.total | fmt_int))) rows.((* if spec.overflow *)) All rows: \texttt{(((spec.overflow.href | breakable)))}.((* endif *))}\par
+((* endif *))
+((* if spec.caption *))
+\begin{adjustwidth}{0pt}{-\scoverhang}\vspace{-8pt}((* if spec.number *))\setcounter{table}{(((spec.number - 1)))}((* endif *))\captionof{table}{(((spec.caption)))}\end{adjustwidth}
+((* endif *))
+((* endif *))
+
+((* endmacro *))
+
+((* macro figure(spec) *))
+\begin{adjustwidth}{0pt}{-\scoverhang}
+\begin{samepage}
+\vspace{16pt}\centering
+\includegraphics[width=(((spec.width)))\linewidth]{(((spec.src | safe)))}\par
+% alt: (((spec.alt | replace('\n', ' '))))
+((* if spec.caption *))
+\setcounter{figure}{(((spec.number - 1)))}\captionof{figure}{(((spec.caption)))}
+((* endif *))
+\vspace{12pt}
+\end{samepage}
+\end{adjustwidth}
+
+((* endmacro *))
+
+((* macro image(spec) *))
+\begin{adjustwidth}{0pt}{-\scoverhang}
+\begin{samepage}
+\vspace{16pt}\centering
+\includegraphics[width=(((spec.width)))\linewidth]{(((spec.src | safe)))}\par
+% alt: (((spec.alt | replace('\n', ' '))))
+((* if spec.caption *))
+{\fontsize{8.5}{13}\selectfont\color{sc-ink-soft}(((spec.caption)))\par}
+((* endif *))
+\vspace{12pt}
+\end{samepage}
+\end{adjustwidth}
+
+((* endmacro *))
+
+((* macro equation(spec) *))
+((* if spec.number *))
+\begin{equation}
+(((spec.body)))
+\end{equation}
+((* else *))
+\[
+(((spec.body)))
+\]
+((* endif *))
+((* if spec.caption *))
+{\fontsize{8.5}{13}\selectfont\color{sc-ink-soft}(((spec.caption)))\par}
+((* endif *))
+
+((* endmacro *))
+
+((* macro metrics(entries) *))
+\begin{adjustwidth}{0pt}{-\scoverhang}
+\vspace{16pt}\noindent
+((* for row in entries | batch(3) *))
+\begin{tabular}[t]{@{}p{\dimexpr(\linewidth-48pt)/3\relax}@{\hspace{24pt}}p{\dimexpr(\linewidth-48pt)/3\relax}@{\hspace{24pt}}p{\dimexpr(\linewidth-48pt)/3\relax}@{}}
+((* for m in row *))\scmetricvalue{(((m.label)))}{(((m.value)))}{(((m.detail)))}((* if not loop.last *)) & ((* endif *))((* endfor *))((* for _ in range(3 - (row | length)) *)) & ((* endfor *)) \\
+\end{tabular}\par\vspace{24pt}
+((* endfor *))
+\end{adjustwidth}
+
+((* endmacro *))
+
+((* macro status(level, headline, detail) *))
+\begin{adjustwidth}{0pt}{-\scoverhang}\begin{scstatusbox}{(((level | safe)))}
+\scdot{(((('sc-paper' if level == 'partial' else {'success': 'sc-green', 'warning': 'sc-accent', 'failed': 'sc-red', 'running': 'sc-cyan'}[level]) | safe)))}{(((({'success': 'sc-green', 'warning': 'sc-accent', 'partial': 'sc-accent', 'failed': 'sc-red', 'running': 'sc-cyan'}[level]) | safe)))}\hspace{8pt}{\fontsize{11}{14}\selectfont\bfseries\sctrack{\MakeUppercase{(((headline)))}}}((* if detail *))\par\vspace{8pt}{\color{sc-ink-soft}(((detail)))}((* endif *))(((eol)))
+\end{scstatusbox}\end{adjustwidth}\par
+
+((* endmacro *))
+
+((* macro alert(level, text) *))
+\begin{adjustwidth}{0pt}{-\scoverhang}\begin{scalertbox}{(((level | safe)))}
+{\ttfamily\bfseries\sctrack{(((level | upper)))}}\hspace{12pt}(((text)))(((eol)))
+\end{scalertbox}\end{adjustwidth}\par
+
+((* endmacro *))
+
+((* macro flow(stages) *))
+\vspace{16pt}
+\begin{adjustwidth}{0pt}{-\scoverhang}
+((* for s in stages *))
+\begin{scflowstage}{(((fills[s.state][0] | safe)))}{(((fills[s.state][1] | safe)))}
+\noindent\begin{tabular}[t]{@{}p{26pt}@{}p{\dimexpr\linewidth-26pt\relax}@{}}
+{\color{sc-gray-500}\fontsize{9}{12}\ttfamily\selectfont (((('%02d' % s.number))))} & {\fontsize{9}{12}\selectfont\bfseries\sctrack{\MakeUppercase{(((s.label)))}}}((* for line in s.detail *))\par{\fontsize{8.5}{13}\selectfont\color{sc-ink-soft}(((line)))}((* endfor *)) \\
+\end{tabular}%
+\end{scflowstage}\par
+((* endfor *))
+\end{adjustwidth}
+\vspace{20pt}
+
+((* endmacro *))
+
+((* macro metadata(entries) *))
+{\fontsize{8.5}{13}\selectfont\setlength{\parskip}{0pt}
+\begin{adjustwidth}{0pt}{-\scoverhang}
+\vspace{12pt}
+((* for label, value in entries *))
+\noindent\parbox[t]{\dimexpr0.32\linewidth-12pt\relax}{\color{sc-ink-soft}\sctrackon\raggedright\MakeUppercase{(((label)))}}\hspace{12pt}\parbox[t]{0.68\linewidth}{\ttfamily\raggedright (((value)))}\par\vspace{2pt}\scrule{sc-gray-100}{0.5pt}\vspace{2pt}
+((* endfor *))
+\vspace{12pt}
+\end{adjustwidth}}
+
+((* endmacro *))
+
+((* macro bullets(items, ordered) *))
+((* set env = 'enumerate' if ordered else 'itemize' *))
+\begin{(((env | safe)))}
+((* for item in items *))
+\item (((item)))
+((* endfor *))
+\end{(((env | safe)))}
+
+((* endmacro *))
+
+((* macro code(source, language, caption, fence, verbatim) *))
+\vspace{12pt}
+((* if language *))
+{\color{sc-gray-500}\fontsize{7}{10}\ttfamily\selectfont\sctrack{\MakeUppercase{(((language)))}}\par}\vspace{3pt}
+((* endif *))
+\begin{adjustwidth}{0pt}{-\scoverhang}\begin{sccodebox}
+\fontsize{8}{12}\ttfamily\selectfont
+\begin{verbatim}
+(((verbatim)))
+\end{verbatim}
+\end{sccodebox}\end{adjustwidth}
+((* if caption *))
+{\fontsize{8.5}{13}\selectfont\color{sc-ink-soft}(((caption)))\par}
+((* endif *))
+
+((* endmacro *))
+
+((* macro details(summary, body) *))
+\begin{scdetailsbox}
+{\bfseries (((summary)))}\par\vspace{8pt}
+(((body)))
+\end{scdetailsbox}\par
+
+((* endmacro *))
+
+((* macro note(body) *))
+\begin{scnotebox}
+(((body)))
+\end{scnotebox}\par
+
+((* endmacro *))
+
+((* macro paragraph(body) *))
+(((body)))
+
+((* endmacro *))
+
+((* macro fact(label, value) *))
+\noindent{\bfseries\color{sc-ink-soft}(((label))):} (((value)))\par
+
+((* endmacro *))
+
+((* macro attachment(link) *))
+((* if link.href *))\href{(((link.href | safe)))}{\texttt{\color{sc-blue}(((link.filename)))}}((* else *))\texttt{(((link.filename)))}((* endif *))((* if link.description *)) --- (((link.description)))((* endif *))((* if link.size *)) {\fontsize{8.5}{13}\selectfont\color{sc-ink-soft}(((lp)))(((link.size)))(((rp)))}((* endif *))\par
+
+((* endmacro *))
+
+((* macro spacer(height) *))
+\vspace{(((height)))pt}
+
+((* endmacro *))
+
+((* macro page_break() *))
+\clearpage
+
+((* endmacro *))

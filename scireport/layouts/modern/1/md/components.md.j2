@@ -1,0 +1,191 @@
+{#- Markdown components of minimal@1. Chapters are H2 (H1 when the document is split into files).
+    A line that ends with a block tag loses its newline (trim_blocks); `{{ eol }}` puts it back. -#}
+{% macro caption_text(label, number, text) -%}
+*{% if options.numbered_captions and number %}{{ label }} {{ number }}. {% endif %}{{ text }}*
+{%- endmacro %}
+
+{% macro chapter(title, entry, page_break) %}
+{{ ('#' * (1 if info.split else 2)) | safe }} {{ title }}
+
+{% endmacro %}
+
+{% macro heading(text, level, entry, page_break) %}
+{{ ('#' * (level + (1 if info.split else 2))) | safe }} {{ text }}
+
+{% endmacro %}
+
+{% macro contents(entries) %}
+**Contents**
+
+{% for e in entries %}
+{{ ('  ' * e.level) | safe }}- [{% if e.number %}{{ e.number }} {% endif %}{{ e.text }}]({{ (e.md_file | safe) if (info.split and e.md_file != 'index.md') else '' }}#{{ e.slug | safe }})
+{% endfor %}
+
+{% endmacro %}
+
+{% macro cover(cover) %}
+# {{ cover.title }}
+
+{% if options.cover %}
+{% if cover.subtitle %}
+**{{ cover.subtitle }}**
+
+{% endif %}
+{% if cover.authors %}
+{{ cover.authors | join(', ') }}
+
+{% endif %}
+{% set facts = [] %}
+{% if cover.date %}{% do facts.append('Date: ' ~ cover.date) %}{% endif %}
+{% if cover.version %}{% do facts.append('Version: ' ~ cover.version) %}{% endif %}
+{% if cover.pipeline %}{% do facts.append('Pipeline: ' ~ cover.pipeline) %}{% endif %}
+{% if meta.keywords %}{% do facts.append('Keywords: ' ~ (meta.keywords | join(', '))) %}{% endif %}
+{% if facts %}
+{{ facts | join(' · ') }}
+
+{% endif %}
+{% endif %}
+{% endmacro %}
+
+{% macro table(spec) %}
+{% if not spec.rows %}
+*Nothing recorded.*
+
+{% else %}
+{% if spec.caption %}
+{{ caption_text('Table', spec.number, spec.caption) }}
+
+{% endif %}
+|{% for col in spec.columns %} {{ col.label }}{% if col.unit %} ({{ col.unit }}){% endif %} |{% endfor %}{% if spec.has_verdicts %} Status |{% endif %}{{ eol }}
+|{% for col in spec.columns %}{{ ('---:' if col.align == 'right' else (':---:' if col.align == 'center' else ':---')) | safe }}|{% endfor %}{% if spec.has_verdicts %}:---|{% endif %}{{ eol }}
+{% for row in spec.rows %}
+|{% for cell in row.cells %} {% if row.emphasis[loop.index0] == 'strong' %}**{{ cell }}**{% else %}{{ cell }}{% endif %} |{% endfor %}{% if spec.has_verdicts %} {{ row.verdict or '' }} |{% endif %}{{ eol }}
+{% endfor %}
+
+{% if spec.truncated %}
+*Showing the first {{ spec.rows | length | fmt_int }} of {{ spec.total | fmt_int }} rows.*{% if spec.overflow %} All rows: [{{ spec.overflow.filename }}]({{ spec.overflow.href | safe }}).{% endif %}{{ eol }}
+
+{% endif %}
+{% endif %}
+{% endmacro %}
+
+{% macro figure(spec) %}
+![{{ spec.alt }}]({{ spec.src | safe }})
+
+{% if spec.caption %}
+{{ caption_text('Figure', spec.number, spec.caption) }}
+
+{% endif %}
+{% endmacro %}
+
+{% macro image(spec) %}
+![{{ spec.alt }}]({{ spec.src | safe }})
+
+{% if spec.caption %}
+{{ caption_text('Figure', 0, spec.caption) }}
+
+{% endif %}
+{% endmacro %}
+
+{% macro equation(spec) %}
+$$
+{{ spec.body }}{% if spec.number %} \tag{ {{- spec.number -}} }{% endif %}{{ eol }}
+$$
+
+{% if spec.caption %}
+*{{ spec.caption }}*
+
+{% endif %}
+{% endmacro %}
+
+{% macro metrics(entries) %}
+{% set with_detail = entries | selectattr('detail') | list | length > 0 %}
+| Metric | Value |{% if with_detail %} Detail |{% endif %}{{ eol }}
+|:---|---:|{% if with_detail %}:---|{% endif %}{{ eol }}
+{% for m in entries %}
+| {{ m.label }} | {{ m.value }} |{% if with_detail %} {{ m.detail }} |{% endif %}{{ eol }}
+{% endfor %}
+
+{% endmacro %}
+
+{% macro status(level, headline, detail) %}
+> **{{ level | upper }}:** {{ headline }}
+{% if detail %}
+>
+> {{ detail }}
+{% endif %}
+
+{% endmacro %}
+
+{% macro alert(level, text) %}
+> **{{ level | upper }}:** {{ text }}
+
+{% endmacro %}
+
+{% macro flow(stages) %}
+{% for s in stages %}
+{{ s.number }}. **{{ s.label }}** ({{ s.state }}){% for line in s.detail %}{% if loop.first %} — {% else %}; {% endif %}{{ line }}{% endfor %}{{ eol }}
+{% endfor %}
+
+{% endmacro %}
+
+{% macro metadata(entries) %}
+{% for label, value in entries %}
+- **{{ label }}:** {{ value | indent(2) | safe }}
+{% endfor %}
+
+{% endmacro %}
+
+{% macro bullets(items, ordered) %}
+{% for item in items %}
+{{ ((loop.index ~ '.') if ordered else '-') | safe }} {{ item | indent(3 if ordered else 2) | safe }}
+{% endfor %}
+
+{% endmacro %}
+
+{% macro code(source, language, caption, fence, verbatim) %}
+{{ fence }}{{ language }}
+{{ verbatim }}
+{{ fence }}
+
+{% if caption %}
+*{{ caption }}*
+
+{% endif %}
+{% endmacro %}
+
+{% macro details(summary, body) %}
+<details>
+<summary>{{ summary | e }}</summary>
+
+{{ body }}
+
+</details>
+
+{% endmacro %}
+
+{% macro note(body) %}
+{% for line in body.splitlines() %}
+> {{ line | safe }}
+{% endfor %}
+
+{% endmacro %}
+
+{% macro paragraph(body) %}
+{{ body }}
+
+{% endmacro %}
+
+{% macro fact(label, value) %}
+**{{ label }}:** {{ value }}
+
+{% endmacro %}
+
+{% macro attachment(link) %}
+{% if link.href %}[{{ link.filename }}]({{ link.href | safe }}){% else %}{{ link.filename }}{% endif %}{% if link.description %} — {{ link.description }}{% endif %}{% if link.size %} ({{ link.size }}){% endif %}{{ eol }}
+
+{% endmacro %}
+
+{% macro spacer(height) %}{% endmacro %}
+
+{% macro page_break() %}{% endmacro %}

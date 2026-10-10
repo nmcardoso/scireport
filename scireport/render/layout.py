@@ -30,6 +30,7 @@ from scireport.render.definition import (
   tree_hash,
 )
 from scireport.spec.kinds import Model
+from scireport.styles.fonts import FONTS_DIR
 
 LAYOUT_FILE = 'layout.yaml'
 OptionValue = bool | int | float | str | None
@@ -145,11 +146,14 @@ class LayoutDef(Model):
   pdf_engines : list of {'weasyprint', 'latex'}
       PDF engines the layout supports.
   mplstyle : str or None
-      Matplotlib style file for figures drawn in this look.
+      Matplotlib style for figures drawn in this look: the name of a shipped style (``default``
+      is ``scireport/styles/default.mplstyle``) or a path relative to the layout directory.
   palette : str or None
-      Palette file shared by the stylesheet, the matplotlib style and the LaTeX colours.
+      Palette file, relative to the layout directory, shared by the stylesheet, the matplotlib
+      style and the LaTeX colours.
   fonts : list of str
-      Font files the layout ships.
+      File names of the vendored fonts the layout uses (``Inter-Regular.otf``). The HTML writer
+      inlines them and the LaTeX project gets a copy.
   """
 
   spec: str
@@ -355,7 +359,22 @@ def load_layout_dir(root: Path, *, origin: str = 'path') -> Layout:
       require_file(root, name, what='layout file')
     if files.style:
       require_file(root, files.style, what='layout style file')
+  if definition.palette:
+    require_file(root, definition.palette, what='layout palette')
+  for name in definition.fonts:
+    if not (FONTS_DIR / name).is_file():
+      raise TemplateError(
+        f'layout {definition.name}@{definition.version} lists the font {name!r}, which the '
+        'package does not ship',
+        code='E703',
+        hint=f'The vendored faces are in {FONTS_DIR.name}/: {", ".join(sorted(_font_names()))}.',
+      )
   return Layout(definition, root, origin)
+
+
+def _font_names() -> list[str]:
+  """List the file names of the vendored fonts."""
+  return [path.name for path in FONTS_DIR.glob('*.otf')]
 
 
 def _has_type(value: object, kind: str) -> bool:

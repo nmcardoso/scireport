@@ -10,8 +10,11 @@ specification, API and reference pages arrive with phases S1 to S6.
 :maxdepth: 2
 
 templates
+layouts
 markup
 outputs
+styles
+examples
 errors
 adr/index
 conventions

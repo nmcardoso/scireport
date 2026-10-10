@@ -1,0 +1,742 @@
+/*
+ * One rule set per component of default@1, ported from the MOSAICS design system. Nothing here
+ * nests a flex container inside another: WeasyPrint 70 collapses the width of a fixed-size, empty
+ * flex item whose container is itself a flex item, so multi-column layouts use `display: table`
+ * and `table-cell`, floats or absolute positioning. A single, unnested `display: flex` (the metric
+ * grid) is fine.
+ */
+
+/* Chapter */
+
+.chapter {
+  break-before: page;
+  break-inside: avoid;
+  padding-top: 85mm;
+}
+
+.chapter--listed {
+  counter-increment: chapter;
+}
+
+/* `chapter_breaks: false` lets a chapter start where the text is. */
+.chapter--flow {
+  break-before: auto;
+  padding-top: var(--space-5);
+}
+
+.chapter-index {
+  font-size: 9pt;
+  letter-spacing: 0.08em;
+  color: var(--gray-500);
+  margin-bottom: var(--space-2);
+}
+
+/* "01 / 07": the total is the value of the chapter counter at the end marker of the document. */
+.chapter-index--total::after {
+  content: ' / ' target-counter(url(#chapters-end), chapter, decimal-leading-zero);
+}
+
+/* Table of contents */
+
+.toc {
+  break-before: page;
+}
+
+.toc-row a {
+  display: block;
+  text-decoration: none;
+  color: var(--ink);
+  padding: 5pt 0;
+  border-bottom: 0.5pt solid var(--gray-100);
+}
+
+.toc-row a::after {
+  content: target-counter(attr(href url), page);
+  float: right;
+  font-family: var(--font-mono);
+  color: var(--gray-500);
+}
+
+.toc-row--0 a {
+  font-weight: 600;
+  margin-top: var(--space-3);
+}
+
+.toc-number {
+  font-family: var(--font-mono);
+  color: var(--ink-soft);
+  font-weight: 400;
+  margin-right: 1.2em;
+}
+
+.toc-row--1 a {
+  padding-left: var(--space-4);
+}
+
+.toc-row--2 a {
+  padding-left: var(--space-6);
+  font-size: var(--text-metadata);
+  color: var(--ink-soft);
+}
+
+.toc-row--3 a {
+  padding-left: var(--space-7);
+  font-size: var(--text-metadata);
+  color: var(--gray-500);
+}
+
+/* Cover */
+
+.cover {
+  page: cover;
+  position: relative;
+  width: 100%;
+  /* @page cover has margin: 0, so the full height of the paper is available. */
+  min-height: var(--page-h, 297mm);
+  background: var(--navy-deep);
+  color: var(--paper);
+  break-after: page;
+  overflow: hidden;
+}
+
+.cover-field {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1pt, transparent 1pt),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1pt, transparent 1pt);
+  background-size: 12mm 12mm;
+}
+
+.cover-field::after {
+  content: '';
+  position: absolute;
+  right: 18mm;
+  bottom: 18mm;
+  width: 90mm;
+  height: 90mm;
+  border-radius: 50%;
+  border: 0.75pt solid rgba(220, 232, 240, 0.25);
+}
+
+.cover-content {
+  position: relative;
+  padding: 60mm 24mm 0;
+}
+
+.cover-label {
+  font-size: 9pt;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cyan-light);
+  margin-bottom: var(--space-5);
+}
+
+.cover-title {
+  font-size: 34pt;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--paper);
+  max-width: 130mm;
+  margin-bottom: var(--space-4);
+}
+
+.cover-subtitle {
+  font-size: 10.5pt;
+  color: var(--blue-light);
+  max-width: 130mm;
+  margin-bottom: var(--space-3);
+}
+
+.cover-author {
+  font-size: 9pt;
+  color: var(--gray-300);
+  margin-bottom: 0;
+}
+
+.cover-authors {
+  margin-bottom: var(--space-7);
+}
+
+.cover-meta {
+  display: table;
+  border-collapse: collapse;
+}
+
+.cover-meta-row {
+  display: table-row;
+}
+
+.cover-meta-label,
+.cover-meta-value {
+  display: table-cell;
+  padding: 2.5pt var(--space-4) 2.5pt 0;
+  font-size: 8.5pt;
+}
+
+.cover-meta-label {
+  color: var(--gray-300);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.cover-meta-value {
+  color: var(--paper);
+}
+
+/* Abstract */
+
+.abstract {
+  margin: 0 0 var(--space-5);
+}
+
+.abstract-title {
+  font-size: var(--text-subsection);
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 var(--space-2);
+}
+
+/* Paragraph, note and caption: see base.css for p, p--muted and p--caption */
+
+.note {
+  border-left: 1.5pt solid var(--gray-300);
+  padding: 2pt 0 2pt var(--space-3);
+  margin: var(--space-3) 0;
+  color: var(--ink-soft);
+}
+
+.note p {
+  margin-bottom: var(--space-2);
+}
+
+.fact {
+  margin: 0 0 var(--space-2);
+}
+
+.fact-label {
+  color: var(--ink-soft);
+  font-weight: 600;
+  margin-right: 0.3em;
+}
+
+.details {
+  margin: var(--space-3) 0;
+  padding: var(--space-2) var(--space-3);
+  border: 0.5pt solid var(--gray-200);
+  background: var(--gray-50);
+}
+
+.details-summary {
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: var(--space-2);
+}
+
+.attachment {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-metadata);
+}
+
+.attachment a {
+  font-family: var(--font-mono);
+  color: var(--blue);
+}
+
+/* Table */
+
+.table-block {
+  margin: var(--space-3) 0 var(--space-4);
+  font-size: var(--text-table);
+}
+
+.table-block table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.table-block th,
+.table-block td {
+  padding: 3pt 5pt;
+  border-bottom: 0.5pt solid var(--gray-200);
+  overflow-wrap: break-word;
+  vertical-align: top;
+}
+
+.table-block thead th {
+  background: var(--gray-50);
+  color: var(--ink-soft);
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1pt solid var(--gray-300);
+}
+
+.table-block .unit {
+  font-weight: 400;
+  color: var(--gray-500);
+}
+
+.table-block .align-left {
+  text-align: left;
+}
+
+.table-block .align-right {
+  text-align: right;
+}
+
+.table-block .align-center {
+  text-align: center;
+}
+
+.table-block thead th.align-right {
+  text-align: right;
+}
+
+.table-block thead th.align-center {
+  text-align: center;
+}
+
+.table-block .cell--num {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+}
+
+.table-block .cell--path {
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.table-block .cell--strong {
+  font-weight: 600;
+}
+
+.table-block .cell--muted {
+  color: var(--gray-500);
+}
+
+.table-block .cell--pass {
+  color: var(--green);
+}
+
+.table-block .cell--warn {
+  color: var(--accent);
+}
+
+.table-block .cell--fail {
+  color: var(--red);
+}
+
+.table-block tr.row--pass {
+  background: var(--green-light);
+}
+
+.table-block tr.row--warn {
+  background: var(--accent-light);
+}
+
+.table-block tr.row--fail {
+  background: var(--red-light);
+}
+
+/* A tinted background alone would repeat the mistake of colour-only coding, so each verdict also
+   gets a left border of its own style. */
+.table-block tr.row--pass td:first-child {
+  border-left: 2pt solid var(--green);
+}
+
+.table-block tr.row--warn td:first-child {
+  border-left: 2pt dashed var(--accent);
+}
+
+.table-block tr.row--fail td:first-child {
+  border-left: 4pt double var(--red);
+}
+
+/* Figure */
+
+.figure {
+  margin: var(--space-4) 0 var(--space-5);
+}
+
+.figure img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+.figure figcaption {
+  font-size: var(--text-metadata);
+  color: var(--ink-soft);
+  margin: var(--space-2) 0 0;
+}
+
+.caption-label {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Bullets */
+
+.bullets {
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-5);
+}
+
+.bullets li {
+  margin-bottom: var(--space-1);
+}
+
+/* Preformatted and code */
+
+.code-block-wrapper {
+  margin: var(--space-3) 0 var(--space-4);
+}
+
+.code-language {
+  font-size: 7pt;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 3pt;
+}
+
+.code-block {
+  background: var(--navy-deep);
+  color: #e6edf2;
+  font-size: 8pt;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  padding: var(--space-3) var(--space-4);
+  margin: 0;
+}
+
+.code-block code {
+  font-family: inherit;
+}
+
+/* Spacer and page break */
+
+.spacer {
+  width: 1pt;
+}
+
+.page-break {
+  break-after: page;
+  height: 0;
+}
+
+/* Metric grid */
+
+.metric-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  margin: var(--space-4) 0 var(--space-5);
+}
+
+.metric {
+  flex: 1 1 42mm;
+}
+
+.metric-label {
+  font-family: var(--font-mono);
+  font-size: 7.5pt;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 3pt;
+}
+
+.metric-value {
+  font-size: 22pt;
+  font-weight: 600;
+  color: var(--navy);
+  line-height: 1.1;
+}
+
+.metric-detail {
+  font-size: 8pt;
+  color: var(--ink-soft);
+  margin-top: 2pt;
+}
+
+/* Status */
+
+.status {
+  border-left: 3pt solid var(--gray-300);
+  padding: var(--space-3) var(--space-4);
+  background: var(--gray-50);
+  margin: var(--space-4) 0 var(--space-5);
+}
+
+.status-dot {
+  display: inline-block;
+  width: 9pt;
+  height: 9pt;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: var(--space-2);
+  background: var(--gray-500);
+}
+
+.status-headline {
+  font-size: 11pt;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.status-detail {
+  margin-top: var(--space-2);
+  color: var(--ink-soft);
+  font-size: var(--text-body);
+  max-width: 68ch;
+}
+
+/* The dot never uses a dashed or dotted border: at 9 pt there is room for maybe four dashes,
+   which reads as a chunky blob rather than a circle. Grey-scale distinguishability comes from the
+   left border's style instead, which is long enough for dashed, dotted and double to read; the
+   dot is a solid fill or, for the one state that most needs "not yet resolved" to read as a shape
+   rather than a colour, a solid-bordered hollow ring. */
+.status--success {
+  border-left-color: var(--green);
+}
+
+.status--success .status-dot {
+  background: var(--green);
+}
+
+.status--warning {
+  border-left-color: var(--accent);
+  border-left-style: dashed;
+}
+
+.status--warning .status-dot {
+  background: var(--accent);
+}
+
+.status--partial {
+  border-left-color: var(--accent);
+  border-left-style: dotted;
+  border-left-width: 4pt;
+}
+
+.status--partial .status-dot {
+  background: var(--paper);
+  border: 1.5pt solid var(--accent);
+}
+
+.status--failed {
+  border-left-color: var(--red);
+  border-left-style: double;
+  border-left-width: 5pt;
+}
+
+.status--failed .status-dot {
+  background: var(--red);
+}
+
+.status--running {
+  border-left-color: var(--cyan);
+  border-left-style: dotted;
+}
+
+.status--running .status-dot {
+  background: var(--cyan);
+}
+
+/* Metadata */
+
+.metadata {
+  display: table;
+  width: 100%;
+  margin: var(--space-3) 0 var(--space-4);
+}
+
+.metadata-row {
+  display: table-row;
+}
+
+.metadata-label,
+.metadata-value {
+  display: table-cell;
+  padding: 2.5pt var(--space-3) 2.5pt 0;
+  border-bottom: 0.5pt solid var(--gray-100);
+  font-size: var(--text-metadata);
+}
+
+.metadata-label {
+  color: var(--ink-soft);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  width: 32%;
+  white-space: nowrap;
+}
+
+.metadata-value {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/* Alert */
+
+.alert {
+  border-left: 3pt solid var(--gray-300);
+  padding: var(--space-2) var(--space-3);
+  background: var(--gray-50);
+  margin: var(--space-2) 0;
+  font-size: var(--text-body);
+}
+
+.alert-label {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-right: var(--space-3);
+}
+
+.alert--info {
+  border-left-color: var(--blue);
+}
+
+.alert--warning {
+  border-left-color: var(--accent);
+}
+
+.alert--error {
+  border-left-color: var(--red);
+}
+
+/* Equation */
+
+.equation {
+  display: table;
+  width: 100%;
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.equation-image {
+  display: table-cell;
+  text-align: center;
+}
+
+.equation-number {
+  display: table-cell;
+  width: 24pt;
+  text-align: right;
+  vertical-align: middle;
+  color: var(--gray-500);
+  font-size: var(--text-metadata);
+}
+
+.math-inline {
+  vertical-align: middle;
+}
+
+/* Flow */
+
+.flow {
+  margin: var(--space-4) 0 var(--space-5);
+}
+
+.flow-stage {
+  display: table;
+  width: 100%;
+  position: relative;
+  border-left: 2pt solid var(--gray-300);
+  padding: var(--space-2) 0 var(--space-2) var(--space-4);
+  margin-left: 4pt;
+}
+
+.flow-stage + .flow-stage {
+  margin-top: 1pt;
+}
+
+.flow-stage::before {
+  content: '';
+  position: absolute;
+  left: -4.5pt;
+  top: var(--space-2);
+  width: 7pt;
+  height: 7pt;
+  border-radius: 50%;
+  background: var(--gray-300);
+}
+
+/* The six states of a flow. 'done' and 'reused' are both successful completions, told apart
+   because a reader cares whether a stage did work or found it already there. Solid fills or
+   solid-bordered rings only, never dashed or dotted: a 7 pt dot has room for a handful of dashes,
+   which reads as a blob. */
+.flow-stage--done::before {
+  background: var(--green);
+}
+
+.flow-stage--reused::before {
+  background: var(--blue);
+}
+
+.flow-stage--running::before {
+  background: var(--cyan);
+}
+
+.flow-stage--failed::before {
+  background: var(--red);
+}
+
+.flow-stage--skipped::before {
+  background: var(--paper);
+  border: 1.5pt solid var(--gray-500);
+}
+
+.flow-stage--pending::before {
+  background: var(--paper);
+  border: 1.5pt solid var(--cyan);
+}
+
+.flow-index {
+  display: table-cell;
+  width: 26pt;
+  color: var(--gray-500);
+  font-size: 9pt;
+  vertical-align: top;
+}
+
+.flow-body {
+  display: table-cell;
+  vertical-align: top;
+}
+
+.flow-label {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 9pt;
+  color: var(--ink);
+}
+
+.flow-detail {
+  font-size: var(--text-metadata);
+  color: var(--ink-soft);
+}
+
+/* Title block: the plain start of a report without a cover (`cover: false`) */
+
+.title-block {
+  margin: 0 0 var(--space-5);
+}
+
+.title-block-title {
+  font-size: var(--text-title);
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.title-block-subtitle {
+  font-family: var(--font-mono);
+  font-size: 10.5pt;
+  color: var(--ink-soft);
+  margin: var(--space-2) 0 0;
+}

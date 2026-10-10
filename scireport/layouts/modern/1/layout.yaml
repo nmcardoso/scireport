@@ -1,0 +1,56 @@
+# modern@1 "Signal": a swiss / data-journalism look. Black, white and one vermilion accent; thick
+# rules and large numerals instead of boxes; every state is told by a rule style, a shape and a
+# printed word, so it survives grey-scale printing and colour-blindness. Frozen (ADR-0008).
+spec: ">=1.0,<2.0"
+name: modern
+version: 1
+title: Modern (Signal)
+description: A white page with a vermilion cover band, giant chapter numerals, heavy rules and rule-only tables. Inter and IBM Plex Mono.
+formats:
+  md:
+    document: md/document.md.j2
+    components: md/components.md.j2
+  html:
+    document: html/document.html.j2
+    components: html/components.html.j2
+    css: [html/tokens.css, html/base.css, html/components.css, html/print.css, html/screen.css, html/modern.css]
+  tex:
+    document: latex/document.tex.j2
+    components: latex/components.tex.j2
+    style: latex/scireport-modern.sty
+options:
+  - name: toc
+    type: bool
+    default: true
+    description: Write a table of contents.
+  - name: cover
+    type: bool
+    default: true
+    description: Start with the cover page (otherwise a plain title block).
+  - name: paper
+    type: str
+    default: a4
+    choices: [a4, letter]
+    description: Paper size of the PDF and of the LaTeX project.
+  - name: chapter_breaks
+    type: bool
+    default: true
+    description: Start every chapter on a new page.
+  - name: numbered_captions
+    type: bool
+    default: true
+    description: Prefix captions with "Table N." and "Figure N.".
+  - name: header
+    type: bool
+    default: true
+    description: Print the running header and footer on the pages of a PDF.
+pdf_engines: [weasyprint, latex]
+mplstyle: modern
+palette: palette.yaml
+fonts:
+  - Inter-Regular.otf
+  - Inter-Medium.otf
+  - Inter-SemiBold.otf
+  - Inter-Italic.otf
+  - IBMPlexMono-Regular.otf
+  - IBMPlexMono-Medium.otf

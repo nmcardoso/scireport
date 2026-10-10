@@ -1,0 +1,231 @@
+/*
+ * modern@1 "Signal": a swiss / data-journalism look on top of the shared page and component rules
+ * Appended after base, components, print and screen CSS (copies of the default@1 rules); it overrides what differs.
+ * Idea: black, white and ONE saturated vermilion. Huge numerals and titles, thick rules, no boxes
+ * (rules do the framing), flush-left everywhere. Status is carried by rule style, shape and word;
+ * the accent marks "needs attention" (warning, partial, failed) so the page reads at a glance.
+ * Fonts: Inter 400/500/600/italic, IBM Plex Mono 400/500 only.
+ */
+
+
+
+/* ---------- page: 16 mm sides, thick header rule, big folio ---------- */
+
+@page {
+  margin: 24mm 16mm 18mm 16mm;
+
+  @top-left {
+    content: string(pipeline-name);
+    font-family: var(--font-sans); font-size: 8pt; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink); vertical-align: bottom; padding-bottom: 5pt; border-bottom: 3pt solid var(--ink); width: 35%;
+  }
+  @top-center {
+    content: string(chapter-title);
+    font-family: var(--font-sans); font-size: 8pt; font-weight: 400; color: var(--ink-soft); text-align: left;
+    vertical-align: bottom; padding-bottom: 5pt; border-bottom: 3pt solid var(--ink); width: 30%;
+  }
+  @top-right {
+    content: counter(page, decimal-leading-zero) " / " counter(pages, decimal-leading-zero);
+    font-family: var(--font-mono); font-size: 8.5pt; font-weight: 500; color: var(--ink); text-align: right;
+    vertical-align: bottom; padding-bottom: 5pt; border-bottom: 3pt solid var(--ink); width: 35%;
+  }
+  @bottom-left {
+    content: string(footer-meta);
+    font-family: var(--font-mono); font-size: 7.5pt; color: var(--gray-500);
+    vertical-align: top; padding-top: 6pt; border-top: 0.5pt solid var(--ink); width: 60%;
+  }
+  @bottom-right {
+    content: string(doc-author);
+    font-family: var(--font-sans); font-size: 7.5pt; color: var(--gray-500); text-align: right;
+    vertical-align: top; padding-top: 6pt; border-top: 0.5pt solid var(--ink); width: 40%;
+  }
+}
+
+@page cover {
+  margin: 0;
+  @top-left { content: none; border: 0; }
+  @top-center { content: none; border: 0; }
+  @top-right { content: none; border: 0; }
+  @bottom-left { content: none; border: 0; }
+  @bottom-right { content: none; border: 0; }
+}
+
+h1.h--chapter { string-set: chapter-title content(text); }
+
+/* ---------- base ---------- */
+
+body { line-height: 1.5; }
+p { max-width: 70ch; margin-bottom: 9pt; }
+strong, b { font-weight: 600; }
+a { color: var(--ink); text-decoration-thickness: 0.75pt; text-underline-offset: 1.5pt; }
+code { font-family: var(--font-mono); font-size: 0.9em; background: var(--gray-100); padding: 0 2pt; }
+
+h1.h--chapter { font-size: var(--text-title); font-weight: 600; letter-spacing: -0.04em; line-height: 0.98; color: var(--ink); }
+
+h2.h--section {
+  font-size: var(--text-section); font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; color: var(--ink);
+  margin: 28pt 0 10pt; padding: 7pt 0 0; border-bottom: 0; border-top: 3pt solid var(--ink);
+}
+h3.h--subsection { font-size: var(--text-subsection); font-weight: 600; letter-spacing: -0.01em; color: var(--ink); margin: 16pt 0 5pt; }
+h3.h--subsection::before { content: ''; display: inline-block; width: 7pt; height: 7pt; background: var(--accent); margin-right: 7pt; vertical-align: 0.5pt; }
+h4.h--minor { font-family: var(--font-mono); font-size: 7.5pt; font-weight: 500; letter-spacing: 0.1em; color: var(--accent-ink); margin: 12pt 0 4pt; }
+p.p--caption { font-size: 8.5pt; color: var(--ink-soft); margin: 6pt 0 14pt; line-height: 1.4; }
+
+/* ---------- cover: accent band, black disc, giant title ---------- */
+
+.cover { background: var(--paper); color: var(--ink); }
+.cover-field {
+  top: 0; left: 0; right: 0; bottom: auto; height: 72mm;
+  background: var(--accent); background-image: none;
+}
+.cover-field::after {
+  right: 16mm; bottom: auto; top: 46mm; width: 52mm; height: 52mm; border-radius: 50%; border: 0; background: var(--ink);
+}
+.cover-content { padding: 100mm 16mm 0; height: var(--page-h, 297mm); }
+.cover-label {
+  position: absolute; left: 16mm; top: 16mm; margin: 0;
+  font-size: 9pt; font-weight: 500; letter-spacing: 0.12em; color: var(--ink);
+}
+.cover-title { font-size: 50pt; font-weight: 600; letter-spacing: -0.04em; line-height: 0.98; color: var(--ink); max-width: 175mm; margin-bottom: 14pt; }
+.cover-subtitle { font-family: var(--font-sans); font-size: 14pt; font-weight: 400; color: var(--ink-soft); max-width: 140mm; }
+.cover-authors { position: absolute; left: 16mm; bottom: 62mm; margin: 0; }
+.cover-author { font-size: 11pt; font-weight: 600; color: var(--ink); margin-bottom: 1pt; }
+.cover-meta { position: absolute; left: 16mm; bottom: 20mm; width: 178mm; display: table; border-top: 3pt solid var(--ink); padding-top: 4pt; }
+.cover-meta-label, .cover-meta-value { font-size: 8.5pt; padding: 3pt 14pt 0 0; }
+.cover-meta-label { color: var(--gray-500); letter-spacing: 0.08em; width: 24mm; }
+.cover-meta-value { color: var(--ink); }
+
+/* ---------- abstract, contents ---------- */
+
+.abstract { margin-bottom: 22pt; }
+.abstract-title { font-family: var(--font-mono); font-size: 7.5pt; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 6pt; }
+.abstract p { font-size: 13.5pt; font-weight: 500; line-height: 1.35; letter-spacing: -0.012em; max-width: 140mm; }
+
+.toc-row a { border-bottom: 0.5pt solid var(--gray-200); padding: 5pt 0; }
+.toc-row a::after { color: var(--ink); font-weight: 500; font-size: 8.5pt; }
+.toc-row--0 a { font-size: 13pt; font-weight: 600; letter-spacing: -0.015em; border-top: 2pt solid var(--ink); border-bottom: 0; margin-top: 10pt; padding: 7pt 0 5pt; }
+.toc-number { color: var(--accent-ink); font-weight: 500; font-size: 10pt; margin-right: 0; display: inline-block; width: 14mm; }
+.toc-row--1 a { padding-left: 14mm; }
+.toc-row--2 a { padding-left: 22mm; }
+.toc-row--3 a { padding-left: 30mm; }
+
+/* ---------- chapter opener: giant accent numeral, giant title ---------- */
+
+.chapter { padding: 8mm 0 0; margin-bottom: 18pt; }
+.chapter--flow { padding-top: 18pt; }
+.chapter-index {
+  font-family: var(--font-sans); font-size: 84pt; font-weight: 600; letter-spacing: -0.06em; line-height: 0.82;
+  color: var(--accent); margin: 0 0 14pt -3pt;
+}
+.chapter-index--total::after {
+  font-family: var(--font-mono); font-size: 9pt; font-weight: 500; letter-spacing: 0.1em; color: var(--ink);
+  margin-left: 12pt; vertical-align: 0.2em;
+}
+
+/* ---------- furniture ---------- */
+
+.fact { margin-bottom: 2pt; }
+.fact-label { color: var(--ink); font-weight: 600; }
+.note { border-left: 4pt solid var(--accent); padding: 2pt 0 2pt 12pt; color: var(--ink); }
+.details { background: var(--gray-50); border: 0; border-top: 2pt solid var(--ink); padding: 8pt 12pt; }
+.details-summary { font-family: var(--font-mono); font-size: 8pt; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; }
+.bullets li::marker { color: var(--accent-ink); }
+.metadata { border-top: 2pt solid var(--ink); }
+.metadata-label { font-family: var(--font-mono); font-size: 7.5pt; color: var(--ink-soft); }
+.metadata-label, .metadata-value { border-bottom: 0.5pt solid var(--gray-300); }
+.attachment a { color: var(--ink); }
+
+/* ---------- tables: rule-only, numerals in mono, shapes mark the verdict ---------- */
+
+.table-block { margin: 12pt 0 16pt; }
+.table-block table { border-top: 2.5pt solid var(--ink); border-bottom: 2.5pt solid var(--ink); }
+.table-block thead th {
+  background: none; color: var(--ink); font-size: 7pt; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  border-bottom: 1pt solid var(--ink); padding: 5pt 6pt 4pt;
+}
+.table-block .unit { color: var(--gray-500); letter-spacing: 0; text-transform: none; }
+.table-block th, .table-block td { padding: 4pt 6pt; border-bottom: 0.5pt solid var(--gray-200); }
+.table-block tbody tr:last-child td { border-bottom: 0; }
+.table-block .cell--num, .table-block .cell--path { font-size: 7.5pt; }
+.table-block .cell--pass, .table-block .cell--warn, .table-block .cell--fail { color: var(--ink); font-weight: 600; }
+
+.table-block tbody tr.row--pass { background: var(--green-light); }
+.table-block tbody tr.row--warn { background: var(--accent-light); }
+.table-block tbody tr.row--fail { background: var(--red-light); }
+.table-block tr.row--pass td:first-child { border-left: 3pt solid var(--ink); }
+.table-block tr.row--warn td:first-child { border-left: 3pt dashed var(--accent); }
+.table-block tr.row--fail td:first-child { border-left: 5pt double var(--accent-ink); }
+.table-block tr.row--pass td:first-child::before,
+.table-block tr.row--warn td:first-child::before,
+.table-block tr.row--fail td:first-child::before { content: ''; display: inline-block; margin-right: 5pt; vertical-align: -0.5pt; }
+.table-block tr.row--pass td:first-child::before { width: 6pt; height: 6pt; border-radius: 50%; background: var(--ink); }
+.table-block tr.row--warn td:first-child::before { width: 0; height: 0; border-left: 3.5pt solid transparent; border-right: 3.5pt solid transparent; border-bottom: 6.5pt solid var(--accent); }
+.table-block tr.row--fail td:first-child::before { width: 6pt; height: 6pt; background: var(--accent-ink); }
+
+/* ---------- figure, equation, code ---------- */
+
+.figure { margin: 14pt 0 20pt; }
+.figure figcaption { font-size: 8.5pt; color: var(--ink-soft); margin-top: 7pt; padding-top: 5pt; border-top: 0.5pt solid var(--ink); }
+.caption-label { font-weight: 600; color: var(--ink); }
+.caption-label::before { content: ''; display: inline-block; width: 6pt; height: 6pt; background: var(--accent); margin-right: 5pt; vertical-align: 0.5pt; }
+.equation { margin: 14pt 0 3pt; }
+
+.code-block-wrapper { margin: 12pt 0 16pt; }
+.code-language { color: var(--accent-ink); font-weight: 500; font-size: 7pt; letter-spacing: 0.12em; }
+.code-block { background: var(--gray-50); color: var(--ink); border-top: 2pt solid var(--ink); border-bottom: 0.5pt solid var(--ink); font-size: 8pt; padding: 9pt 12pt; }
+
+/* ---------- metrics: huge numerals over a heavy rule ---------- */
+
+.metric-grid { gap: 22pt; margin: 14pt 0 20pt; }
+.metric { flex: 1 1 42mm; border-top: 3pt solid var(--ink); padding-top: 6pt; }
+.metric-label { color: var(--ink); font-size: 7pt; letter-spacing: 0.1em; margin-bottom: 6pt; }
+.metric-value { font-size: 40pt; font-weight: 600; letter-spacing: -0.045em; line-height: 1; color: var(--ink); }
+.metric-value::after { content: ''; display: block; width: 10mm; border-top: 3pt solid var(--accent); margin-top: 7pt; }
+.metric-detail { font-size: 8.5pt; color: var(--ink-soft); margin-top: 5pt; }
+
+/* ---------- status: the TOP rule's style encodes the level; shape + word reinforce ---------- */
+
+.status { background: var(--gray-50); border-left: 0; border-top: 5pt solid var(--ink); padding: 8pt 14pt 8pt; margin: 8pt 0 10pt; }
+.status-headline { font-size: 12.5pt; font-weight: 600; letter-spacing: 0.02em; }
+.status-detail { font-size: 9.5pt; margin-top: 5pt; }
+.status-dot { width: 11pt; height: 11pt; margin-right: 9pt; border: 0; background: var(--ink); border-radius: 50%; position: relative; top: -1pt; }
+
+.status--success { border-left: 0; border-top: 5pt solid var(--ink); }
+.status--success .status-dot { background: var(--ink); }
+.status--warning { border-left: 0; border-top: 5pt dashed var(--accent); }
+.status--warning .status-dot { background: none; width: 0; height: 0; border-radius: 0; border-left: 6.5pt solid transparent; border-right: 6.5pt solid transparent; border-bottom: 11pt solid var(--accent); margin-right: 8pt; }
+.status--partial { border-left: 0; border-top: 5pt dotted var(--accent); }
+.status--partial .status-dot { background: linear-gradient(90deg, var(--accent) 50%, var(--paper) 50%); border: 1.5pt solid var(--ink); }
+.status--failed { border-left: 0; border-top: 8pt double var(--accent-ink); }
+.status--failed .status-dot { background: var(--accent-ink); border-radius: 0; }
+.status--running { border-left: 0; border-top: 5pt dotted var(--ink); }
+.status--running .status-dot { background: none; width: 0; height: 0; border-radius: 0; border-top: 6pt solid transparent; border-bottom: 6pt solid transparent; border-left: 10pt solid var(--ink); margin-right: 8pt; }
+
+/* ---------- alerts: left bar style + inverted chip (outline / accent fill / ink fill) ---------- */
+
+.alert { background: none; border-left: 5pt solid var(--ink); padding: 3pt 0 3pt 12pt; margin: 4pt 0; }
+.alert-label { display: inline-block; font-size: 7pt; letter-spacing: 0.1em; padding: 1.5pt 6pt; margin-right: 10pt; border: 1pt solid var(--ink); color: var(--ink); background: var(--paper); }
+.alert--info { border-left: 5pt solid var(--ink); }
+.alert--warning { border-left: 5pt dashed var(--accent); }
+.alert--warning .alert-label { background: var(--accent); }
+.alert--error { border-left: 8pt double var(--accent-ink); }
+.alert--error .alert-label { background: var(--ink); color: var(--paper); }
+
+/* ---------- flow: heavy spine, big mono indices, shapes + state words ---------- */
+
+.flow { margin: 14pt 0 18pt; }
+.flow-stage { border-left: 3pt solid var(--ink); padding: 5pt 0 5pt 18pt; margin-left: 5pt; }
+.flow-stage::before { left: -7.5pt; top: 6.5pt; width: 12pt; height: 12pt; border: 0; background: var(--ink); }
+.flow-stage--done::before { background: var(--ink); }
+.flow-stage--reused::before { background: var(--ink); border-radius: 0; transform: rotate(45deg) scale(0.78); }
+.flow-stage--running::before { background: none; width: 0; height: 0; border-radius: 0; left: -4pt; border-top: 6.5pt solid transparent; border-bottom: 6.5pt solid transparent; border-left: 11pt solid var(--ink); }
+.flow-stage--failed::before { background: var(--accent-ink); border-radius: 0; }
+.flow-stage--skipped::before { background: linear-gradient(135deg, var(--paper) 42%, var(--gray-500) 42%, var(--gray-500) 58%, var(--paper) 58%); border: 1.25pt solid var(--gray-500); }
+.flow-stage--pending::before { background: var(--paper); border: 2.5pt solid var(--ink); }
+.flow-index { width: 30pt; font-size: 12pt; font-weight: 500; color: var(--ink); }
+.flow-label { font-size: 10pt; font-weight: 600; letter-spacing: 0.02em; }
+.flow-state { font-family: var(--font-mono); font-size: 7pt; font-weight: 500; letter-spacing: 0.1em; color: var(--ink-soft); margin-left: 10pt; border: 0.75pt solid var(--ink-soft); padding: 0.5pt 4pt; }
+.flow-stage--failed .flow-state { color: var(--paper); background: var(--accent-ink); border-color: var(--accent-ink); }
+.flow-detail { color: var(--ink-soft); }
+
+.title-block-title { color: var(--ink); letter-spacing: -0.04em; }

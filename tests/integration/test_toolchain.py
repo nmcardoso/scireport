@@ -43,7 +43,7 @@ def test_latexmk_compiles_document(tmp_path: Path) -> None:
     return
   (tmp_path / 'smoke.tex').write_text(
     '\\documentclass{article}\n'
-    '\\usepackage{fontspec,booktabs,siunitx,tcolorbox,fancyhdr,longtable}\n'
+    '\\usepackage{fontspec,booktabs,tcolorbox,fancyhdr,longtable,changepage,enumitem,needspace}\n'
     '\\begin{document}scireport smoke $x^2$\\end{document}\n',
     encoding='utf-8',
     newline='\n',

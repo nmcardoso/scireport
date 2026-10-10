@@ -1,0 +1,201 @@
+/*
+ * Page geometry, running header and footer, and base typography of default@1.
+ * Ported from the MOSAICS report design system.
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper);
+  counter-reset: chapter;
+}
+
+/* A4 portrait (the document skeleton sets the size from the `paper` option), 18 mm top and
+   bottom and 9 mm left and right, a minimal running header and a footer with page counters. The
+   anonymous @page rule matches every page including @page cover, so the cover cancels it. */
+@page {
+  margin: 18mm 9mm;
+
+  @top-left {
+    content: string(pipeline-name);
+    font-family: var(--font-sans);
+    font-size: 7.5pt;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    vertical-align: bottom;
+    padding-bottom: 4pt;
+    border-bottom: 0.5pt solid var(--gray-200);
+  }
+
+  @top-right {
+    content: string(doc-author);
+    font-family: var(--font-sans);
+    font-size: 7.5pt;
+    color: var(--gray-500);
+    vertical-align: bottom;
+    padding-bottom: 4pt;
+    border-bottom: 0.5pt solid var(--gray-200);
+  }
+
+  @bottom-left {
+    content: string(footer-meta);
+    font-family: var(--font-mono);
+    font-size: 7.5pt;
+    color: var(--gray-500);
+  }
+
+  @bottom-right {
+    content: "Page " counter(page) " / " counter(pages);
+    font-family: var(--font-mono);
+    font-size: 7.5pt;
+    color: var(--gray-500);
+  }
+}
+
+/* The cover is a full-bleed navy field, so its margins are cancelled. A named page rather than
+   @page :first, which breaks silently the day the cover runs to two pages. */
+@page cover {
+  margin: 0;
+
+  @top-left { content: none; }
+  @top-right { content: none; }
+  @bottom-left { content: none; }
+  @bottom-right { content: none; }
+}
+
+/* The running strings that every page's margin boxes read. They are set on <body> itself rather
+   than on a leading sibling element: a box with `page: auto` before one with `page: cover` forces
+   an implicit page break between them, which would waste a blank page ahead of the cover. */
+.running-strings {
+  string-set: pipeline-name attr(data-pipeline), doc-author attr(data-author),
+    footer-meta attr(data-footer);
+}
+
+/* Typography hierarchy: weight and spacing carry it rather than large size jumps; headings keep
+   a tight line height. */
+h1, h2, h3, h4 {
+  font-family: var(--font-sans);
+  color: var(--navy);
+  line-height: 1.2;
+  margin: 0;
+}
+
+h1.h--chapter {
+  font-size: var(--text-title);
+  font-weight: 600;
+}
+
+h2.h--section {
+  font-size: var(--text-section);
+  font-weight: 600;
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1pt solid var(--gray-200);
+}
+
+h3.h--subsection {
+  font-size: var(--text-subsection);
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-2);
+}
+
+h4.h--minor {
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+p {
+  margin: 0 0 var(--space-3);
+  max-width: 68ch;
+}
+
+/* There is no 700 face: bold text uses the 600 one instead of whatever bold the machine has. */
+strong, b, th {
+  font-weight: 600;
+}
+
+code, kbd, pre, samp {
+  font-family: var(--font-mono);
+}
+
+code {
+  font-size: 0.92em;
+}
+
+/* Prose from Markdown: tables and quotes outside the components. */
+table {
+  border-collapse: collapse;
+  margin: var(--space-3) 0 var(--space-4);
+}
+
+th, td {
+  padding: 3pt 10pt 3pt 0;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 0.5pt solid var(--gray-200);
+}
+
+th {
+  color: var(--ink-soft);
+  border-bottom: 1pt solid var(--gray-300);
+}
+
+blockquote {
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-3);
+  border-left: 1.5pt solid var(--gray-300);
+  color: var(--ink-soft);
+}
+
+p.p--muted {
+  color: var(--ink-soft);
+}
+
+p.p--caption {
+  font-size: var(--text-metadata);
+  color: var(--ink-soft);
+  margin: var(--space-2) 0 var(--space-4);
+}
+
+a {
+  color: inherit;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+/* WeasyPrint's user-agent stylesheet sets bookmark-level on h1-h6; this is the one override
+   needed, for a heading that looks like one without being listed as one (the contents page's own
+   heading, most of all). */
+.h--unlisted {
+  bookmark-level: none;
+}

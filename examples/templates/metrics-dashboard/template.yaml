@@ -1,0 +1,21 @@
+# The template of the metrics-dashboard example: a status banner, headline numbers, then details.
+spec: ">=1.0,<2.0"
+name: metrics-dashboard
+version: 1
+title: Metrics dashboard
+description: A status banner, six headline numbers, the pipeline flow, alerts, a table of checks and a chart.
+formats: [md, html, tex]
+entry: report.j2
+fields:
+  - {key: dash.status, kind: status}
+  - {key: dash.metrics, kind: metrics}
+  - {key: dash.flow, kind: flow}
+  - {key: "dash.alert.*", kind: alert}
+  - key: dash.checks
+    kind: table
+    columns:
+      - {name: check, dtype: string}
+      - {name: value, dtype: number}
+      - {name: limit, dtype: number}
+      - {name: verdict, dtype: string}
+  - {key: dash.durations, kind: figure}

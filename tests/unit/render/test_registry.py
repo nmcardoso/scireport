@@ -104,8 +104,14 @@ def test_entry_points_provide_templates_and_layouts(
   assert load_template('plug@1').origin == 'entry-point:plug'
   assert load_template('solo').ref == 'solo@2'
   assert load_layout('plug').ref == 'plug@1'
-  assert [item.ref for item in list_templates()] == ['generic@1', 'plug@1', 'plug@3', 'solo@2']
-  assert [item.ref for item in list_layouts()] == ['minimal@1', 'plug@1']
+  assert [item.ref for item in list_templates()] == [
+    'generic@1',
+    'kitchen-sink@1',
+    'plug@1',
+    'plug@3',
+    'solo@2',
+  ]
+  assert [item.ref for item in list_layouts()] == ['default@1', 'minimal@1', 'modern@1', 'plug@1']
 
 
 def test_a_broken_plugin_is_reported(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -124,7 +130,8 @@ def test_a_plugin_cannot_replace_a_builtin(
   with caplog.at_level(logging.WARNING):
     assert load_template('generic').origin == 'builtin'
     listing = list_templates()
-  assert [item.origin for item in listing] == ['builtin']
+  assert {item.origin for item in listing} == {'builtin'}
+  assert [item.name for item in listing].count('generic') == 1
   assert 'ignored' in caplog.text
 
 

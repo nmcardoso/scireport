@@ -15,6 +15,7 @@ read a name that does not exist. A string a component or the ``md`` filter retur
 
 from __future__ import annotations
 
+import re
 from typing import Any, Literal
 
 from jinja2 import BaseLoader, StrictUndefined
@@ -93,6 +94,7 @@ def make_environment(kind: EnvKind, loader: BaseLoader | None = None) -> ReportE
   env.globals['eol'] = Safe('')
   if kind == 'tex':
     env.filters['breakable'] = _tex_breakable
+    env.filters['pdfstring'] = _tex_pdfstring
   return env
 
 
@@ -128,6 +130,20 @@ def _scientific(value: Scientific, kind: EnvKind) -> Any:
     return rf'${value.mantissa}\times10^{{{value.exponent}}}$'
   text = typeset_scientific(value, kind)
   return Safe(text) if kind in ('html', 'tex') else text
+
+
+_PDF_DROP_RE = re.compile(r'[\\{}%#$&^_~\x00-\x1f]')
+
+
+def _tex_pdfstring(text: Any) -> Safe:
+  r"""Make text usable inside a PDF string (bookmarks, document information) of a LaTeX file.
+
+  The characters TeX gives a meaning to are dropped, because hyperref writes the argument to the
+  PDF without typesetting it and a stray ``%`` or ``\\`` would end or break it.
+  """
+  if text is None:
+    return Safe('')
+  return Safe(' '.join(_PDF_DROP_RE.sub('', str(text)).split()))
 
 
 def _tex_breakable(text: Any) -> Safe:

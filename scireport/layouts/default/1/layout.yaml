@@ -1,0 +1,55 @@
+# default@1: the MOSAICS report look (navy cover, chapter openers, running header and footer),
+# ported from the datex report design system. Frozen: a visual change is default@2 (ADR-0008).
+spec: ">=1.0,<2.0"
+name: default
+version: 1
+title: Default (MOSAICS look)
+description: Navy cover, chapter openers, a table of contents with page numbers, a running header and footer. Inter and IBM Plex Mono.
+formats:
+  md:
+    document: md/document.md.j2
+    components: md/components.md.j2
+  html:
+    document: html/document.html.j2
+    components: html/components.html.j2
+    css: [html/tokens.css, html/base.css, html/components.css, html/print.css, html/screen.css]
+  tex:
+    document: latex/document.tex.j2
+    components: latex/components.tex.j2
+    style: latex/scireport-default.sty
+options:
+  - name: toc
+    type: bool
+    default: true
+    description: Write a table of contents.
+  - name: cover
+    type: bool
+    default: true
+    description: Start with the navy cover page (otherwise a plain title block).
+  - name: paper
+    type: str
+    default: a4
+    choices: [a4, letter]
+    description: Paper size of the PDF and of the LaTeX project.
+  - name: chapter_breaks
+    type: bool
+    default: true
+    description: Start every chapter on a new page, below an opener band.
+  - name: numbered_captions
+    type: bool
+    default: true
+    description: Prefix captions with "Table N." and "Figure N.".
+  - name: header
+    type: bool
+    default: true
+    description: Print the running header and footer on the pages of a PDF.
+pdf_engines: [weasyprint, latex]
+mplstyle: default
+palette: palette.yaml
+fonts:
+  - Inter-Regular.otf
+  - Inter-Medium.otf
+  - Inter-SemiBold.otf
+  - Inter-Italic.otf
+  - IBMPlexMono-Regular.otf
+  - IBMPlexMono-Medium.otf
