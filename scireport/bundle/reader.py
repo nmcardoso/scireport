@@ -9,6 +9,7 @@ their SHA-256 and size, when asked for.
 from __future__ import annotations
 
 import zipfile
+from collections.abc import Mapping
 from pathlib import Path
 from types import TracebackType
 from typing import IO, TYPE_CHECKING, Literal
@@ -98,6 +99,30 @@ class Bundle:
         A bundle with ``manifest`` and this bundle's files.
     """
     return Bundle(manifest, self._backend, form=self.form, source=self.source)
+
+  def with_files(self, manifest: Manifest, files: Mapping[str, bytes]) -> Bundle:
+    """Return a bundle with another manifest and some added or replaced files on top of this one.
+
+    Used by pre-processing: the result holds the input bundle's files plus the assets the
+    pre-processors made. The result shares the file handle of this bundle: close only one of
+    them.
+
+    Parameters
+    ----------
+    manifest : Manifest
+        The manifest; it must reference every asset, old and new.
+    files : mapping
+        Bundle-relative path to content of the files to add; they shadow files of the same name.
+
+    Returns
+    -------
+    Bundle
+        A bundle over this bundle's files and ``files``.
+    """
+    from scireport.bundle.backends import MemoryBackend, OverlayBackend
+
+    backend = OverlayBackend(self._backend, MemoryBackend(dict(files)))
+    return Bundle(manifest, backend, form=self.form, source=self.source)
 
   @property
   def asset_paths(self) -> list[str]:

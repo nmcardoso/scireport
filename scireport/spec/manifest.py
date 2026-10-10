@@ -319,8 +319,9 @@ def check_manifest(manifest: Manifest) -> list[Issue]:
         hint='Rename one of them; templates reach values through data.a.b.c chains.',
       )
     )
+  promised = {key for step in manifest.preprocess for key in step.outputs.values()}
   for pointer, key in _outline_keys(manifest):
-    if key not in values:
+    if key not in values and key not in promised:
       issues.append(_missing_key(key, pointer, values))
   files: dict[str, str] = {}
   for pointer, md_file in _outline_files(manifest):
