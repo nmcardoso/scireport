@@ -26,9 +26,11 @@ in the monorepo).
 
 ## Not verified yet
 
-- **GitHub Actions has not run on this branch** (nothing pushed from this machine has been checked; `gh` is not logged in).
-  The first run of the Linux-only matrix (S3 change) is still pending too, so the Python 3.13-3.15 and `lowest` jobs are untested.
-  The `lowest` job installs the lower bounds: the new code uses only numpy, pyarrow, matplotlib and pydantic, but this is unchecked.
+- **GitHub Actions has not run on this branch.** `ci.yml` triggers only on pull requests, pushes to `main` and manual
+  dispatch, so pushing `s4/preprocessors` started nothing, and `gh` is not logged in here to dispatch it. The last CI run
+  on `s3/layouts-pdf` (success, 6a10768) predates the Linux-only change (684996d), so that edit has never run either, and
+  Python 3.13 to 3.15 and the `lowest` job are untested for S3 and S4. To get the first run: `gh auth login`, or open the
+  pull requests (S3 into main, then S4 into S3) from the web.
 - `pytest -m integration` (PDF engines) was not re-run after the S4 changes (they touch no PDF code).
 - The sky maps and the 27 figures were checked by test and a few by eye, not all by eye.
 
@@ -38,7 +40,7 @@ in the monorepo).
    redesign of `modern@1` after `/home/natan/Downloads/TUPAN_publication_plan.pdf`). It was not part of the S4 kickoff and
    is untouched. Tell me whether to do it before S5.
 2. Review the deliberate differences from MOSAICS (DECISIONS, 2026-10-10 row "The catalogue is not a one-to-one copy").
-3. Push, open the pull requests (S3 then S4), and read the CI matrix.
+3. Open the pull requests (the branches are pushed) and read the CI matrix.
 
 ## Record: HG-S1 (answered; its changes are pending, see Next)
 
