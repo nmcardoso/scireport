@@ -574,6 +574,39 @@ class Components:
       return EMPTY
     return self._call('attachment', link=self._link(value))
 
+  def references(self, ref: Any = None, *, everything: bool = False) -> Safe:
+    """Write the reference list of the bundle's bibliography.
+
+    The list holds the works cited with ``[@key]`` anywhere in the document, formatted by the
+    bibliography's CSL style (Markdown and HTML, which need pandoc) or by ``biblatex`` (LaTeX).
+    Put a heading before it. Every layout can draw it: no layout macro is involved.
+
+    Parameters
+    ----------
+    ref : Any, default=None
+        The bibliography value or its key; the bundle's only bibliography when None.
+    everything : bool, default=False
+        List every work of the bibliography, not only the cited ones.
+
+    Returns
+    -------
+    Safe
+        The list, or nothing when there is no bibliography (``E208`` is recorded).
+    """
+    citations = self._s.citations
+    if ref is not None:
+      value = self._value(ref, 'bibliography', method='references')
+      if value is None:
+        return EMPTY
+    if citations is None:
+      self._s.report(
+        'E208',
+        'c.references needs a bibliography value, and the bundle has none',
+        hint='Add one with Report.add_bibliography.',
+      )
+      return EMPTY
+    return Safe(citations.references(everything=everything))
+
   def value(self, ref: Any, *, label: str | None = None) -> Safe:
     """Draw any value with the component for its kind.
 
@@ -606,6 +639,7 @@ class Components:
       'alert': self.alert,
       'flow': self.flow,
       'attachment': self.attachment,
+      'bibliography': self.references,
     }
     if value.kind in handlers:
       return handlers[value.kind](value)

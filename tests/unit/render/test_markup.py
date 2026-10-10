@@ -165,3 +165,12 @@ def test_windows_line_endings_are_accepted() -> None:
 def test_tokens_do_not_leak_between_conversions() -> None:
   conv.convert('$x$', 'tex')
   assert '$x$' in conv.convert('a $x$', 'html').text  # no hook: math token handled afresh
+
+
+@pytest.mark.parametrize('target', ['html', 'tex'])
+def test_escaped_dollar_signs_are_text_not_math(target: str) -> None:
+  r"""A dollar written ``\$`` is text, also when two of them could pair up as math."""
+  text = str(default_converter().convert(r'costs \$5 and \$6, but $x$ is math', target).text)  # type: ignore[arg-type]
+  assert '\\textbackslash' not in text
+  assert ('$5 and $6' if target == 'html' else '\\$5 and \\$6') in text
+  assert '$x$' in text

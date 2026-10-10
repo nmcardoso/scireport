@@ -24,8 +24,17 @@ from scireport.hashing import sha256_bytes
 from scireport.logging_utils import get_logger, log_kv
 from scireport.render.definition import FORMATS, Format
 from scireport.render.layout import Layout
-from scireport.render.markup import default_converter
+from scireport.render.markup import MARKUP_ENGINES, make_converter
+from scireport.render.office import (
+  OFFICE_FORMATS,
+  OFFICE_NAME,
+  OFFICE_SOURCES,
+  OfficeFormat,
+  OfficeSource,
+  convert_office,
+)
 from scireport.render.outputs import assemble
+from scireport.render.pandoc import pandoc_path, pandoc_version
 from scireport.render.pdf import LATEX_ENGINES, PDF_ENGINES, PDF_NAME, source_date_epoch
 from scireport.render.registry import DEFAULT_LAYOUT, DEFAULT_TEMPLATE, load_layout, load_template
 from scireport.render.session import RenderSession
@@ -41,7 +50,7 @@ MANIFEST_NAME = 'render-manifest.json'
 """Name of the file that records the inputs, versions and outputs of a render."""
 DEFAULT_LATEX_ENGINE = 'lualatex'
 DEFAULT_PDF_ENGINE = 'weasyprint'
-_DEFERRED_FORMATS = {'docx': 'S5', 'odt': 'S5', 'epub': 'S5'}
+DEFAULT_OFFICE_SOURCE: OfficeSource = 'md'
 
 
 @dataclass(frozen=True)
@@ -99,6 +108,9 @@ class _Plan:
   layout: Layout
   formats: list[Format]
   pdf: bool
+  office: list[OfficeFormat]
+  office_source: OfficeSource
+  reference_doc: Path | None
   pdf_engine: str
   options: dict[str, Any]
   latex_engine: str
@@ -125,6 +137,8 @@ def render_bundle(
   preprocess: bool = True,
   allow_import: bool = False,
   cache_dir: Path | None = None,
+  office_source: str | None = None,
+  reference_doc: Path | None = None,
 ) -> RenderResult:
   """Render a bundle to Markdown, HTML and/or a LaTeX project.
 
@@ -139,14 +153,16 @@ def render_bundle(
       ``name``, ``name@version`` or a template directory.
   layout : str or pathlib.Path or None, default=None
       ``name``, ``name@version`` or a layout directory.
-  formats : list of {'md', 'html', 'tex', 'pdf'} or None, default=None
+  formats : list of {'md', 'html', 'tex', 'pdf', 'docx', 'odt', 'epub'} or None, default=None
       Formats to write; the bundle's, or all text formats that the template and layout support.
-      ``pdf`` is made from the HTML (``weasyprint``) or the LaTeX project (``latex``); it is never
-      a default, because it needs system libraries.
+      ``pdf`` is made from the HTML (``weasyprint``) or the LaTeX project (``latex``); ``docx``,
+      ``odt`` and ``epub`` are converted by pandoc from the Markdown or HTML. None of them is
+      ever a default, because they need system libraries or ``scireport[pandoc]``.
   options : mapping or None, default=None
       Layout options; they override the bundle's ``render.options`` and the layout defaults.
-  markup_engine : str or None, default=None
-      ``mistletoe`` (the only engine in this version).
+  markup_engine : {'mistletoe', 'pandoc'} or None, default=None
+      The Markdown converter for prose; ``pandoc`` needs ``scireport[pandoc]``. It is never
+      chosen automatically: the output must not depend on what is installed.
   math_renderer : str or None, default=None
       ``mathtext`` (pure Python) or ``usetex`` (real LaTeX through matplotlib).
   pdf_engine : str or None, default=None
@@ -169,6 +185,10 @@ def render_bundle(
       Let a step name ``module:function`` (this runs code; see ``--allow-import``).
   cache_dir : pathlib.Path or None, default=None
       The pre-processor cache; the user's cache directory when None.
+  office_source : {'md', 'html'} or None, default=None
+      What ``docx``, ``odt`` and ``epub`` are converted from (``md`` by default).
+  reference_doc : pathlib.Path or None, default=None
+      A ``reference.docx`` for ``docx`` and ``odt``; it overrides the layout's.
 
   Returns
   -------
@@ -186,9 +206,12 @@ def render_bundle(
   TemplateError
       When the template or layout cannot be found or loaded, or an option is unsupported.
   MissingDependencyError
-      With ``E901`` (exit code 3) when a PDF engine needs pango or TeX Live and it is missing.
+      With ``E901`` (exit code 3) when a PDF engine needs pango or TeX Live and it is missing,
+      or ``E506`` when pandoc is needed and ``scireport[pandoc]`` is not installed.
   PdfError
       With ``E902`` when a PDF engine fails.
+  PandocError
+      With ``E507`` when pandoc fails.
   """
   bundle = _preprocessed(bundle, layout, preprocess, allow_import, cache_dir)
   plan = _plan(
@@ -203,6 +226,8 @@ def render_bundle(
     latex_engine,
     md_split,
     flat,
+    office_source,
+    reference_doc,
   )
   static = validate_bundle(
     bundle,
@@ -214,14 +239,14 @@ def render_bundle(
     math_renderer=plan.math_renderer,
   )
   static.raise_for_errors()
-  files, found = _render_all(bundle, plan)
+  files, found, uses_pandoc = _render_all(bundle, plan)
   final = ValidationReport(tuple(dedupe([*static.issues, *found])), strict)
   final.raise_for_errors()
-  manifest = _render_manifest(bundle, plan, files, final)
+  manifest = _render_manifest(bundle, plan, files, final, uses_pandoc)
   files[MANIFEST_NAME] = (json.dumps(manifest, indent=2, ensure_ascii=False) + '\n').encode('utf-8')
   for issue in final.issues:
     log.warning('%s', issue.format())
-  outputs = (*plan.formats, 'pdf') if plan.pdf else tuple(plan.formats)
+  outputs = (*plan.formats, *(['pdf'] if plan.pdf else []), *plan.office)
   return RenderResult(dict(sorted(files.items())), manifest, final.issues, outputs)
 
 
@@ -242,6 +267,8 @@ def check_bundle(
   preprocess: bool = True,
   allow_import: bool = False,
   cache_dir: Path | None = None,
+  office_source: str | None = None,
+  reference_doc: Path | None = None,
 ) -> ValidationReport:
   """Validate a bundle, and render it in memory to find what only a render can show.
 
@@ -261,7 +288,7 @@ def check_bundle(
       Treat warnings as errors.
   render : bool, default=True
       Also render in memory; False runs only the static checks.
-  preprocess, allow_import, cache_dir
+  preprocess, allow_import, cache_dir, office_source, reference_doc
       As for :func:`render_bundle`: the steps run first so that their outputs can be checked.
 
   Returns
@@ -282,6 +309,8 @@ def check_bundle(
     latex_engine,
     md_split,
     False,
+    office_source,
+    reference_doc,
   )
   static = validate_bundle(
     bundle,
@@ -294,7 +323,7 @@ def check_bundle(
   )
   if not static.ok or not render:
     return static
-  _, found = _render_all(bundle, plan, with_pdf=False)
+  _, found, _ = _render_all(bundle, plan, with_pdf=False)
   return ValidationReport(tuple(dedupe([*static.issues, *found])), strict)
 
 
@@ -331,6 +360,8 @@ def _plan(
   latex_engine: str | None,
   md_split: bool | None,
   flat: bool,
+  office_source: str | None,
+  reference_doc: Path | None,
 ) -> _Plan:
   """Merge the caller's choices, the bundle's ``render`` block and the defaults."""
   spec = bundle.manifest.render
@@ -342,16 +373,20 @@ def _plan(
   pdf_name = pdf_engine or spec.pdf_engine or DEFAULT_PDF_ENGINE
   tex_engine = latex_engine or spec.latex_engine or DEFAULT_LATEX_ENGINE
   _check_engines(pdf_name, tex_engine)
-  wanted, pdf = _formats(formats, spec.formats, chosen_template, chosen_layout)
+  wanted, pdf, office = _formats(formats, spec.formats, chosen_template, chosen_layout)
   if pdf:
     _check_pdf(chosen_layout, chosen_template, pdf_name)
-  if flat and len(wanted) + int(pdf) != 1:
+  source = _office_source(office_source, office, chosen_template, chosen_layout)
+  if flat and len(wanted) + int(pdf) + len(office) != 1:
     raise TemplateError('flat output needs exactly one format', code='E801')
   return _Plan(
     template=chosen_template,
     layout=chosen_layout,
     formats=wanted,
     pdf=pdf,
+    office=office,
+    office_source=source,
+    reference_doc=reference_doc,
     pdf_engine=pdf_name,
     options={**spec.options, **dict(options or {})},
     latex_engine=tex_engine,
@@ -368,23 +403,28 @@ def _source_format(plan: _Plan) -> Format:
 
 
 def _sources(plan: _Plan) -> list[Format]:
-  """List the text formats to render and validate: the requested ones and the PDF's source."""
+  """List the text formats to validate: the requested ones, the PDF's source and the office one."""
   wanted = list(plan.formats)
   if plan.pdf and _source_format(plan) not in wanted:
     wanted.append(_source_format(plan))
+  if plan.office and plan.office_source not in wanted:
+    wanted.append(plan.office_source)
   return [fmt for fmt in FORMATS if fmt in wanted]
 
 
 def _render_all(
   bundle: Bundle, plan: _Plan, *, with_pdf: bool = True
-) -> tuple[dict[str, bytes], list[Issue]]:
-  """Render every format in memory; return the files and everything found on the way."""
+) -> tuple[dict[str, bytes], list[Issue], bool]:
+  """Render every format in memory; return the files, what was found and whether pandoc ran."""
   resolved = plan.layout.resolve_options(plan.options)
   rendered: dict[str, dict[str, bytes]] = {}
   issues: list[Issue] = []
-  to_render: list[Format] = _sources(plan) if with_pdf else list(plan.formats)
+  uses_pandoc = plan.markup_engine == 'pandoc'
+  to_render = _sources(plan) if with_pdf else list(plan.formats)
+  if not with_pdf and plan.office and plan.office_source not in to_render:
+    to_render.append(plan.office_source)
   for fmt in to_render:
-    out, found = _render_format(
+    out, found, pandoc_ran = _render_format(
       bundle,
       plan.template,
       plan.layout,
@@ -393,14 +433,24 @@ def _render_all(
       plan.latex_engine,
       plan.md_split,
       plan.math_renderer,
+      plan.markup_engine,
     )
     issues.extend(found)
     rendered[fmt] = out
-  if plan.pdf and with_pdf and not any(issue.severity == 'error' for issue in issues):
+    uses_pandoc = uses_pandoc or pandoc_ran
+  failed = any(issue.severity == 'error' for issue in issues)
+  if plan.pdf and with_pdf and not failed:
     data, found = _make_pdf(bundle, plan, rendered)
     issues.extend(found)
     rendered['pdf'] = {PDF_NAME: data}
-  names: list[str] = [*plan.formats, 'pdf'] if plan.pdf and with_pdf else list(plan.formats)
+  if plan.office and with_pdf and not failed:
+    office, found, pandoc_ran = _make_office(bundle, plan, resolved, rendered)
+    issues.extend(found)
+    rendered.update(office)
+    uses_pandoc = uses_pandoc or pandoc_ran
+  names: list[str] = list(plan.formats)
+  if with_pdf:
+    names += [*(['pdf'] if plan.pdf else []), *plan.office]
   files: dict[str, bytes] = {}
   for out_fmt in names:
     files.update(
@@ -409,7 +459,76 @@ def _render_all(
         for name, data in rendered.get(out_fmt, {}).items()
       }
     )
-  return files, issues
+  if uses_pandoc:
+    issues.extend(_pandoc_version_warning(bundle))
+  return files, issues, uses_pandoc
+
+
+def _pandoc_version_warning(bundle: Bundle) -> list[Issue]:
+  """Warn when the pandoc that ran is not the one recorded in the bundle (``W501``)."""
+  recorded = bundle.manifest.render.pandoc_version
+  running = pandoc_version()
+  if recorded is None or recorded == running:
+    return []
+  return [
+    Issue(
+      'W501',
+      f'pandoc {running} ran, but the bundle records pandoc {recorded}; the output may differ',
+      pointer='/render/pandoc_version',
+      expected=recorded,
+      found=running,
+      hint='Install the recorded version, or pack the bundle again to record this one.',
+    )
+  ]
+
+
+def _make_office(
+  bundle: Bundle, plan: _Plan, options: dict[str, Any], rendered: dict[str, dict[str, bytes]]
+) -> tuple[dict[str, dict[str, bytes]], list[Issue], bool]:
+  """Convert the Markdown or HTML render to ``docx``, ``odt`` and ``epub`` with pandoc."""
+  issues: list[Issue] = []
+  if plan.office_source == 'html':
+    source_files = rendered['html']
+  elif 'report.md' in rendered.get('md', {}):
+    source_files = rendered['md']
+  else:
+    source_files, issues, _ = _render_format(
+      bundle,
+      plan.template,
+      plan.layout,
+      'md',
+      options,
+      plan.latex_engine,
+      False,
+      plan.math_renderer,
+      plan.markup_engine,
+    )
+  if any(issue.severity == 'error' for issue in issues):
+    return {}, issues, False
+  epoch = source_date_epoch(bundle.manifest.meta.date)
+  digest = sha256_bytes(manifest_to_json(bundle.manifest).encode('utf-8'))
+  reference = _reference_doc(plan)
+  out: dict[str, dict[str, bytes]] = {}
+  for fmt in plan.office:
+    data = convert_office(
+      fmt,
+      source_files,
+      source=plan.office_source,
+      meta=bundle.manifest.meta,
+      epoch=epoch,
+      identifier=f'urn:sha256:{digest}',
+      reference_doc=reference,
+    )
+    out[fmt] = {f'{OFFICE_NAME}.{fmt}': data}
+  return out, issues, True
+
+
+def _reference_doc(plan: _Plan) -> bytes | None:
+  """Return the ``reference.docx`` to use: the caller's, else the layout's, else None."""
+  if plan.reference_doc is not None:
+    return plan.reference_doc.read_bytes()
+  name = plan.layout.definition.reference_docx
+  return (plan.layout.root / name).read_bytes() if name else None
 
 
 def _make_pdf(
@@ -441,8 +560,13 @@ def _render_format(
   latex_engine: str,
   md_split: bool | None,
   math_renderer: str = 'mathtext',
-) -> tuple[dict[str, bytes], list[Issue]]:
-  """Render one format; Markdown is rendered a second time when it turns out to be split."""
+  markup_engine: str = 'mistletoe',
+) -> tuple[dict[str, bytes], list[Issue], bool]:
+  """Render one format; Markdown is rendered a second time when it turns out to be split.
+
+  Returns the files (none when rendering found an error), the issues, and whether pandoc took
+  part in the render.
+  """
   split = bool(md_split) if fmt == 'md' else False
 
   def run(with_split: bool) -> tuple[RenderSession, str, str]:
@@ -452,7 +576,7 @@ def _render_format(
       layout,
       fmt,
       options=options,
-      converter=default_converter(),
+      converter=make_converter(markup_engine),
       md_split=with_split,
       latex_engine=latex_engine,
       math_renderer=math_renderer,
@@ -465,8 +589,8 @@ def _render_format(
     log.debug('the template names Markdown files: rendering again as a split document')
     session, body, document = run(True)
   if any(issue.severity == 'error' for issue in session.issues):
-    return {}, session.issues
-  return assemble(session, body, document), session.issues
+    return {}, session.issues, session.uses_pandoc
+  return assemble(session, body, document), session.issues, session.uses_pandoc
 
 
 def _formats(
@@ -474,30 +598,54 @@ def _formats(
   from_bundle: Sequence[str],
   template: Template,
   layout: Layout,
-) -> tuple[list[Format], bool]:
-  """Choose the text formats and whether a PDF is wanted.
+) -> tuple[list[Format], bool, list[OfficeFormat]]:
+  """Choose the text formats, whether a PDF is wanted, and the office formats.
 
   The caller's formats win, then the bundle's; with neither, every text format that both the
-  template and the layout support (never a PDF, which needs system libraries).
+  template and the layout support (never a PDF or an office format, which need system libraries
+  or pandoc).
   """
-  if requested:
-    return [fmt for fmt in FORMATS if fmt in requested], 'pdf' in requested
-  declared = [fmt for fmt in FORMATS if fmt in from_bundle]
-  pdf = 'pdf' in from_bundle
-  for name in from_bundle:
-    if name not in FORMATS and name != 'pdf':
-      log.info(
-        'format %r is not written by this step (%s); skipping it',
-        name,
-        _DEFERRED_FORMATS.get(name, 'later'),
-      )
-  if declared or pdf:
-    return declared, pdf
-  return [
-    fmt
-    for fmt in FORMATS
-    if fmt in template.definition.formats and fmt in layout.definition.formats
-  ], False
+  chosen = requested or [name for name in from_bundle if name in (*FORMATS, 'pdf', *OFFICE_FORMATS)]
+  if requested or chosen:
+    for name in from_bundle if not requested else ():
+      if name not in (*FORMATS, 'pdf', *OFFICE_FORMATS):
+        log.info('format %r is not written by this version; skipping it', name)
+    return (
+      [fmt for fmt in FORMATS if fmt in chosen],
+      'pdf' in chosen,
+      [fmt for fmt in OFFICE_FORMATS if fmt in chosen],
+    )
+  return (
+    [
+      fmt
+      for fmt in FORMATS
+      if fmt in template.definition.formats and fmt in layout.definition.formats
+    ],
+    False,
+    [],
+  )
+
+
+def _office_source(
+  requested: str | None, office: list[OfficeFormat], template: Template, layout: Layout
+) -> OfficeSource:
+  """Choose what the office formats are converted from and check that it can be rendered."""
+  source = requested or DEFAULT_OFFICE_SOURCE
+  if source not in OFFICE_SOURCES:
+    raise TemplateError(
+      f'unknown office source {source!r}',
+      code='E805',
+      hint=f'Choose one of: {", ".join(OFFICE_SOURCES)}.',
+    )
+  if office:
+    for owner, definition in ((template.ref, template.definition), (layout.ref, layout.definition)):
+      if source not in definition.formats:
+        raise TemplateError(
+          f'{owner} does not support the {source} format that {", ".join(office)} is made from',
+          code='E706',
+          hint='Choose the other source with --office-source.',
+        )
+  return 'html' if source == 'html' else 'md'
 
 
 def _check_engines(pdf_engine: str, latex_engine: str) -> None:
@@ -535,13 +683,18 @@ def _check_pdf(layout: Layout, template: Template, pdf_engine: str) -> None:
 
 
 def _check_supported(engine: str, renderer: str) -> None:
-  """Refuse the markup engine and math renderer that arrive in later phases."""
-  if engine != 'mistletoe':
+  """Refuse a markup engine or a math renderer this version does not know.
+
+  The pandoc engine is checked here, so a missing extra fails before anything is rendered.
+  """
+  if engine not in MARKUP_ENGINES:
     raise TemplateError(
-      f'markup engine {engine!r} is not available in this version',
+      f'unknown markup engine {engine!r}',
       code='E805',
-      hint='Only mistletoe is available; pandoc arrives in phase S5.',
+      hint=f'Choose one of: {", ".join(MARKUP_ENGINES)}.',
     )
+  if engine == 'pandoc':
+    pandoc_path()
   if renderer not in ('mathtext', 'usetex'):
     raise TemplateError(
       f'unknown math renderer {renderer!r}',
@@ -551,7 +704,11 @@ def _check_supported(engine: str, renderer: str) -> None:
 
 
 def _render_manifest(
-  bundle: Bundle, plan: _Plan, files: dict[str, bytes], report: ValidationReport
+  bundle: Bundle,
+  plan: _Plan,
+  files: dict[str, bytes],
+  report: ValidationReport,
+  uses_pandoc: bool,
 ) -> dict[str, Any]:
   """Build the content of ``render-manifest.json``: no clock, no paths, only hashes and versions."""
   import mistletoe
@@ -569,7 +726,7 @@ def _render_manifest(
     'template': {'ref': plan.template.ref, 'sha256': plan.template.sha256},
     'layout': {'ref': plan.layout.ref, 'sha256': plan.layout.sha256},
     'options': plan.layout.resolve_options(plan.options),
-    'formats': [*plan.formats, 'pdf'] if plan.pdf else list(plan.formats),
+    'formats': [*plan.formats, *(['pdf'] if plan.pdf else []), *plan.office],
     'engines': {
       'markup': plan.markup_engine,
       'mistletoe': mistletoe.__version__,
@@ -578,6 +735,7 @@ def _render_manifest(
       'jinja2': jinja2.__version__,
       'latex': plan.latex_engine,
       'pdf': plan.pdf_engine if plan.pdf else None,
+      'pandoc': pandoc_version() if uses_pandoc else None,
       **_pdf_versions(plan),
     },
     'outputs': {

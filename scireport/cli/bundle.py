@@ -144,7 +144,12 @@ def _transfer(
     if verb == 'pack':
       pinned = pin_manifest(bundle.manifest)
       if pinned is not bundle.manifest:
-        log.info('pinned template %s and layout %s', pinned.render.template, pinned.render.layout)
+        log.info(
+          'pinned template %s, layout %s, pandoc %s',
+          pinned.render.template,
+          pinned.render.layout,
+          pinned.render.pandoc_version,
+        )
         to_write = bundle.with_manifest(pinned)
     written = write_bundle(to_write, dest, overwrite=force, max_bytes=cap)
     form = infer_form(written)

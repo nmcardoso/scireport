@@ -264,3 +264,87 @@ def write_layout(root: Path, *, name: str = 'mine', version: int = 1) -> Path:
   text = text.replace('name: minimal', f'name: {name}').replace('version: 1', f'version: {version}')
   (root / 'layout.yaml').write_text(text, encoding='utf-8')
   return root
+
+
+PROSE_SAMPLES: dict[str, str] = {
+  'inline': (
+    'Plain, *emphasis*, **strong**, ~~struck~~, `code_x`, a [link](https://example.org/a_b) and '
+    'an autolink <https://example.org>. Special characters: 50% & # $ ~ ^ { } _ < >.'
+  ),
+  'breaks': 'First line  \nsecond line after a hard break,\nthird after a soft one.',
+  'lists': (
+    '- one\n- two\n  - nested\n  - nested too\n\n1. first\n2. second\n\n'
+    '> A quotation\n> over two lines.'
+  ),
+  'code': 'A block:\n\n```python\nprint("x < y")\n```\n\nand an indented one:\n\n    raw_text()\n',
+  'table': '| left | centre | right |\n|:-----|:------:|------:|\n| a | b | c |\n| 1 | 2 | 3 |\n',
+  'math': 'Inline $\\alpha^2 + \\beta_i$ and display:\n\n$$\n\\int_0^1 x\\,dx = \\frac12\n$$\n',
+  'extras': (
+    'A footnote[^1] and a task list:\n\n- [x] done\n- [ ] open\n\nTerm\n:   Its definition.\n\n'
+    '[^1]: The note.'
+  ),
+  'outside': (
+    '# A heading\n\nAn image ![alt text](pic.png), raw <b>html</b> and a '
+    '[bad link](javascript:alert(1)).'
+  ),
+}
+"""Markdown samples for the comparison of the two markup engines, by topic."""
+
+
+def prose_sampler() -> Bundle:
+  """Build a bundle whose values are the :data:`PROSE_SAMPLES`, one chapter each.
+
+  Returns
+  -------
+  Bundle
+      An in-memory bundle for the generic template (its outline lists every sample).
+  """
+  report = Report('Markup engines', date='2026-10-09')
+  for name, text in PROSE_SAMPLES.items():
+    report.add_text(f'prose.{name}', text, format='markdown')
+  report.set_outline(
+    [{'title': name.capitalize(), 'children': [f'prose.{name}']} for name in PROSE_SAMPLES]
+  )
+  return report.build()
+
+
+BIB_TEXT = (
+  '@article{doe2020,\n  author = {Doe, Jane and Roe, Richard},\n  title = {A study of things},\n'
+  '  journal = {Journal of Things},\n  year = {2020},\n  volume = {3},\n  pages = {1--10}\n}\n'
+  '@book{smith2018,\n  author = {Smith, John},\n  title = {The Book},\n  publisher = {Pub},\n'
+  '  year = {2018}\n}\n'
+  '@misc{unused2001,\n  author = {Nobody, N.},\n  title = {Not cited},\n  year = {2001}\n}\n'
+)
+"""A BibTeX file with two works that the sample cites and one that it does not."""
+
+
+def citation_bundle(*, csl: bytes | None = None, style: str | None = None) -> Bundle:
+  """Build a bundle that cites two works in two places and lists the references.
+
+  Parameters
+  ----------
+  csl : bytes or None, default=None
+      A CSL style for the Markdown and HTML outputs.
+  style : str or None, default=None
+      The biblatex style of the LaTeX output.
+
+  Returns
+  -------
+  Bundle
+      An in-memory bundle for the generic template.
+  """
+  report = Report('Cites', date='2026-10-09')
+  report.add_text(
+    'intro.one', 'Agreement with [@smith2018, p. 3; @doe2020] is shown.', format='markdown'
+  )
+  report.add_text(
+    'intro.two', 'The result of [-@doe2020] holds; see also [see @smith2018].', format='markdown'
+  )
+  report.add_bibliography('refs', BIB_TEXT.encode(), csl=csl, style=style)
+  report.set_outline(
+    [
+      {'title': 'Intro', 'children': ['intro.one', 'intro.two']},
+      {'title': 'References', 'children': ['refs']},
+    ]
+  )
+  return report.build()

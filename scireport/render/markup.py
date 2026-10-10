@@ -43,16 +43,29 @@ from typing import Any, ClassVar
 from urllib.parse import urlparse
 
 from mistletoe import block_token
+from mistletoe.base_renderer import BaseRenderer
 from mistletoe.block_token import Document
 from mistletoe.html_renderer import HtmlRenderer
 from mistletoe.latex_renderer import LaTeXRenderer
-from mistletoe.latex_token import Math
+from mistletoe.latex_token import Math as _Math
 
 from scireport.errors import Issue
 from scireport.render.escape import tex_escape
 from scireport.render.math import MathError
 from scireport.render.numbers import Target
 from scireport.render.safe import Safe
+
+
+class Math(_Math):
+  r"""Inline ``$...$`` and display ``$$...$$`` math, where a dollar sign written ``\$`` is text.
+
+  mistletoe's own pattern ignores the backslash, so ``\$5 and \$6`` was read as math and the
+  escapes were shown. (Found by the property test of ``md_escape``.) The class keeps the name
+  ``Math`` because mistletoe's renderers pick ``render_math`` from it.
+  """
+
+  pattern = re.compile(r'(?<!\\)(\${1,2})([^$]+?)(?<!\\)\1')
+
 
 MathHook = Callable[[str, bool], str]
 """Draws math for HTML: ``(latex, display) -> html``; raises :class:`MathError` when it cannot."""
@@ -112,6 +125,10 @@ class MarkupConverter(ABC):
         The converted prose and its warnings.
     """
 
+  def tex_preamble(self) -> str:
+    """Return LaTeX definitions the converted prose needs in the preamble ('' when none)."""
+    return ''
+
 
 class MistletoeConverter(MarkupConverter):
   """The default backend, built on mistletoe (pure Python)."""
@@ -148,8 +165,40 @@ def default_converter() -> MarkupConverter:
   return MistletoeConverter()
 
 
+MARKUP_ENGINES: tuple[str, ...] = ('mistletoe', 'pandoc')
+"""The values of ``render.markup_engine``."""
+
+
+def make_converter(engine: str) -> MarkupConverter:
+  """Return a new converter for a markup engine.
+
+  Parameters
+  ----------
+  engine : {'mistletoe', 'pandoc'}
+      The engine name. ``pandoc`` is imported here, so a bundle that does not use it never loads
+      it.
+
+  Returns
+  -------
+  MarkupConverter
+      A converter with its own state; make one per render.
+
+  Raises
+  ------
+  ValueError
+      When ``engine`` is not in :data:`MARKUP_ENGINES`.
+  """
+  if engine == 'mistletoe':
+    return default_converter()
+  if engine == 'pandoc':
+    from scireport.render.markup_pandoc import PandocConverter
+
+    return PandocConverter()
+  raise ValueError(f'unknown markup engine {engine!r}')
+
+
 @dataclass
-class _Walker:
+class ProseWalker:
   """Visits an AST and reports what is outside the subset, once per construct."""
 
   issues: list[Issue]
@@ -178,7 +227,7 @@ class _CheckRenderer(HtmlRenderer):
 
   def __init__(self, issues: list[Issue]) -> None:
     super().__init__(Math, process_html_tokens=False)
-    self._walker = _Walker(issues)
+    self._walker = ProseWalker(issues)
 
   def render(self, token: Any) -> str:
     """Render ``token``, reporting the constructs outside the subset on the way."""
@@ -196,7 +245,7 @@ class _CheckRenderer(HtmlRenderer):
       )
     elif name == 'RawText':
       self._walker.check_text(token.content, getattr(token, 'line_number', None))
-    elif name == 'Link' and not _safe_url(token.target):
+    elif name == 'Link' and not safe_url(token.target):
       self._walker.warn('link', f'link to {token.target!r} is not allowed', 'Use http or https.')
     return super().render(token)
 
@@ -243,13 +292,13 @@ class _HtmlRenderer(_CheckRenderer):
 
   def render_link(self, token: Any) -> str:
     """Keep links to safe schemes; show the text of any other."""
-    if not _safe_url(token.target):
+    if not safe_url(token.target):
       return self.render_inner(token)
     return super().render_link(token)
 
   def render_auto_link(self, token: Any) -> str:
     """Keep autolinks to safe schemes; show the text of any other."""
-    if not token.mailto and not _safe_url(token.target):
+    if not token.mailto and not safe_url(token.target):
       return self.render_inner(token)
     return super().render_auto_link(token)
 
@@ -266,7 +315,12 @@ class _TexRenderer(LaTeXRenderer):
   def __init__(self, issues: list[Issue], math: MathHook | None) -> None:
     del math
     super().__init__(Math)
-    self._walker = _Walker(issues)
+    self._walker = ProseWalker(issues)
+
+  @staticmethod
+  def _tokens_from_module(module: Any) -> list[Any]:
+    """Leave out mistletoe's own ``Math``, which :class:`Math` replaces."""
+    return [token for token in BaseRenderer._tokens_from_module(module) if token.__name__ != 'Math']
 
   def render(self, token: Any) -> str:
     """Render ``token``, reporting the constructs outside the subset on the way."""
@@ -285,7 +339,7 @@ class _TexRenderer(LaTeXRenderer):
       )
     elif name == 'RawText':
       self._walker.check_text(token.content, line)
-    elif name == 'Link' and not _safe_url(token.target):
+    elif name == 'Link' and not safe_url(token.target):
       self._walker.warn('link', f'link to {token.target!r} is not allowed', 'Use http or https.')
     return super().render(token)
 
@@ -307,14 +361,14 @@ class _TexRenderer(LaTeXRenderer):
 
   def render_link(self, token: Any) -> str:
     """Keep links to safe schemes; show the text of any other."""
-    if not _safe_url(token.target):
+    if not safe_url(token.target):
       return self.render_inner(token)
     return rf'\href{{{self.escape_url(token.target)}}}{{{self.render_inner(token)}}}'
 
   def render_auto_link(self, token: Any) -> str:
     """Keep autolinks to safe schemes; show the text of any other."""
     target = f'mailto:{token.target}' if token.mailto else token.target
-    if not _safe_url(target):
+    if not safe_url(target):
       return tex_escape(token.target)
     return rf'\url{{{self.escape_url(target)}}}'
 
@@ -377,7 +431,7 @@ class _TexRenderer(LaTeXRenderer):
     return self.render_inner(token)
 
 
-def _safe_url(target: str) -> bool:
+def safe_url(target: str) -> bool:
   """Say whether a link target uses an allowed scheme (or none, for a relative link or anchor)."""
   scheme = urlparse(target.strip()).scheme.lower()
   return scheme == '' or scheme in SAFE_SCHEMES

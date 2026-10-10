@@ -154,6 +154,9 @@ class LayoutDef(Model):
   fonts : list of str
       File names of the vendored fonts the layout uses (``Inter-Regular.otf``). The HTML writer
       inlines them and the LaTeX project gets a copy.
+  reference_docx : str or None
+      A Word file, relative to the layout directory, whose styles pandoc uses for ``docx`` (and
+      ``odt``) output; None uses pandoc's own.
   """
 
   spec: str
@@ -167,6 +170,7 @@ class LayoutDef(Model):
   mplstyle: str | None = None
   palette: str | None = None
   fonts: list[str] = []
+  reference_docx: str | None = None
 
   @field_validator('spec')
   @classmethod
@@ -361,6 +365,8 @@ def load_layout_dir(root: Path, *, origin: str = 'path') -> Layout:
       require_file(root, files.style, what='layout style file')
   if definition.palette:
     require_file(root, definition.palette, what='layout palette')
+  if definition.reference_docx:
+    require_file(root, definition.reference_docx, what='layout reference document')
   for name in definition.fonts:
     if not (FONTS_DIR / name).is_file():
       raise TemplateError(

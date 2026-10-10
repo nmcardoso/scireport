@@ -10,6 +10,7 @@ validation or rendering finds an error.
 | `html` | `report.html`, self-contained: CSS inlined, figures, images and math embedded as data URIs (math as SVG) |
 | `tex` | `report.tex`, the layout's `.sty`, `latexmkrc`, `fonts/` (the vendored fonts the layout lists, with `OFL.txt`), `figures/` (PDF preferred over PNG, SVG never), `images/`, `attachments/` |
 | `pdf` | `report.pdf`, made from the HTML (`--pdf-engine weasyprint`, the default) or from the LaTeX project (`--pdf-engine latex`); see below |
+| `docx`, `odt`, `epub` | `report.<format>`, converted by pandoc from the unsplit Markdown (or the HTML); see [pandoc](pandoc.md) |
 
 - **Markdown** starts every file with a generated-file notice (template, layout, manifest hash). Alt text comes
   from the data file. Math is `$...$` and `$$...$$`. A document is split when the outline names `md_file`

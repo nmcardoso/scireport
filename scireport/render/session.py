@@ -22,6 +22,7 @@ from scireport._version import __version__
 from scireport.bundle.reader import Bundle
 from scireport.errors import Issue, MissingDependencyError, ScireportError, TemplateError
 from scireport.logging_utils import get_logger
+from scireport.render.citations import Citations
 from scireport.render.components import COMPONENT_MACROS, Components
 from scireport.render.data import DataNamespace, ValueStore
 from scireport.render.definition import Format
@@ -33,6 +34,7 @@ from scireport.render.math import DEFAULT_COLOR, MathError, render_math
 from scireport.render.outline import Outline
 from scireport.render.safe import Safe
 from scireport.render.template import Template
+from scireport.spec.kinds import BibliographyValue
 from scireport.spec.manifest import Manifest, OutlineNode, manifest_to_json
 
 log = get_logger(__name__)
@@ -149,6 +151,7 @@ class RenderSession:
     self.outline = Outline()
     self.store = ValueStore(bundle.manifest.values, self._missing_key)
     self.c = Components(self)
+    self.citations = self._open_citations()
     self._roots = [template.root, layout.root]
     self._counters: dict[str, int] = {}
     self._module: Any = None
@@ -182,6 +185,8 @@ class RenderSession:
     try:
       body = self._render_body()
       document = self._render_document(body)
+      if self.citations is not None and self.citations.used:
+        document, body = self.citations.resolve(document, body)
     except (TemplateSyntaxError, UndefinedError, SecurityError, TemplateRuntimeError) as exc:
       self._record_exception(exc)
       return '', ''
@@ -205,6 +210,13 @@ class RenderSession:
         )
       )
     return body, document
+
+  @property
+  def uses_pandoc(self) -> bool:
+    """Whether pandoc took part: it is the markup engine, or it formatted the citations."""
+    return self.converter.name == 'pandoc' or (
+      self.citations is not None and self.citations.used_pandoc
+    )
 
   @property
   def wants_split(self) -> bool:
@@ -250,8 +262,11 @@ class RenderSession:
         The converted prose.
     """
     hook = self._draw_math if self.fmt == 'html' else None
-    converted = self.converter.convert(source, self.fmt, math=hook, inline=inline)
     location = current_location(self._roots)
+    if self.citations is not None:
+      source, cited = self.citations.protect(source)
+      self.issues.extend(_located(issue, location) for issue in cited)
+    converted = self.converter.convert(source, self.fmt, math=hook, inline=inline)
     self.issues.extend(_located(issue, location) for issue in converted.issues)
     return converted.text
 
@@ -365,6 +380,20 @@ class RenderSession:
       f'<img class="math-inline" src="{svg.data_uri}" alt="{alt}" '
       f'style="vertical-align: {-svg.depth_pt:.2f}pt;">'
     )
+
+  def _open_citations(self) -> Citations | None:
+    """Prepare the citations of the bundle's bibliography, if it has one."""
+    for value in self.bundle.manifest.values.values():
+      if isinstance(value, BibliographyValue):
+        csl = self.bundle.read_asset(value.csl) if value.csl is not None else None
+        return Citations(
+          value,
+          self.bundle.read_asset(value.asset),
+          csl,
+          self.fmt,
+          self.bundle.manifest.meta.language,
+        )
+    return None
 
   def _missing_key(self, key: str, hint: str | None) -> None:
     """Record ``E106`` for a key the template reads and the bundle lacks."""

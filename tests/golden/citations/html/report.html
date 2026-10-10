@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="scireport <version>">
+<title>Cites</title>
+<style>
+:root { --accent: #1f4e79; }
+/* minimal@1: plain, readable, no external resources. */
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1a1a1a; background: #fff; }
+main { max-width: 52rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+h1, h2, h3, h4 { line-height: 1.25; margin: 1.6em 0 0.5em; }
+h1.title { font-size: 2rem; margin-top: 0; color: var(--accent); }
+.chapter h1 { font-size: 1.6rem; border-bottom: 2px solid var(--accent); padding-bottom: 0.2em; }
+.number { color: #666; font-variant-numeric: tabular-nums; }
+.cover .subtitle { font-size: 1.15rem; margin: 0; }
+.cover .authors, .cover .facts { margin: 0.3rem 0; color: #444; }
+p { margin: 0.7em 0; }
+a { color: var(--accent); }
+.muted, .caption, figcaption, caption { color: #555; font-size: 0.9rem; }
+.h--run { margin-bottom: 0.2em; }
+.toc { margin: 1.5rem 0; padding: 0.8rem 1rem; background: #f6f7f9; border-radius: 6px; }
+.toc-title { margin: 0 0 0.5rem; font-size: 1.1rem; }
+.toc-row--1 { margin-left: 1.2rem; }
+.toc-row--2 { margin-left: 2.4rem; }
+.toc-row--3 { margin-left: 3.6rem; }
+table { border-collapse: collapse; width: 100%; margin: 0.8rem 0; font-size: 0.92rem; }
+caption { text-align: left; padding-bottom: 0.3rem; }
+th, td { padding: 0.3rem 0.55rem; border-bottom: 1px solid #ddd; vertical-align: top; }
+th { border-bottom: 2px solid #999; text-align: left; }
+.align-right { text-align: right; font-variant-numeric: tabular-nums; }
+.align-center { text-align: center; }
+.align-path { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 0.85em; overflow-wrap: anywhere; }
+.row--pass td { background: #eaf6ec; }
+.row--warn td { background: #fff4e0; }
+.row--fail td { background: #fdeceb; }
+.cell--strong { font-weight: 700; }
+.cell--muted { color: #777; }
+.cell--pass { color: #2e7d32; }
+.cell--warn { color: #b26a00; }
+.cell--fail { color: #b3261e; }
+.unit { color: #666; font-weight: 400; }
+figure { margin: 1.2rem 0; text-align: center; }
+figure img { max-width: 100%; height: auto; }
+.math-inline { vertical-align: middle; }
+.equation { text-align: center; margin: 1rem 0; }
+.equation-number { float: right; color: #555; }
+.math-display { max-width: 100%; }
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.8rem; margin: 1rem 0; }
+.metric { padding: 0.7rem 0.9rem; border: 1px solid #ddd; border-radius: 6px; }
+.metric-label { font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; color: #555; }
+.metric-value { font-size: 1.5rem; font-weight: 700; }
+.metric-detail { font-size: 0.85rem; color: #555; }
+.status, .alert { padding: 0.55rem 0.8rem; margin: 0.8rem 0; border-left: 5px solid #888; background: #f3f3f3; }
+.status--success, .alert--info { border-color: #2e7d32; background: #eaf6ec; }
+.status--warning, .status--partial, .alert--warning { border-color: #b26a00; background: #fff4e0; }
+.status--failed, .alert--error { border-color: #b3261e; background: #fdeceb; }
+.status--running { border-color: var(--accent); background: #eef3f8; }
+.status-headline, .alert-label { font-weight: 700; }
+.flow { list-style: none; padding: 0; counter-reset: stage; }
+.flow-stage { counter-increment: stage; padding: 0.35rem 0.7rem; margin: 0.3rem 0; border-left: 4px solid #999; }
+.flow-stage::before { content: counter(stage, decimal-leading-zero) " "; color: #666; font-variant-numeric: tabular-nums; }
+.flow-stage--done, .flow-stage--reused { border-color: #2e7d32; }
+.flow-stage--failed { border-color: #b3261e; }
+.flow-stage--skipped, .flow-stage--pending { border-color: #bbb; color: #666; }
+.flow-state { font-size: 0.8rem; color: #555; }
+.flow-detail { font-size: 0.88rem; color: #555; }
+.metadata dt { font-weight: 700; float: left; clear: left; margin-right: 0.5rem; }
+.metadata dd { margin: 0 0 0.3rem 0; }
+.code-block pre { margin: 0.5rem 0; padding: 0.7rem 0.9rem; background: #f6f7f9; border-radius: 6px; overflow-x: auto; }
+code { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 0.9em; }
+.code-language { font-size: 0.75rem; color: #666; text-transform: uppercase; }
+details { margin: 0.8rem 0; padding: 0.4rem 0.8rem; border: 1px solid #ddd; border-radius: 6px; }
+summary { cursor: pointer; font-weight: 600; }
+.note { color: #555; font-size: 0.92rem; }
+.fact-label { font-weight: 700; }
+.abstract { margin: 1.2rem 0; font-size: 1.02rem; }
+.footer { text-align: center; color: #666; font-size: 0.85rem; padding: 1rem; }
+.page-break { break-before: page; }
+@media print { main { max-width: none; padding: 0; } }
+
+.references .csl-entry { margin: 0 0 0.4em 2em; text-indent: -2em; }
+.references .csl-left-margin { display: inline-block; min-width: 2em; }
+.references .csl-right-inline { display: inline; }
+</style>
+</head>
+<body>
+<!-- Generated by scireport <version> (template generic@1, layout minimal@1) from a bundle with manifest sha256 d3054b180101. Do not edit. -->
+<main>
+<header class="cover">
+<h1 class="title">Cites</h1>
+<p class="facts">Date: 2026-10-09</p>
+</header>
+
+<nav class="toc">
+<h2 class="toc-title">Contents</h2>
+<div class="toc-row toc-row--0"><a href="#a1"><span class="number">1</span> Intro</a></div>
+<div class="toc-row toc-row--0"><a href="#a2"><span class="number">2</span> References</a></div>
+</nav>
+
+<section class="chapter" id="a1">
+<h1><span class="number">1</span> Intro</h1>
+</section>
+
+<p>Agreement with <span class="citation" data-cites="smith2018 doe2020">(Smith 2018, 3; Doe and Roe 2020)</span> is shown.</p>
+
+<p>The result of <span class="citation" data-cites="doe2020">(2020)</span> holds; see also <span class="citation" data-cites="smith2018">(see Smith 2018)</span>.</p>
+
+<section class="chapter" id="a2">
+<h1><span class="number">2</span> References</h1>
+</section>
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-doe2020" class="csl-entry" role="listitem">
+Doe, Jane, and Richard Roe. 2020. <span>“A Study of Things.”</span> <em>Journal of Things</em> 3: 1–10.
+</div>
+<div id="ref-smith2018" class="csl-entry" role="listitem">
+Smith, John. 2018. <em>The Book</em>. Pub.
+</div>
+</div>
+
+</main>
+</body>
+</html>

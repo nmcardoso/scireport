@@ -13,6 +13,10 @@ if TYPE_CHECKING:
 
 DOCUMENT = 'report.html'
 """Name of the file."""
+REFERENCES_CSS = """.references .csl-entry { margin: 0 0 0.4em 2em; text-indent: -2em; }
+.references .csl-left-margin { display: inline-block; min-width: 2em; }
+.references .csl-right-inline { display: inline; }"""
+"""Hanging-indent rules for the reference list, added when a document cites (layout-independent)."""
 
 
 def variables(session: RenderSession) -> dict[str, Any]:
@@ -23,8 +27,11 @@ def variables(session: RenderSession) -> dict[str, Any]:
   so that the file needs no font installed; it is empty for a layout without fonts.
   """
   files = session.layout.files('html')
+  sheets = [session.layout.read(name) for name in files.css]
+  if session.citations is not None and session.citations.used:
+    sheets.append(REFERENCES_CSS)
   return {
-    'css': Safe('\n'.join(session.layout.read(name) for name in files.css)),
+    'css': Safe('\n'.join(sheets)),
     'fonts_css': Safe(font_face_css(session.layout.definition.fonts)),
   }
 

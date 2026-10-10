@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="en-US">
+  <info>
+    <title>Numeric test style</title>
+    <id>http://example.org/styles/numeric-test</id>
+    <updated>2026-01-01T00:00:00+00:00</updated>
+  </info>
+  <citation collapse="citation-number">
+    <sort>
+      <key variable="citation-number"/>
+    </sort>
+    <layout prefix="[" suffix="]" delimiter=", ">
+      <text variable="citation-number"/>
+    </layout>
+  </citation>
+  <bibliography second-field-align="flush">
+    <layout suffix=".">
+      <text variable="citation-number" prefix="[" suffix="] "/>
+      <names variable="author">
+        <name and="text" initialize-with="." name-as-sort-order="all" sort-separator=", "/>
+      </names>
+      <text variable="title" prefix=", " font-style="italic"/>
+      <date variable="issued" prefix=", ">
+        <date-part name="year"/>
+      </date>
+    </layout>
+  </bibliography>
+</style>

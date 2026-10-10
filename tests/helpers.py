@@ -20,3 +20,27 @@ def asset_ref(path: str, sha: str = SHA_A, size: int = 1) -> dict[str, Any]:
 def minimal_manifest(**values: Any) -> dict[str, Any]:
   """Return a minimal manifest dict holding ``values``."""
   return {'scireport': '1.0', 'meta': {'title': 'T'}, 'values': values}
+
+
+def require_extra(module: str) -> None:
+  """Skip the calling test when an optional extra is not installed.
+
+  With ``SCIREPORT_REQUIRE_TOOLCHAIN=1`` (the dedicated CI jobs) a missing extra fails the test
+  instead, so that a job can never go green by skipping.
+
+  Parameters
+  ----------
+  module : str
+      The importable name of the extra's package (``pypandoc``, ``mcp``).
+  """
+  import importlib.util
+  import os
+
+  import pytest
+
+  if importlib.util.find_spec(module) is not None:
+    return
+  message = f'{module} is not installed (needs the matching scireport extra)'
+  if os.environ.get('SCIREPORT_REQUIRE_TOOLCHAIN') == '1':
+    pytest.fail(message)
+  pytest.skip(message)

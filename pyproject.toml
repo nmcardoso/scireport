@@ -139,6 +139,7 @@ markers = [
   "pdf_weasyprint: renders a PDF through WeasyPrint (needs the pango system libraries)",
   "pdf_latex: renders a PDF through latexmk (needs TeX Live)",
   "pandoc: needs the scireport[pandoc] extra",
+  "mcp: needs the scireport[mcp] extra",
   "slow: takes more than ~10 s",
 ]
 # WeasyPrint 70 warns when libharfbuzz-subset is missing; CI installs it, a laptop may not.

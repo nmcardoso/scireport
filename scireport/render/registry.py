@@ -18,10 +18,11 @@ from importlib import metadata
 from pathlib import Path
 from typing import Literal
 
-from scireport.errors import TemplateError
+from scireport.errors import MissingDependencyError, TemplateError
 from scireport.logging_utils import get_logger
 from scireport.render.definition import FORMATS
 from scireport.render.layout import LAYOUT_FILE, Layout, load_layout_dir
+from scireport.render.pandoc import pandoc_version
 from scireport.render.template import TEMPLATE_FILE, Template, load_template_dir
 from scireport.spec.manifest import Manifest
 
@@ -195,9 +196,35 @@ def pin_manifest(manifest: Manifest) -> Manifest:
       changes[kind] = pin(kind, ref)
     except TemplateError as exc:
       log.warning('cannot pin the %s %r: %s', kind, ref, exc.message)
+  pandoc = _pandoc_pin(manifest)
+  if pandoc is not None:
+    changes['pandoc_version'] = pandoc
   if not changes:
     return manifest
   return manifest.model_copy(update={'render': manifest.render.model_copy(update=changes)})
+
+
+def _pandoc_pin(manifest: Manifest) -> str | None:
+  """Return the pandoc version to record in a bundle that uses pandoc, else None.
+
+  A bundle uses pandoc when it asks for the pandoc markup engine, a ``docx``, ``odt`` or ``epub``
+  output, or holds a bibliography (citations in Markdown and HTML are formatted by pandoc). The
+  version is left as written when the bundle records one, and is not recorded when pandoc is not
+  installed here.
+  """
+  render = manifest.render
+  uses = (
+    render.markup_engine == 'pandoc'
+    or any(fmt in ('docx', 'odt', 'epub') for fmt in render.formats)
+    or any(value.kind == 'bibliography' for value in manifest.values.values())
+  )
+  if not uses or render.pandoc_version is not None:
+    return None
+  try:
+    return pandoc_version()
+  except MissingDependencyError:
+    log.warning('cannot record the pandoc version: pandoc is not installed')
+    return None
 
 
 def list_templates() -> list[Listing]:
