@@ -2,6 +2,7 @@ name: docs
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -10,26 +11,38 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: pages-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SCIREPORT_REQUIRE_TOOLCHAIN: "1"
     steps:
       - uses: actions/checkout@v7
+      - uses: TeX-Live/setup-texlive-action@v4
+        with:
+          package-file: .github/tl_packages
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           python-version: "3.12"
           enable-cache: true
+      - name: Install pango
+        run: sudo apt-get update && sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0
       - uses: actions/configure-pages@v6
-      - run: uv sync --frozen --group docs
-      - run: uv run sphinx-build -W --keep-going -b html docs _site
+      - run: uv sync --frozen --group dev --group docs --extra pdf
+      # The gallery: every example in both layouts, as md, html and two PDFs.
+      - run: make examples
+      # HTML, a Markdown twin of every page next to it, llms.txt and llms-full.txt, then the site check.
+      - run: make docs SITE=_site DOCS_ARGS=--require-gallery
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
   deploy:
+    # A pull request only proves that the site builds; the deployment belongs to main.
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:
