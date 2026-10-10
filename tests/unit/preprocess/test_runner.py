@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 from pathlib import Path
 from typing import Any
@@ -17,7 +18,6 @@ from scireport.errors import (
   SpecError,
 )
 from scireport.preprocess import preprocess_bundle, write_back
-from scireport.preprocess import runner as runner_module
 from scireport.spec.kinds import FigureValue, TableValue
 
 pytestmark = pytest.mark.usefixtures('no_builtins')
@@ -301,7 +301,7 @@ def test_a_missing_extra_is_e607_with_exit_code_3(
 
   entry = registry.get_preprocessor('test.bars', 2)
   registry.register_preprocessor(replace(entry, requires='astro'), replace=True)
-  monkeypatch.setattr(runner_module.importlib.util, 'find_spec', lambda name: None)
+  monkeypatch.setattr(importlib.util, 'find_spec', lambda name: None)
   with pytest.raises(MissingDependencyError) as caught:
     _run(_report(), tmp_path)
   assert caught.value.code == 'E607' and caught.value.exit_code == 3

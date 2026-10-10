@@ -200,11 +200,14 @@ class Context:
     Returns
     -------
     tuple
-        The figure and its axes (an array for a grid).
+        The figure and its axes (an array for a grid). The figure uses matplotlib's constrained
+        layout, so labels and colour bars are never clipped at the final size.
     """
     from scireport.styles import figure
 
-    return figure(width, height, nrows, ncols, layout=self.layout, subplot_kw=subplot_kw)
+    made, axes = figure(width, height, nrows, ncols, layout=self.layout, subplot_kw=subplot_kw)
+    made.set_layout_engine('constrained')
+    return made, axes
 
   def save_figure(
     self,

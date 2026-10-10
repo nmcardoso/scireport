@@ -14,6 +14,7 @@ layouts
 markup
 outputs
 styles
+preprocessors
 examples
 errors
 adr/index

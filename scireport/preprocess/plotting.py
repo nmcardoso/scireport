@@ -319,6 +319,10 @@ def draw_hex_bins(
   hi_y = (
     float(np.nanmax(y + np.where(hexes, np.nan_to_num(dy) * 2.0 / 3.0, 0.0))) if y.size else 1.0
   )
+  if hi_x <= lo_x:
+    lo_x, hi_x = lo_x - 0.5, hi_x + 0.5
+  if hi_y <= lo_y:
+    lo_y, hi_y = lo_y - 0.5, hi_y + 0.5
   ax.set_xlim(lo_x, hi_x)
   ax.set_ylim(lo_y, hi_y)
 

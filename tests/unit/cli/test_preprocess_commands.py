@@ -26,7 +26,7 @@ def _report(**step: object) -> Report:
     inputs={'table': 'data'},
     outputs={'figure': 'fig.bars'},
     params={'column': 'a'},
-    **step,  # type: ignore[arg-type]
+    **step,
   )
   report.set_outline(['fig.bars'])
   return report

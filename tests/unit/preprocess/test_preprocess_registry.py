@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.metadata
 import sys
 import textwrap
 from pathlib import Path
@@ -160,7 +161,7 @@ def test_entry_point_plugins_register_and_a_broken_one_is_skipped(
     SimpleNamespace(name='bad', load=broken),
     SimpleNamespace(name='odd', load=lambda: 42),
   ]
-  monkeypatch.setattr(registry_module.importlib.metadata, 'entry_points', lambda group: points)
+  monkeypatch.setattr(importlib.metadata, 'entry_points', lambda group: points)
   try:
     with caplog.at_level('WARNING'):
       assert get_preprocessor('test.plugin') is plugin
