@@ -88,7 +88,7 @@ def kitchen_sink_report(layout: str = 'default', *, real_figures: bool = True) -
   _numbers_and_math(report)
   _prose(report)
   _figures(report, layout, rng, real=real_figures)
-  _tables(report, rng)
+  _tables(report)
   report.set_render(template='kitchen-sink@1', layout=f'{layout}@1')
   return report
 
@@ -270,7 +270,7 @@ def _figures(report: Report, layout: str, rng: np.random.Generator, *, real: boo
     )
 
 
-def _tables(report: Report, rng: np.random.Generator) -> None:
+def _tables(report: Report) -> None:
   """Add the path table, the table with missing values and the wide profile table."""
   paths = [LONG_PATH, 'store/spec/short.lance', LONG_PATH.replace('0042', '0043')]
   report.add_table(
@@ -304,16 +304,18 @@ def _tables(report: Report, rng: np.random.Generator) -> None:
     inline=False,
   )
   n = 250
+  # Integer arithmetic, not random draws: the bytes of the golden files must not depend on the
+  # numpy version or the platform's libm.
   report.add_table(
     'recon.profile',
     {
       'column': [f'column_{i:03d}' for i in range(n)],
-      'n_rows': rng.integers(10_000, 5_000_000, n),
-      'null_fraction': rng.uniform(0, 0.3, n),
-      'mean': rng.normal(0, 100, n),
-      'std': rng.uniform(0.1, 50, n),
-      'minimum': rng.normal(-300, 30, n),
-      'maximum': rng.normal(300, 30, n),
+      'n_rows': [10_000 + (i * 7919) % 4_990_000 for i in range(n)],
+      'null_fraction': [((i * 37) % 300) / 1000 for i in range(n)],
+      'mean': [((i * 53) % 2000 - 1000) / 10 for i in range(n)],
+      'std': [1 + ((i * 29) % 490) / 10 for i in range(n)],
+      'minimum': [-300 + ((i * 17) % 60) - 30 for i in range(n)],
+      'maximum': [300 + ((i * 13) % 60) - 30 for i in range(n)],
     },
     columns=[
       {'name': 'column', 'label': 'Column', 'align': 'path'},

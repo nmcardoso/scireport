@@ -30,14 +30,14 @@ from scireport.render import render_bundle
 log = get_logger(__name__)
 HERE = Path(__file__).resolve().parent
 PAGES = (
-  ('cover', ('Kitchen Sink', 'KITCHEN SINK', 'Every Component')),
-  ('contents', ('Contents',)),
-  ('chapter opener', ('Quality Control Results Overview',)),
-  ('status levels', ('COMPLETED WITH WARNINGS', 'Completed with warnings')),
-  ('flow', ('INGESTION', 'Ingestion')),
-  ('table', ('Long identifiers',)),
+  ('cover', '', 'first'),
+  ('contents', 'contents', 'first'),
+  ('chapter opener', '0102', 'first'),
+  ('status levels', 'completedwithwarnings', 'first'),
+  ('flow', 'ingestion', 'first'),
+  ('table', 'longidentifiers', 'last'),
 )
-"""Row of the comparison: a label and the strings that identify the page in any layout."""
+"""Row of the comparison: a label, the letters that identify the page, and which match to use."""
 app = typer.Typer(add_completion=False, help=__doc__)
 
 
@@ -94,7 +94,7 @@ def _compare(target: Path, documents: list[tuple[str, Path]]) -> None:
   sheet = Image.new('RGB', (width * len(columns), (height + margin) * len(PAGES)), 'white')
   draw = ImageDraw.Draw(sheet)
   for col, ((label, _), images) in enumerate(zip(documents, columns, strict=True)):
-    for row, ((name, _), image) in enumerate(zip(PAGES, images, strict=True)):
+    for row, ((name, _, _), image) in enumerate(zip(PAGES, images, strict=True)):
       x, y = col * width, row * (height + margin)
       draw.text((x + 6, y + 5), f'{label}: {name}', fill='black')
       sheet.paste(image.resize((width, height)), (x, y + margin))
@@ -105,18 +105,23 @@ def _compare(target: Path, documents: list[tuple[str, Path]]) -> None:
 def _page_images(pdf: Path, scratch: Path) -> list[Image.Image]:
   """Rasterise a PDF and return the image of the first page that matches each row of PAGES."""
   scratch.mkdir(parents=True)
-  subprocess.run(['pdftoppm', '-r', '40', '-png', str(pdf), str(scratch / 'p')], check=True)
-  texts = _page_texts(pdf)
+  subprocess.run(['pdftoppm', '-r', '60', '-png', str(pdf), str(scratch / 'p')], check=True)
+  texts = [letters(text) for text in _page_texts(pdf)]
   files = sorted(scratch.glob('p-*.png'))
   chosen: list[Image.Image] = []
-  for name, needles in PAGES:
-    index = (
-      0
-      if name == 'cover'
-      else next((i for i, text in enumerate(texts) if any(n in text for n in needles)), 0)
-    )
+  for name, needle, which in PAGES:
+    hits = [i for i, text in enumerate(texts) if needle and needle in text]
+    if name == 'cover' or not hits:
+      index = 0
+    else:
+      index = hits[0] if which == 'first' else hits[-1]
     chosen.append(Image.open(files[index]).convert('RGB'))
   return chosen
+
+
+def letters(text: str) -> str:
+  """Reduce text to its lower-case letters and digits, whatever the spacing or case."""
+  return ''.join(char for char in text.lower() if char.isalnum())
 
 
 def _page_texts(pdf: Path) -> list[str]:
