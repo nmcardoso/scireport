@@ -79,3 +79,9 @@ def test_md_escape(text: str, expected: str) -> None:
 )
 def test_md_code_span(text: str, expected: str) -> None:
   assert md_code_span(text) == expected
+
+
+@pytest.mark.parametrize(('text', 'expected'), [('.', r'\.'), (')', r'\)'), ('. x', r'\. x')])
+def test_md_escape_escapes_a_bare_ordered_marker(text: str, expected: str) -> None:
+  # mistletoe, unlike CommonMark, reads a '.' or ')' without digits as an empty list item.
+  assert md_escape(text) == expected

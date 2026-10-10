@@ -2,7 +2,7 @@
 
 HTML needs no function here: the HTML environment uses Jinja's autoescaping. Both functions are
 total: whatever string they get, the result is safe to put in a document of that format, and a
-hypothesis property test checks it (``tests/property/test_escape.py``).
+hypothesis property test checks it (``tests/property/test_escape_properties.py``).
 """
 
 from __future__ import annotations
@@ -152,7 +152,7 @@ def tex_escape(text: str, *, unicode: TexUnicode = 'map', inline: bool = False) 
 _MD_ALWAYS = re.compile(r'[\\`*\[\]<>|$~&]')
 _MD_UNDERSCORE = re.compile(r'(?<![A-Za-z0-9])_|_(?![A-Za-z0-9])')
 _MD_LINE_START = re.compile(
-  r'^(?:(#{1,6})(?=\s|$)|([-+])(?=\s|$)|(-)(?=--)|(\d{1,9})([.)])(?=\s|$)|(=+)(?=\s*$))'
+  r'^(?:(#{1,6})(?=\s|$)|([-+])(?=\s|$)|(-)(?=--)|(\d{0,9})([.)])(?=\s|$)|(=+)(?=\s*$))'
 )
 
 
@@ -206,6 +206,7 @@ def _escape_line_start(match: re.Match[str]) -> str:
     return '\\' + heading
   if bullet or rule:
     return '\\' + (bullet or rule)
-  if number:
+  if delimiter:
+    # mistletoe, unlike CommonMark, also reads a bare '.' or ')' as an (empty) ordered marker.
     return f'{number}\\{delimiter}'
   return '\\' + underline
