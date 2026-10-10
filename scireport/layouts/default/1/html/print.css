@@ -1,0 +1,37 @@
+/*
+ * Pagination. Applied unconditionally: there is no screen equivalent of a page break, so these
+ * rules are not inside a media query.
+ */
+
+h1, h2, h3, h4 {
+  break-after: avoid;
+}
+
+.h--break {
+  break-before: page;
+}
+
+.chapter, .cover, .figure, .metric-grid, .status, .alert, .metadata, .flow, .equation {
+  break-inside: avoid;
+}
+
+/* .table-block is deliberately not in that list: a 250-row table wrapped in a box that must not
+   break internally has nowhere to go but the next page in one piece, which does not exist for a
+   table taller than a page. Its own rows may still split across pages; only a row itself avoids a
+   break, and the header repeats natively through <thead>. */
+table {
+  break-inside: auto;
+}
+
+table thead {
+  display: table-header-group;
+}
+
+table tr {
+  break-inside: avoid;
+}
+
+p, .bullets {
+  orphans: 3;
+  widows: 3;
+}

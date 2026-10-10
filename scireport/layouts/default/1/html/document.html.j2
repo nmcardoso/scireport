@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="{{ meta.language }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="scireport {{ info.scireport_version }}">
+{% if meta.authors %}
+<meta name="author" content="{{ meta.authors | map(attribute='name') | join(', ') }}">
+{% endif %}
+{% if meta.keywords %}
+<meta name="keywords" content="{{ meta.keywords | join(', ') }}">
+{% endif %}
+{% if meta.date %}
+<meta name="dcterms.created" content="{{ meta.date }}">
+{% endif %}
+<title>{{ meta.title }}</title>
+<style>
+{{ fonts_css }}
+{{ css }}
+:root { --page-h: {{ '297mm' if options.paper == 'a4' else '279.4mm' }}; }
+@page { size: {{ 'A4' if options.paper == 'a4' else 'Letter' }}; }
+{% if not options.header %}
+@page { @top-left { content: none; border: 0; } @top-right { content: none; border: 0; } @bottom-left { content: none; } @bottom-right { content: none; } }
+@page cover { margin: 0; }
+{% endif %}
+</style>
+</head>
+<body class="running-strings"
+      data-pipeline="{{ meta.pipeline or meta.title }}"
+      data-author="{{ meta.authors[0].name ~ (' et al.' if meta.authors | length > 1 else '') if meta.authors else '' }}"
+      data-footer="{{ meta.footer or ([meta.title, meta.version, meta.date] | select | join(' · ')) }}">
+<!-- {{ info.generated }} -->
+<main>
+{{ c.cover() }}
+{% if meta.abstract %}
+<section class="abstract">
+<h2 class="abstract-title h--unlisted">Abstract</h2>
+{{ meta.abstract | md }}
+</section>
+{% endif %}
+{% if options.toc %}
+{{ c.contents() }}
+{% endif %}
+{{ body }}
+<span id="chapters-end"></span>
+</main>
+</body>
+</html>

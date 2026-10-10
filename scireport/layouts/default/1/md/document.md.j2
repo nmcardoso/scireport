@@ -1,0 +1,13 @@
+<!-- {{ info.generated | safe }} -->
+
+{{ c.cover() }}
+{% if meta.abstract %}
+
+{{ meta.abstract | md }}
+{% endif %}
+{% if options.toc %}
+
+{{ c.contents() }}
+{% endif %}
+
+{{ body }}
