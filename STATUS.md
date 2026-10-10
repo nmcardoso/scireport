@@ -1,55 +1,65 @@
 # STATUS
 
-**Phase:** S1 (spec models and bundle I/O). Implementation complete on branch `s1/spec-and-bundle`, pull request
-<https://github.com/nmcardoso/scireport/pull/1> open. **No human gate in S1.** Next: merge the PR, then S2.
+**Phase:** S2 (templates, validation and the md, html and tex writers). Implementation complete on branch
+`s2/templates-validation-writers` (pushed). **No human gate in S2.** S1 was merged into `main` (PR #1) before S2
+started. Next: open and merge the S2 pull request, then S3 (`prompts/scireport/s3_kickoff.md` in the monorepo).
 
-## Done in S1
+## Done in S2
 
-- Precondition: HG-S0 answered (below). ADR-0001 to ADR-0011 set to *Accepted*. Python 3.15 re-checked:
-  `pyyaml` 6.0.3 still has no cp315 wheel, so the 3.15 jobs stay `continue-on-error` (DECISIONS 2026-10-09).
-- `scireport.spec`: manifest blocks and the 16 kinds, key grammar, canonicalisation of bare JSON, cross-reference
-  checks, frozen `spec/schemas/data-1.0.schema.json` with a drift test, migration framework with the 1.0
-  baseline, `E501` for a bundle from a newer spec.
-- `scireport.bundle`: directory, ZIP and single-file forms; hashes; byte-reproducible ZIPs; zip-slip, symlink and
-  size-cap rejection; lazy verified reads; strict YAML for hand-authored directories; atomic writes.
-- `Report` builder, and the commands `spec (version|schema|kinds|migrate)`, `pack`, `unpack`, `inspect`.
-- Compat corpus `tests/compat/spec-1.0/` (minimal, text-only, full-kinds) frozen by `FROZEN.sha256`.
-- Choices the plan left open are in `DECISIONS.md` (all dated 2026-10-09, approver "S1").
+- Template and layout models, loaded by name, `name@version`, path or entry point; `pack` pins the resolved versions.
+- Sandboxed Jinja environments per format (strict undefined, format-aware escaping, `((* *))` delimiters for
+  LaTeX files), the MOSAICS filters and 24 components with Markdown, HTML and LaTeX macros in the `minimal@1`
+  layout. `generic@1` renders any bundle from its outline.
+- Mistletoe converter with a documented Markdown subset (limits in `docs/markup.md`).
+- Validation: aggregated coded issues, `--strict`, `--json`, Jinja AST lint, render-time usage tracking.
+- Writers: Markdown (single and split), self-contained HTML, standalone LaTeX project, `render-manifest.json`.
+- Commands `validate`, `render`, `templates`, `layouts`.
+- Docs: templates and layouts, Markdown limits, outputs, error catalogue (drift-tested against the code).
+- Choices the kickoff left open, and two bugs found on the way, are in `DECISIONS.md` and `CHANGELOG.md`:
+  `md_escape` mishandled a bare `.` or `)` (found by a property test), and the CI TeX Live list lacked `ulem`.
 
 ## Verification
 
 | Check | Result |
 |---|---|
-| `make check` (ruff format and lint, mypy strict, pytest) | passes; 353 tests, coverage 100 % (gate 90 %) |
-| Lower bounds (`uv sync --resolution lowest-direct --group dev`, local copy) | 349 passed, 1 skipped (needs a git checkout) |
-| Local Python | 3.12 only; the other versions and operating systems ran in CI |
-| GitHub Actions matrix | run 37996464600 on `632653b`: 31 of 31 jobs green, no failed step in any job (test on 3 OSes x 3.12 to 3.15, lowest, lint, docs, examples, pandoc, pdf-weasyprint, pdf-latex). The first run failed only on Windows (one test crafted a backslash ZIP entry that `zipfile` normalises there); fixed in `632653b` |
+| `make check` (ruff format and lint, mypy strict, pytest) | passes; 906 tests, coverage 97.7 % (gate 90 %) |
+| `make test-integration` | 9 passed: the golden LaTeX project and a bundle of hostile text compile with pdfLaTeX, XeLaTeX and LuaLaTeX (Debian's TeX Live 2023, `latexmk`) |
+| Docs (`sphinx-build -W`) | builds without warnings |
+| Clean install | the built wheel, installed in a fresh Python 3.12 venv, renders a corpus bundle to md, html and tex; it contains the built-in template and layout |
+| Hypothesis | the Markdown escape property also ran once with 30,000 examples without a counterexample |
+| GitHub Actions matrix | run 38012617081 (workflow_dispatch on `5c2ecee`): 31 of 31 jobs green, no failed step in any job (test on 3 OSes x Python 3.12 to 3.15 with 906 passed and 97.68 % coverage, lowest, lint, docs, examples, pandoc, pdf-weasyprint, pdf-latex). The `pdf-latex` jobs ran 7 tests each on Linux, macOS and Windows (6 compiles = 3 engines x 2 projects, plus the smoke test); they fail instead of skipping when TeX is missing |
 
 ## Not verified yet
 
-- The symlink test is skipped on Windows (symlinks need privileges there), so the symlink refusal is verified on Linux and macOS only.
-- Byte-identical ZIPs across platforms: guaranteed for one Python and zlib only (DECISIONS: DEFLATED entries).
-  The compat fixtures are committed bytes that tests only read, so this does not affect them.
+- `ci.yml` runs only on pull requests and on pushes to `main`, so pushing the branch starts nothing. I started the run above with `gh workflow run ci.yml --ref s2/templates-validation-writers` and did not open a pull request; opening it will run the matrix again on the final commit.
+- Local Python is 3.12 only; other Python versions, macOS and Windows run in CI only.
+- The LaTeX compile tests ran here against Debian's TeX Live 2023. CI installs the current TeX Live from
+  `.github/tl_packages`; each package name and collection was checked against `texlive.tlpdb`.
+- The golden and compat HTML hide the SVG of drawn math (`<math-svg>`), because its bytes depend on the matplotlib
+  build. The drawing itself is tested in `tests/unit/render/test_math.py`, not compared with a reference image.
+- `generic@1` renders what the outline lists, so the expected renders of the compat cases leave out the values
+  their outlines omit (19 in `full-kinds`). `tests/golden/` renders every kind.
 
 ## Open items handed to later phases
 
-1. **S2:** `pack` should pin the resolved layout and template versions into the bundle (ADR-0008); there is no
-   registry to resolve against before S2.
-2. **S2:** extend `scireport.errors.CODES` with the template, lint and render codes (E1xx missing key by template
-   field, E3xx table schema against a template, W4xx unused key, W6xx math); the compat cases gain expected
-   `.md`, canonical `.html`, `.tex` and PDF text hash.
-3. **Pages:** the `docs` workflow failed on its two runs on `main` at the `configure-pages` step ("Get Pages
-   site failed ... verify that the repository has Pages enabled"), before the Pages source was set to GitHub
-   Actions. It runs again when this PR is merged to `main`; if it still fails, that is S6 work.
+1. **S3:** designed layouts `default@1` and `modern@1`; PDF engines (WeasyPrint, LaTeX); exit code 3 for a missing
+   system dependency; add `default@1` renders and the PDF text hash to the compat cases; re-check the Windows
+   `pdf-weasyprint` jobs (`continue-on-error` until then).
+2. **S3:** `minimal@1` is the default layout until `default@1` exists, so a bundle that names `default@1` needs an
+   explicit `-l` today.
+3. **Pages:** the `docs` workflow failed on `main` at `configure-pages` before the Pages source was set to GitHub
+   Actions; check whether it passes after the S1 merge, otherwise it is S6 work.
+4. `.github/tl_packages` still lists packages for later layouts (`siunitx`, `tcolorbox`, `biblatex`, ...); S3 should
+   prune or confirm them.
 
 ## Next
 
-1. Review and merge <https://github.com/nmcardoso/scireport/pull/1> (I do not merge; the kickoff continues to S2 after the merge).
-2. Start S2 (`prompts/scireport/s2_kickoff.md` in the monorepo) on branch `s2/...` from the updated `main`.
+1. Open the pull request for `s2/templates-validation-writers` (I do not merge) and review it.
+2. Start S3 on a new branch from the updated `main`.
 
 ## Blocked / questions
 
-None. (The earlier question about the uncommitted 3.15 edit in `ci.yml` was answered: restore the flags.)
+None.
 
 ## Record: HG-S0 (answered, 2026-10-09)
 
