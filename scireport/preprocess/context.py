@@ -15,6 +15,7 @@ from contextlib import contextmanager
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Literal
 
+from scireport.bundle.reader import table_from_value
 from scireport.errors import Issue, PreprocessError
 from scireport.hashing import sha256_bytes
 from scireport.logging_utils import get_logger
@@ -61,6 +62,8 @@ class Context:
       The input bundle (read only).
   produced : dict
       Values made by earlier steps of this run, by key; they are visible to later steps.
+  produced_assets : dict
+      The asset files of those values, by bundle-relative path.
   outputs : dict
       Port name to the value key this step's results are stored under.
   layout : str
@@ -76,6 +79,7 @@ class Context:
     *,
     bundle: Bundle,
     produced: Mapping[str, Envelope],
+    produced_assets: Mapping[str, bytes],
     outputs: Mapping[str, str],
     layout: str,
     seed: int,
@@ -83,9 +87,9 @@ class Context:
   ) -> None:
     self._bundle = bundle
     self._produced = produced
+    self._produced_assets = produced_assets
     self._outputs = outputs
     self._assets: dict[str, bytes] = {}
-    self._tables: dict[str, pa.Table] = {}
     self.layout = layout
     self.seed = seed
     self.log: logging.Logger = get_logger(f'scireport.preprocess.{name}')
@@ -155,9 +159,7 @@ class Context:
       raise PreprocessError(
         [Issue('E603', f'{key!r} is a {value.kind}, not a table', key=key, expected='table')]
       )
-    if key in self._tables:
-      return self._tables[key]
-    return self._bundle.read_table(key)
+    return table_from_value(value, self._read_asset)
 
   @contextmanager
   def mplstyle(self) -> Iterator[None]:
@@ -303,7 +305,6 @@ class Context:
       for column in (columns if columns is not None else table.column_names)
     ]
     ref = self._put('tables', f'{key}.{format}', serialise_table(table, format))
-    self._tables[key] = table
     return TableValue(kind='table', columns=cols, asset=ref, caption=caption, n_rows=table.num_rows)
 
   def take_assets(self) -> dict[str, bytes]:
@@ -316,6 +317,11 @@ class Context:
     """
     assets, self._assets = self._assets, {}
     return assets
+
+  def _read_asset(self, ref: AssetRef) -> bytes:
+    """Return an asset of an earlier step of this run, else one of the input bundle."""
+    made = self._produced_assets.get(ref.path)
+    return made if made is not None else self._bundle.read_asset(ref)
 
   def _key(self, port: str) -> str:
     """Return the value key of an output port or raise ``E603``."""

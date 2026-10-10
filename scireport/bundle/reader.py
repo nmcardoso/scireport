@@ -9,7 +9,7 @@ their SHA-256 and size, when asked for.
 from __future__ import annotations
 
 import zipfile
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from types import TracebackType
 from typing import IO, TYPE_CHECKING, Literal
@@ -257,19 +257,10 @@ class Bundle:
     BundleError
         With code ``E103`` for an unknown key or ``E202`` when the value is not a table.
     """
-    import pyarrow as pa
-    import pyarrow.csv as pacsv
-    import pyarrow.parquet as pq
-
     value = self._value(key)
     if not isinstance(value, TableValue):
       raise BundleError(f'{key!r} is a {value.kind}, not a table', code='E202')
-    if value.rows is not None:
-      names = [column.name for column in value.columns]
-      return pa.table({name: [row[i] for row in value.rows] for i, name in enumerate(names)})
-    assert value.asset is not None
-    reader = pa.BufferReader(self.read_asset(value.asset))
-    return pq.read_table(reader) if value.format == 'parquet' else pacsv.read_csv(reader)
+    return table_from_value(value, self.read_asset)
 
   def verify(self) -> list[Issue]:
     """Check every referenced asset and report every problem at once.
@@ -328,6 +319,33 @@ class Bundle:
       return self.manifest.values[key]
     except KeyError:
       raise BundleError(f'no value with key {key!r}', code='E103') from None
+
+
+def table_from_value(value: TableValue, read: Callable[[AssetRef], bytes]) -> pa.Table:
+  """Return the data of a ``table`` value as a pyarrow table.
+
+  Parameters
+  ----------
+  value : TableValue
+      The table value: inline rows, or a Parquet or CSV asset.
+  read : callable
+      Returns the bytes of an asset reference; for a bundle, ``Bundle.read_asset``.
+
+  Returns
+  -------
+  pyarrow.Table
+      The data: Parquet and CSV files are read, inline rows are converted.
+  """
+  import pyarrow as pa
+  import pyarrow.csv as pacsv
+  import pyarrow.parquet as pq
+
+  if value.rows is not None:
+    names = [column.name for column in value.columns]
+    return pa.table({name: [row[i] for row in value.rows] for i, name in enumerate(names)})
+  assert value.asset is not None
+  reader = pa.BufferReader(read(value.asset))
+  return pq.read_table(reader) if value.format == 'parquet' else pacsv.read_csv(reader)
 
 
 def open_bundle(path: Path | str, *, max_bytes: int = DEFAULT_MAX_BYTES) -> Bundle:

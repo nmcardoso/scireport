@@ -122,6 +122,9 @@ def render_bundle(
   md_split: bool | None = None,
   flat: bool = False,
   strict: bool = False,
+  preprocess: bool = True,
+  allow_import: bool = False,
+  cache_dir: Path | None = None,
 ) -> RenderResult:
   """Render a bundle to Markdown, HTML and/or a LaTeX project.
 
@@ -158,6 +161,14 @@ def render_bundle(
       Do not put each format in its own folder; only for a single format.
   strict : bool, default=False
       Treat warnings as errors.
+  preprocess : bool, default=True
+      Run the bundle's ``preprocess`` steps first (their figures and tables are then values of
+      the bundle); False renders the bundle as it is, so a template that reads a step's output
+      fails with ``E105``.
+  allow_import : bool, default=False
+      Let a step name ``module:function`` (this runs code; see ``--allow-import``).
+  cache_dir : pathlib.Path or None, default=None
+      The pre-processor cache; the user's cache directory when None.
 
   Returns
   -------
@@ -166,6 +177,10 @@ def render_bundle(
 
   Raises
   ------
+  PreprocessError
+      With ``E601`` to ``E605`` when a step is invalid, before anything runs.
+  PreprocessRunError
+      With ``E606`` when a pre-processor fails.
   RenderError
       Carrying every problem when validation or rendering found errors (or warnings, if strict).
   TemplateError
@@ -175,6 +190,7 @@ def render_bundle(
   PdfError
       With ``E902`` when a PDF engine fails.
   """
+  bundle = _preprocessed(bundle, layout, preprocess, allow_import, cache_dir)
   plan = _plan(
     bundle,
     template,
@@ -223,6 +239,9 @@ def check_bundle(
   md_split: bool | None = None,
   strict: bool = False,
   render: bool = True,
+  preprocess: bool = True,
+  allow_import: bool = False,
+  cache_dir: Path | None = None,
 ) -> ValidationReport:
   """Validate a bundle, and render it in memory to find what only a render can show.
 
@@ -242,12 +261,15 @@ def check_bundle(
       Treat warnings as errors.
   render : bool, default=True
       Also render in memory; False runs only the static checks.
+  preprocess, allow_import, cache_dir
+      As for :func:`render_bundle`: the steps run first so that their outputs can be checked.
 
   Returns
   -------
   ValidationReport
       Every problem found; it never raises for problems in the bundle.
   """
+  bundle = _preprocessed(bundle, layout, preprocess, allow_import, cache_dir)
   plan = _plan(
     bundle,
     template,
@@ -274,6 +296,27 @@ def check_bundle(
     return static
   _, found = _render_all(bundle, plan, with_pdf=False)
   return ValidationReport(tuple(dedupe([*static.issues, *found])), strict)
+
+
+def _preprocessed(
+  bundle: Bundle,
+  layout: str | Path | None,
+  preprocess: bool,
+  allow_import: bool,
+  cache_dir: Path | None,
+) -> Bundle:
+  """Run the bundle's pre-processing steps, if it has any, and return the bundle with results."""
+  if not preprocess or not bundle.manifest.preprocess:
+    return bundle
+  from scireport.preprocess import preprocess_bundle
+
+  result = preprocess_bundle(
+    bundle,
+    cache_dir=cache_dir,
+    allow_import=allow_import,
+    layout=str(layout) if layout is not None else None,
+  )
+  return result.bundle
 
 
 def _plan(

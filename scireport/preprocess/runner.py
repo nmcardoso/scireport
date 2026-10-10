@@ -236,6 +236,7 @@ def _run_step(
   ctx = Context(
     bundle=bundle,
     produced=produced,
+    produced_assets=assets,
     outputs=planned.outputs,
     layout=layout,
     seed=step_seed,

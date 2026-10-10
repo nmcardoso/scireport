@@ -153,7 +153,15 @@ def check_figure_preprocessor(
       if param in inspect.signature(entry.render).parameters
     }
   )
-  ctx = Context(bundle=first.bundle, produced={}, outputs={}, layout='default', seed=0, name=name)
+  ctx = Context(
+    bundle=first.bundle,
+    produced={},
+    produced_assets={},
+    outputs={},
+    layout='default',
+    seed=0,
+    name=name,
+  )
   rebuilt = entry.render(ctx, sidecar, **style)
   with ctx.mplstyle():
     assert figure_bytes(rebuilt, 'png', dpi=200, tight=False) == png

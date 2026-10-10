@@ -42,6 +42,22 @@ OptionOpt = Annotated[
 ]
 StrictOpt = Annotated[bool, typer.Option('--strict', help='Treat warnings as errors.')]
 JsonOpt = Annotated[bool, typer.Option('--json', help='Print the result as JSON (for agents).')]
+PreprocessOpt = Annotated[
+  bool,
+  typer.Option(
+    '--preprocess/--no-preprocess', help="Run the bundle's pre-processing steps first (default)."
+  ),
+]
+AllowImportOpt = Annotated[
+  bool,
+  typer.Option(
+    '--allow-import',
+    help='Let a step name module:function (imports and runs that code). Only for files you trust.',
+  ),
+]
+CacheDirOpt = Annotated[
+  Path | None, typer.Option('--cache-dir', help='Pre-processor cache directory.')
+]
 MaxSize = Annotated[
   int, typer.Option('--max-size', min=1, help='Size cap of a ZIP bundle, in MiB (uncompressed).')
 ]
@@ -61,6 +77,9 @@ def validate(
       '--render/--no-render', help='Also render in memory to find what only a render shows.'
     ),
   ] = True,
+  preprocess: PreprocessOpt = True,
+  allow_import: AllowImportOpt = False,
+  cache_dir: CacheDirOpt = None,
   max_size: MaxSize = DEFAULT_MAX_BYTES // MEGABYTE,
 ) -> None:
   """Check a bundle against a template and a layout; nothing is written.
@@ -80,6 +99,9 @@ def validate(
       options=_options(option),
       strict=strict,
       render=dry_render,
+      preprocess=preprocess,
+      allow_import=allow_import,
+      cache_dir=cache_dir,
     )
     if as_json:
       echo_json(report.to_dict())
@@ -135,6 +157,9 @@ def render(
   ] = False,
   strict: StrictOpt = False,
   as_json: JsonOpt = False,
+  preprocess: PreprocessOpt = True,
+  allow_import: AllowImportOpt = False,
+  cache_dir: CacheDirOpt = None,
   max_size: MaxSize = DEFAULT_MAX_BYTES // MEGABYTE,
 ) -> None:
   """Render a bundle to Markdown, HTML, a LaTeX project and/or a PDF.
@@ -161,6 +186,9 @@ def render(
       md_split=md_split,
       flat=flat,
       strict=strict,
+      preprocess=preprocess,
+      allow_import=allow_import,
+      cache_dir=cache_dir,
     )
     written = result.write(output)
     names = [path.relative_to(output).as_posix() for path in written]
