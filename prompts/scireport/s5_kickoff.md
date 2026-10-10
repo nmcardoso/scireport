@@ -41,3 +41,5 @@ green, the skill passes the monorepo frontmatter rules (run 1_review's `make che
 STATUS.md and CHANGELOG.md updated. No gate.
 
 Use cheaper models for subagents performing simple tasks (haiku: copying, docstring passes, fixture regeneration, parity summaries, link checks; sonnet: porting individual plot functions, CSS-to-LaTeX components, reference pages, later gzms section builders). Every subagent prompt names the files and the acceptance tests.
+
+Merge the branch into main when done.

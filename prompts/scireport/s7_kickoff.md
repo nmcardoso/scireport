@@ -28,7 +28,8 @@ anything the matrix reveals. Confirm every job of the CI matrix is green on main
 unsupported with a dated DECISIONS.md entry. Prepare the release but do NOT push the v1.0.0 tag. Gate HG-S2 (blocking):
 release sign-off. Summarise in STATUS.md: matrix results with job counts, the compat corpus size and hashes, the known
 limits (PDF determinism per engine, Windows WeasyPrint status, Python 3.15 status), the optional question whether to archive
-the software with a Zenodo DOI (options: (a) yes, now; (b) after the 2_dataset migration; (c) no), and a recommendation. The
-human pushes the tag.
+the software with a Zenodo DOI (options: (a) yes, now; (b) after the 2_dataset migration; (c) no), and a recommendation.
 
 Use cheaper models for subagents performing simple tasks (haiku: copying, docstring passes, fixture regeneration, parity summaries, link checks; sonnet: porting individual plot functions, CSS-to-LaTeX components, reference pages, later gzms section builders). Every subagent prompt names the files and the acceptance tests.
+
+Merge the branch into main when done.
