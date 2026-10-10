@@ -91,6 +91,49 @@ class MemoryBackend:
       raise FileNotFoundError(name) from None
 
 
+class OverlayBackend:
+  """Files of one backend with another's files on top (a bundle plus what pre-processing added).
+
+  A name found in ``top`` shadows the same name in ``base``. Closing the overlay closes both.
+
+  Parameters
+  ----------
+  base : Backend
+      The original files.
+  top : Backend
+      The added or replaced files.
+  """
+
+  def __init__(self, base: Backend, top: Backend) -> None:
+    self._base = base
+    self._top = top
+
+  def names(self) -> list[str]:
+    """Return the names of both backends, each once, sorted."""
+    return sorted({*self._base.names(), *self._top.names()})
+
+  def size(self, name: str) -> int:
+    """Return the size of ``name``, from the top backend when it has it."""
+    return self._pick(name).size(name)
+
+  def read(self, name: str) -> bytes:
+    """Return the content of ``name``, from the top backend when it has it."""
+    return self._pick(name).read(name)
+
+  def open(self, name: str) -> IO[bytes]:
+    """Open ``name``, from the top backend when it has it."""
+    return self._pick(name).open(name)
+
+  def close(self) -> None:
+    """Close both backends."""
+    self._top.close()
+    self._base.close()
+
+  def _pick(self, name: str) -> Backend:
+    """Return the backend that holds ``name``: the top one when it does."""
+    return self._top if name in self._top.names() else self._base
+
+
 class DirBackend:
   """A bundle laid out as a directory (or the directory of a single-file manifest).
 

@@ -304,7 +304,7 @@ def check_manifest(manifest: Manifest) -> list[Issue]:
   -------
   list of Issue
       Every problem found, in a stable order: ``E102`` prefix conflicts, ``E103`` dangling
-      references, ``E202`` references to the wrong kind, ``E205`` repeated Markdown file names
+      references (a key that a ``preprocess`` step will write is not dangling), ``E202`` references to the wrong kind, ``E205`` repeated Markdown file names
       and ``E411`` assets declared twice with different hashes.
   """
   issues: list[Issue] = []
@@ -319,8 +319,9 @@ def check_manifest(manifest: Manifest) -> list[Issue]:
         hint='Rename one of them; templates reach values through data.a.b.c chains.',
       )
     )
+  promised = {key for step in manifest.preprocess for key in step.outputs.values()}
   for pointer, key in _outline_keys(manifest):
-    if key not in values:
+    if key not in values and key not in promised:
       issues.append(_missing_key(key, pointer, values))
   files: dict[str, str] = {}
   for pointer, md_file in _outline_files(manifest):

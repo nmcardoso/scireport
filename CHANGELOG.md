@@ -6,6 +6,20 @@ specification (ADR-0008).
 
 ## [Unreleased]
 
+### Added (phase S4)
+
+- Pre-processors (ADR-0006): `@preprocessor(name, version, inputs, outputs)` with typed `Port`s, pydantic validation of the parameters from the function signature, the registry (built-ins, the entry-point group `scireport.preprocessors`, `register_preprocessor()`), name-only references in data files (`module:function` needs `--allow-import`), the DAG check before anything runs (every problem reported at once), outputs written to a work directory with the input bundle untouched unless `--write-back`, and a content-hash cache (name, version, parameters, input hashes, output keys, seed, scireport version, style hash). `Context` offers `value`, `load_table`, `mplstyle`, `figure`, `save_figure` (the sidecar data is required), `save_table`, `seed`, `rng`, `look` and `log`.
+- Commands `scireport preprocess` (`--work-dir`, `--output`, `--write-back`, `--cache-dir`, `--no-cache`, `--allow-import`, `--seed`, `--json`) and `scireport preprocessors [NAME] [--json]`; `render` and `validate` run the steps first (`--preprocess/--no-preprocess`, `--allow-import`, `--cache-dir`).
+- Core catalogue (18): `table_profile`, `bar`, `stacked_shares`, `histogram`, `separation_histogram`, `funnel`, `density_scatter`, `metric_scatter`, `distribution`, `corner`, `pvalue_strip`, `achieved_vs_target`, `duration_bars`, `split_marginals`, `split_balance`, `qq`, `pp`, `heatmap` (new).
+- Astro catalogue (9): `sky_density`, `footprint`, `sky_grid` (HEALPix with astropy-healpix on matplotlib Mollweide axes; no mocpy, no hats), `color_color`, `color_magnitude`, `number_counts`, `snr_magnitude`, `magnitude_residual`, `zeropoint_offsets`. Only the three sky maps need `scireport[astro]`.
+- Every figure is stored with the data it was drawn from, and a test per plot proves that the figure drawn again from the stored sidecar data is byte-identical to the stored PNG; a second test proves two runs give identical PNG, PDF and sidecar bytes.
+- Error codes `E601`-`E608`; exit code 3 also for a missing extra (`E607`).
+- `OverlayBackend` and `Bundle.with_files()`; `table_from_value()`; `docs/preprocessors.md`.
+
+### Changed (phase S4)
+
+- `check_manifest` no longer reports `E103` for an outline key that a `preprocess` step declares as an output.
+
 ### Added (phase S3)
 
 - Layouts `default@1` (the MOSAICS look: navy cover with a grid and a circle, chapter opener, table of contents with `target-counter` page numbers, running header and footer, every component) and `modern@1` ("Signal": vermilion cover band, giant chapter numerals, heavy rules, rule-only tables), each with Markdown, HTML and LaTeX components, a `palette.yaml` and a matplotlib style. `default@1` is now the default layout.

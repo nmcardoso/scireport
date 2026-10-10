@@ -3,8 +3,9 @@
 Every problem scireport reports carries a code (``E`` for errors, ``W`` for warnings) that never
 changes meaning once released. The families are ``E1xx`` keys, ``E2xx`` kinds and value fields,
 ``E3xx`` table schema, ``E4xx`` assets and bundles, ``E5xx`` versions of the spec, templates and
-layouts, ``E7xx`` template and layout definitions, ``E8xx`` rendering, ``W4xx`` unused items,
-``E9xx`` PDF engines, ``W6xx`` math, ``W7xx`` Markdown prose and ``W9xx`` PDF engine warnings.
+layouts, ``E6xx`` pre-processing, ``E7xx`` template and layout definitions, ``E8xx`` rendering,
+``W4xx`` unused items, ``E9xx`` PDF engines, ``W6xx`` math, ``W7xx`` Markdown prose and
+``W9xx`` PDF engine warnings.
 """
 
 from __future__ import annotations
@@ -50,6 +51,14 @@ CODES: dict[str, str] = {
   'E503': 'Spec version is too old and has no migration',
   'E504': 'Template or layout version does not exist',
   'E505': 'Template or layout does not support this spec version',
+  'E601': 'Pre-processor is not registered (or not in this version)',
+  'E602': 'Pre-processor parameters are invalid',
+  'E603': 'Pre-processor input or output does not fit its ports',
+  'E604': 'Pre-processing steps do not form a valid graph',
+  'E605': 'Importing a pre-processor by module and function needs --allow-import',
+  'E606': 'A pre-processor failed',
+  'E607': 'A pre-processor needs an optional dependency that is not installed',
+  'E608': 'A pre-processor plugin cannot be loaded',
   'E701': 'Template or layout not found',
   'E702': 'template.yaml or layout.yaml is invalid',
   'E703': 'Template or layout file is missing',
@@ -232,7 +241,7 @@ class TemplateError(ScireportError):
 
 
 class MissingDependencyError(ScireportError):
-  """A system dependency of a PDF engine is missing: pango, TeX Live or a TeX package (E901)."""
+  """A dependency is missing: pango, TeX Live or a TeX package (E901), or an extra (E607)."""
 
   exit_code = 3
   """Process exit code of the CLI: 3 for a missing system dependency."""
@@ -240,6 +249,30 @@ class MissingDependencyError(ScireportError):
 
 class PdfError(ScireportError):
   """A PDF engine ran and failed; the issues carry the engine's own messages (E902)."""
+
+  exit_code = 1
+  """Process exit code of the CLI: 1, a failure that is not a problem in the data file."""
+
+
+class PreprocessError(ScireportError):
+  """Pre-processing steps are invalid; carries every problem found before anything runs (E6xx).
+
+  Parameters
+  ----------
+  issues : list of Issue
+      At least one issue. The code of the first is the code of the error.
+  """
+
+  def __init__(self, issues: list[Issue]) -> None:
+    first = issues[0]
+    summary = (
+      first.describe() if len(issues) == 1 else f'{len(issues)} problems, first: {first.format()}'
+    )
+    super().__init__(summary, code=first.code, issues=issues)
+
+
+class PreprocessRunError(ScireportError):
+  """A pre-processor raised while it ran (E606); the data file itself is not at fault."""
 
   exit_code = 1
   """Process exit code of the CLI: 1, a failure that is not a problem in the data file."""

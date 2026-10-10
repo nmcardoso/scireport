@@ -1,46 +1,48 @@
 # STATUS
 
-**Phase:** S3 (default and modern layouts, PDF engines, styles, examples). Implementation complete on branch
-`s3/layouts-pdf` (stacked on `s2/templates-validation-writers`, see DECISIONS). **Blocked on gate HG-S1** (visual
-sign-off, below). Next after the gate: S4 (`prompts/scireport/s4_kickoff.md` in the monorepo).
+**Phase:** S4 (pre-processors) implemented on branch `s4/preprocessors` (stacked on `s3/layouts-pdf`, see DECISIONS).
+No gate. **Open: the HG-S1 layout changes are not applied yet** (see "Next"). Next phase: S5 (`prompts/scireport/s5_kickoff.md`
+in the monorepo).
 
-## Done in S3
+## Done in S4
 
-- Layouts `default@1` (the MOSAICS look) and `modern@1` ("Signal"), each with Markdown, HTML and LaTeX components;
-  `default@1` is the default layout.
-- PDF engines: WeasyPrint and `latexmk` (LuaLaTeX default, XeLaTeX, pdfLaTeX with a `W901` fallback to TeX fonts);
-  exit code 3 with an install hint for a missing system dependency; `SOURCE_DATE_EPOCH` honoured.
-- Math: `mathtext` and `usetex` renderers, `W602`.
-- Vendored Inter and IBM Plex Mono subsets with `OFL.txt`; the style API (`mplstyle()`, `mplstyle_path()`,
-  `palette()`, `figure()`, deterministic PNG, PDF and SVG saving) and the palette, CSS, LaTeX and mplstyle
-  consistency test.
-- `kitchen-sink@1`, three examples, and a real `make examples`: 3 examples x 2 layouts x (md, html, tex, PDF via
-  WeasyPrint, PDF via LuaLaTeX, XeLaTeX and pdfLaTeX) into `examples/_out/`.
-- **CI is Linux only** (requested 2026-10-10): macOS and Windows jobs are removed from `ci.yml` and `release.yml`;
-  both platforms are unsupported. This settles kickoff item 9 (Windows WeasyPrint status) by decision, not by
-  evidence (DECISIONS, 2026-10-10).
-- PDF determinism per engine is recorded in DECISIONS (2026-10-10).
+- The pre-processor interface (ADR-0006): `@preprocessor` with typed ports, pydantic parameters from the signature, the
+  registry (built-ins, entry points, `register_preprocessor()`), name-only references (`module:func` only with
+  `--allow-import`), the DAG check before running (all problems at once, codes `E601`-`E605`), work-dir outputs, the
+  content-hash cache, `Context`; `scireport preprocess` and `scireport preprocessors`; `render` and `validate` run the steps.
+- The core catalogue (18) and the astro catalogue (9); the full list is in `docs/preprocessors.md` and is drift-tested.
+  Each figure has the three tests of the kickoff (smoke, determinism, figure rebuilt from its sidecar data).
+- Docs: `docs/preprocessors.md`; error page extended; CHANGELOG and DECISIONS updated (including the list of deliberate
+  differences from MOSAICS, to be reviewed by you).
 
 ## Verification (local, 2026-10-10)
 
 | Check | Result |
 |---|---|
-| `make check` (ruff format and lint, mypy strict, pytest) | passes; 1048 tests, coverage 96.48 % (gate 90 %) |
-| `pytest -m integration` with `SCIREPORT_REQUIRE_TOOLCHAIN=1` | 58 passed (PDF text against the Markdown output, double-build byte identity per engine, PDF text hashes of the compat cases, LaTeX error and missing-package paths) |
-| `make examples` | exit 0 for 3 examples x 2 layouts; `W901` only for the pdfLaTeX runs, as designed |
-| Toolchain | Debian TeX Live 2023 (`latexmk`, lualatex, xelatex, pdflatex); WeasyPrint 70.0 with fontTools (HarfBuzz-Subset absent locally, so WeasyPrint warns) |
+| `make check` (ruff format and lint, mypy strict, pytest) | passes; 1431 tests, coverage 97.37 % (gate 90 %) |
+| `make docs` (`-W`) | builds |
+| Rendered by eye | sky density (Mollweide, RA 0 at the centre, increasing to the left), heatmap, corner, histogram |
+| Catalogue imports | registering the catalogue imports neither astropy, scipy, pandas nor mocpy (subprocess test) |
 
 ## Not verified yet
 
-- **GitHub Actions on the Linux-only matrix has not run.** Nothing was pushed before the CI change and `gh` is not
-  logged in here. Until the first run is green, the CI edit (`ci.yml`, `release.yml`) is checked only as valid
-  YAML.
-- Python 3.13 to 3.15 and the `lowest` job run in CI only; local Python is 3.12.
-- The TeX Live in CI is the current release from `.github/tl_packages`, not Debian 2023.
-- The gate files in `examples/_out/hg-s1/` were built in the previous session (2026-10-09 23:41) from the same
-  layout code as now. `make examples` does not rebuild them; `examples/gate_s1.py --mosaics <pdf>` does.
+- **GitHub Actions has not run on this branch.** `ci.yml` triggers only on pull requests, pushes to `main` and manual
+  dispatch, so pushing `s4/preprocessors` started nothing, and `gh` is not logged in here to dispatch it. The last CI run
+  on `s3/layouts-pdf` (success, 6a10768) predates the Linux-only change (684996d), so that edit has never run either, and
+  Python 3.13 to 3.15 and the `lowest` job are untested for S3 and S4. To get the first run: `gh auth login`, or open the
+  pull requests (S3 into main, then S4 into S3) from the web.
+- `pytest -m integration` (PDF engines) was not re-run after the S4 changes (they touch no PDF code).
+- The sky maps and the 27 figures were checked by test and a few by eye, not all by eye.
 
-## Gate HG-S1: visual sign-off (blocking)
+## Next
+
+1. **Apply the HG-S1 answer** (below) on `s3/layouts-pdf`: it is a visual loop (13 numbered defects of `default@1` and a
+   redesign of `modern@1` after `/home/natan/Downloads/TUPAN_publication_plan.pdf`). It was not part of the S4 kickoff and
+   is untouched. Tell me whether to do it before S5.
+2. Review the deliberate differences from MOSAICS (DECISIONS, 2026-10-10 row "The catalogue is not a one-to-one copy").
+3. Open the pull requests (the branches are pushed) and read the CI matrix.
+
+## Record: HG-S1 (answered; its changes are pending, see Next)
 
 **What this is for.** `default@1` and `modern@1` are the two designs that every later phase (S4 to S8) and the
 first consumer, the `2_dataset` report, build on. After release a layout is frozen (ADR-0008): a look change then
@@ -95,11 +97,14 @@ verify pixel-level parity.
 reports and are cheap to fix now and impossible to fix inside a frozen version. The rest is your call after
 looking at the PDFs.
 
+**Answer:** Change the `modern@1` design to match as most as possible [this report](/home/natan/Downloads/TUPAN_publication_plan.pdf) ([tex source](/home/natan/Downloads/TUPAN_publication_plan.tex)), including the font. The `default@1` needs the following changes: (1) weasyprint: full width rule in the header (like the lualatex version); (2) both: increase the spacing between the header and the page content (e.g., the title or first paragraph); (3) lualatex: decrease the spacing between the H1 title and the horizontal rule; (4) lualatex: the spacings of the table of contents are completely misaligned, the vertical spacing between the entries is too high, the page numbers are not aligned to the right; (5) lualatex: in the metrics summary, increase the vertical spacing between the metric name/title and the metric value; (6) both: break page after the table of contents and the chapter titles; (7) both: the colored left rule/border of the aler boxes (such as those in "Status levels" section) should always be solid like in "COMPLETED SUCCESSFULLY", all other variants (e.g., dashed, dotted, double, etc) should be converted to simple solid line; (8) both: remove the dots of the timeline ("Pipeline flow" section), as neigther of versions redered it correctly; (9) both: remove the width cap of the text, the text should span full page width; (10) both: Use a serif font in text body and increase its size, keep the current font in the table body; (11) lualatex: fix the height of the table header, currently the height is more than the double of the correct size; (12) lualatex: always render the unit or type of the column in the next line of the table header, since the real reports with have tables with several columns; (13) lualatex: fix the bug in the page number 16 close to the "A 250-row profile table", a ghost table header is rendered on the top of the page.
+
 ## Blocked / questions
 
-- HG-S1 above. I stopped and did not start S4.
-- The pull request is not open yet: `gh` is not logged in on this machine (`gh auth login`), or push the branch
-  and open it from the web. The first run of the Linux-only CI happens then.
+- Not blocked. One question: apply the HG-S1 layout changes (Next, item 1) before S5, or after? My recommendation is before:
+  S5 adds pandoc output and the LaTeX fragment export on top of the layouts, and a look change after v1.0.0rc1 would need
+  `default@2` (ADR-0008).
+- The pull requests are not open: `gh` is not logged in on this machine (`gh auth login`), or open them from the web.
 
 ## Record: HG-S0 (answered, 2026-10-09)
 

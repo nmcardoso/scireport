@@ -16,7 +16,7 @@ as data.
 | 0 | Success. |
 | 1 | Failure that is not a validation problem (I/O error, bug). |
 | 2 | The data file, template or layout is invalid (errors; with `--strict` also warnings). |
-| 3 | A system dependency of a PDF engine is missing (pango, TeX Live, a TeX package). |
+| 3 | A system dependency of a PDF engine is missing (pango, TeX Live, a TeX package), or an extra such as `scireport[astro]` is not installed. |
 
 The table below is checked against `scireport.errors.CODES` by a test, so the two cannot drift.
 
@@ -92,6 +92,22 @@ Spec, template and layout versions.
 | E503 | Spec version is too old and has no migration |
 | E504 | Template or layout version does not exist |
 | E505 | Template or layout does not support this spec version |
+
+## Pre-processing
+
+A step of the `preprocess` block is wrong or failed. The plan checks every step before any runs and reports all
+problems at once (see {doc}`preprocessors`).
+
+| Code | Meaning |
+|---|---|
+| E601 | Pre-processor is not registered (or not in this version) |
+| E602 | Pre-processor parameters are invalid |
+| E603 | Pre-processor input or output does not fit its ports |
+| E604 | Pre-processing steps do not form a valid graph |
+| E605 | Importing a pre-processor by module and function needs --allow-import |
+| E606 | A pre-processor failed |
+| E607 | A pre-processor needs an optional dependency that is not installed |
+| E608 | A pre-processor plugin cannot be loaded |
 
 ## Templates and layouts
 

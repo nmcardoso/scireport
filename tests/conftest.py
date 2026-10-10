@@ -9,6 +9,8 @@ import pytest
 from helpers import PNG_BYTES
 from hypothesis import HealthCheck, settings
 
+pytest_plugins = ['preprocess_fixtures']
+
 settings.register_profile(
   'scireport',
   deadline=None,

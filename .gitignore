@@ -31,3 +31,6 @@ wandb/
 *.out
 *.toc
 *.synctex.gz
+
+# Pre-processing
+scireport-work/
