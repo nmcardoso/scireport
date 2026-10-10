@@ -20,7 +20,15 @@ from pydantic_core import PydanticCustomError
 from scireport.errors import Issue, SpecError
 from scireport.spec.assets import RESOLVER_CONTEXT_KEY
 from scireport.spec.keys import Key, find_prefix_conflicts
-from scireport.spec.kinds import KINDS, AttachmentValue, IsoDate, Model, TableValue, Value
+from scireport.spec.kinds import (
+  KINDS,
+  AttachmentValue,
+  BibliographyValue,
+  IsoDate,
+  Model,
+  TableValue,
+  Value,
+)
 from scireport.spec.version import check_readable
 from scireport.spec.walk import iter_assets
 
@@ -121,6 +129,9 @@ class Render(Model):
       Markdown converter.
   math_renderer : {'mathtext', 'usetex'} or None
       How math becomes SVG for HTML and WeasyPrint.
+  pandoc_version : str or None
+      The pandoc version the content was written and checked with (set by ``pack``); a render
+      that uses pandoc with another version warns (``W501``).
   options : dict
       Layout options (paper, cover, toc, accent, chapter breaks) as scalars.
   """
@@ -132,6 +143,7 @@ class Render(Model):
   latex_engine: Literal['lualatex', 'xelatex', 'pdflatex'] | None = None
   markup_engine: Literal['mistletoe', 'pandoc'] | None = None
   math_renderer: Literal['mathtext', 'usetex'] | None = None
+  pandoc_version: Annotated[str, Field(pattern=r'^[0-9]+(\.[0-9]+)*$')] | None = None
   options: dict[str, LayoutOption] = {}
 
 
@@ -304,8 +316,9 @@ def check_manifest(manifest: Manifest) -> list[Issue]:
   -------
   list of Issue
       Every problem found, in a stable order: ``E102`` prefix conflicts, ``E103`` dangling
-      references (a key that a ``preprocess`` step will write is not dangling), ``E202`` references to the wrong kind, ``E205`` repeated Markdown file names
-      and ``E411`` assets declared twice with different hashes.
+      references (a key that a ``preprocess`` step will write is not dangling), ``E202``
+      references to the wrong kind, ``E205`` repeated Markdown file names, ``E211`` more than one
+      bibliography and ``E411`` assets declared twice with different hashes.
   """
   issues: list[Issue] = []
   values = manifest.values
@@ -348,6 +361,7 @@ def check_manifest(manifest: Manifest) -> list[Issue]:
             found=values[target].kind,
           )
         )
+  issues.extend(_bibliography_conflicts(values))
   issues.extend(_asset_conflicts(manifest))
   return issues
 
@@ -603,3 +617,18 @@ def _asset_conflicts(manifest: Manifest) -> list[Issue]:
         )
       )
   return issues
+
+
+def _bibliography_conflicts(values: Mapping[str, Any]) -> list[Issue]:
+  """Find a second bibliography: ``[@key]`` in prose refers to exactly one."""
+  keys = sorted(key for key, value in values.items() if isinstance(value, BibliographyValue))
+  return [
+    Issue(
+      'E211',
+      f'a bundle holds one bibliography, but {key!r} is another (first: {keys[0]!r})',
+      pointer=f'{_VALUE_PREFIX}{_escape(key)}',
+      key=key,
+      hint='Merge the .bib files into one value.',
+    )
+    for key in keys[1:]
+  ]

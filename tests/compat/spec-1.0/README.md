@@ -9,7 +9,8 @@ Each case holds the bundle in the forms it supports plus `expected/`:
 |---|---|---|
 | `minimal` | directory, ZIP | The smallest bundle. |
 | `text-only` | hand-authored YAML directory (`source/`), single JSON file, ZIP | Bare JSON shorthand, YAML typing rules, no assets. |
-| `full-kinds` | directory, ZIP | All 16 kinds, every asset type, render and outline blocks. |
+| `full-kinds` | directory, ZIP | The 16 kinds of the first draft, every asset type, render and outline blocks. |
+| `bibliography` | directory, ZIP | The `bibliography` kind (added in S5, before the 1.0 release), `[@key]` citations, and the LaTeX render. Added by `make_bibliography_1_0.py`. |
 
 `expected/manifest.json` is the canonical manifest a reader must produce; `expected/summary.json` is
 what `scireport inspect --json` reports (without the path and form). `expected/render-generic-1-minimal-1/{md,html,tex}/` holds the files that `generic@1` and `minimal@1` write for the

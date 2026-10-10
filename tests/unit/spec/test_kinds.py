@@ -44,9 +44,9 @@ def codes(raw: Any) -> set[str]:
   return set()
 
 
-def test_all_sixteen_kinds_are_listed() -> None:
-  assert len(KINDS) == 16
-  assert len(set(KINDS)) == 16
+def test_all_seventeen_kinds_are_listed() -> None:
+  assert len(KINDS) == 17
+  assert len(set(KINDS)) == 17
 
 
 # ---- shorthand --------------------------------------------------------------------------------

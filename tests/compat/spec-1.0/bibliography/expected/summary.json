@@ -1,0 +1,41 @@
+{
+  "assets": {
+    "bytes": 207,
+    "count": 1
+  },
+  "counts": {
+    "bibliography": 1,
+    "text": 1
+  },
+  "issues": [],
+  "meta": {
+    "authors": [],
+    "date": "2026-10-09",
+    "keywords": [],
+    "language": "en",
+    "title": "Bibliography case"
+  },
+  "ok": true,
+  "render": {
+    "formats": [],
+    "options": {}
+  },
+  "spec": "1.0",
+  "values": [
+    {
+      "assets": [],
+      "key": "intro",
+      "kind": "text",
+      "summary": "markdown: Agreement with [@smith2018, p. 3; @doe2020] and [-@doe2020]."
+    },
+    {
+      "assets": [
+        "assets/text/refs.bib"
+      ],
+      "key": "refs",
+      "kind": "bibliography",
+      "summary": "refs.bib (207 bytes)"
+    }
+  ],
+  "verified": true
+}

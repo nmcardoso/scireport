@@ -35,6 +35,7 @@ from scireport.spec.keys import find_prefix_conflicts, is_valid_key, suggest_key
 from scireport.spec.kinds import (
   AlertValue,
   AttachmentValue,
+  BibliographyValue,
   BoolValue,
   CellEmphasis,
   CodeValue,
@@ -891,6 +892,42 @@ class Report:
         media_type=media_type or _MEDIA_TYPES.get(ext),
         description=description,
       ),
+    )
+
+  @_coded(values=True)
+  def add_bibliography(
+    self,
+    key: str,
+    source: Path | str | bytes,
+    *,
+    csl: Path | str | bytes | None = None,
+    style: str | None = None,
+  ) -> Report:
+    """Add the references that ``[@key]`` citations in prose refer to.
+
+    A bundle holds one bibliography. Citations need pandoc for Markdown and HTML output
+    (``scireport[pandoc]``) and ``biber`` for LaTeX.
+
+    Parameters
+    ----------
+    key : str
+        The value's key.
+    source : pathlib.Path or str or bytes
+        A BibTeX file (a path) or its bytes.
+    csl : pathlib.Path or str or bytes or None, default=None
+        A Citation Style Language file for the Markdown and HTML outputs.
+    style : str or None, default=None
+        The ``biblatex`` style of the LaTeX output (for example ``authoryear``).
+
+    Returns
+    -------
+    Report
+        ``self``, for chaining.
+    """
+    ref = self._put_asset('text', f'{key}.bib', _read(source))
+    style_ref = self._put_asset('text', f'{key}.csl', _read(csl)) if csl is not None else None
+    return self._put(
+      key, BibliographyValue(kind='bibliography', asset=ref, csl=style_ref, style=style)
     )
 
   def manifest(self) -> Manifest:

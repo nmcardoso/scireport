@@ -151,6 +151,50 @@
       "title": "Author",
       "type": "object"
     },
+    "BibliographyValue": {
+      "additionalProperties": false,
+      "description": "The references that ``[@key]`` citations in prose refer to (ADR-0011).\n\nParameters\n----------\nkind : {'bibliography'}\n    The kind tag.\nasset : AssetRef\n    A BibTeX (BibLaTeX) file, ``.bib``, in ``assets/text/``.\ncsl : AssetRef or None\n    A Citation Style Language file, ``.csl``, in ``assets/text/``: how pandoc formats the\n    citations of the Markdown and HTML outputs. None uses pandoc's default style.\nstyle : str or None\n    The ``biblatex`` style of the LaTeX output (``authoryear``, ``numeric``, ...); None uses\n    the biblatex default.",
+      "properties": {
+        "asset": {
+          "$ref": "#/$defs/AssetRef"
+        },
+        "csl": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AssetRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "kind": {
+          "const": "bibliography",
+          "title": "Kind",
+          "type": "string"
+        },
+        "style": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Style"
+        }
+      },
+      "required": [
+        "kind",
+        "asset"
+      ],
+      "title": "BibliographyValue",
+      "type": "object"
+    },
     "BoolValue": {
       "additionalProperties": false,
       "description": "A boolean.\n\nParameters\n----------\nkind : {'bool'}\n    The kind tag.\nvalue : bool\n    The truth value.",
@@ -1219,7 +1263,7 @@
     },
     "Render": {
       "additionalProperties": false,
-      "description": "How to render: the template, the layout and the engines.\n\nEvery field is optional; None leaves the choice to the template, the layout or the command\nline. ``template`` and ``layout`` are ``name`` or ``name@version`` (``default@1``); ``pack``\npins the resolved version so a later render is identical (ADR-0008).\n\nParameters\n----------\ntemplate : str or None\n    Template name, for example ``generic@1``.\nlayout : str or None\n    Layout name, for example ``default@1``.\nformats : list of {'md', 'html', 'tex', 'pdf', 'docx', 'odt', 'epub'}\n    Output formats wanted.\npdf_engine : {'weasyprint', 'latex'} or None\n    PDF engine.\nlatex_engine : {'lualatex', 'xelatex', 'pdflatex'} or None\n    TeX engine for ``pdf_engine: latex``.\nmarkup_engine : {'mistletoe', 'pandoc'} or None\n    Markdown converter.\nmath_renderer : {'mathtext', 'usetex'} or None\n    How math becomes SVG for HTML and WeasyPrint.\noptions : dict\n    Layout options (paper, cover, toc, accent, chapter breaks) as scalars.",
+      "description": "How to render: the template, the layout and the engines.\n\nEvery field is optional; None leaves the choice to the template, the layout or the command\nline. ``template`` and ``layout`` are ``name`` or ``name@version`` (``default@1``); ``pack``\npins the resolved version so a later render is identical (ADR-0008).\n\nParameters\n----------\ntemplate : str or None\n    Template name, for example ``generic@1``.\nlayout : str or None\n    Layout name, for example ``default@1``.\nformats : list of {'md', 'html', 'tex', 'pdf', 'docx', 'odt', 'epub'}\n    Output formats wanted.\npdf_engine : {'weasyprint', 'latex'} or None\n    PDF engine.\nlatex_engine : {'lualatex', 'xelatex', 'pdflatex'} or None\n    TeX engine for ``pdf_engine: latex``.\nmarkup_engine : {'mistletoe', 'pandoc'} or None\n    Markdown converter.\nmath_renderer : {'mathtext', 'usetex'} or None\n    How math becomes SVG for HTML and WeasyPrint.\npandoc_version : str or None\n    The pandoc version the content was written and checked with (set by ``pack``); a render\n    that uses pandoc with another version warns (``W501``).\noptions : dict\n    Layout options (paper, cover, toc, accent, chapter breaks) as scalars.",
       "properties": {
         "formats": {
           "default": [],
@@ -1323,6 +1367,19 @@
           "default": {},
           "title": "Options",
           "type": "object"
+        },
+        "pandoc_version": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]+(\\.[0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pandoc Version"
         },
         "pdf_engine": {
           "anyOf": [
@@ -1683,6 +1740,7 @@
         "mapping": {
           "alert": "#/$defs/AlertValue",
           "attachment": "#/$defs/AttachmentValue",
+          "bibliography": "#/$defs/BibliographyValue",
           "bool": "#/$defs/BoolValue",
           "code": "#/$defs/CodeValue",
           "date": "#/$defs/DateValue",
@@ -1748,6 +1806,9 @@
         },
         {
           "$ref": "#/$defs/AttachmentValue"
+        },
+        {
+          "$ref": "#/$defs/BibliographyValue"
         }
       ]
     }
@@ -1800,6 +1861,7 @@
         "markup_engine": null,
         "math_renderer": null,
         "options": {},
+        "pandoc_version": null,
         "pdf_engine": null,
         "template": null
       }

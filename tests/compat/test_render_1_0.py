@@ -37,3 +37,13 @@ def test_every_form_renders_to_the_frozen_bytes(case: str, form: str, fmt: Forma
       bundle, template='generic@1', layout='minimal@1', formats=[fmt], flat=True
     )
   assert normalised(result.files) == expected_files(case, fmt)
+
+
+@pytest.mark.parametrize('form', ['bundle.scireport', 'bundle.scireport.zip'])
+def test_the_bibliography_case_renders_to_the_frozen_latex(form: str) -> None:
+  """Citations in LaTeX need no pandoc; the Markdown and HTML renders are not frozen."""
+  with open_bundle(CORPUS / 'bibliography' / form) as bundle:
+    result = render_bundle(
+      bundle, template='generic@1', layout='minimal@1', formats=['tex'], flat=True
+    )
+  assert normalised(result.files) == expected_files('bibliography', 'tex')

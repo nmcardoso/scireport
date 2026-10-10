@@ -17,6 +17,7 @@ CASES = {
   'minimal': ['bundle.scireport', 'bundle.scireport.zip'],
   'text-only': ['source', 'single.json', 'bundle.scireport.zip'],
   'full-kinds': ['bundle.scireport', 'bundle.scireport.zip'],
+  'bibliography': ['bundle.scireport', 'bundle.scireport.zip'],
 }
 UNFROZEN = {'FROZEN.sha256', 'README.md'}
 
@@ -69,11 +70,14 @@ def test_every_form_inspects_to_the_expected_summary(case: str, form: str) -> No
   assert summary == expected
 
 
-def test_full_kinds_uses_every_kind() -> None:
+def test_the_corpus_uses_every_kind() -> None:
+  """``full-kinds`` holds the kinds of the first draft; ``bibliography`` (S5) has its own case."""
   from scireport.spec.kinds import KINDS
 
-  with open_bundle(CORPUS / 'full-kinds' / 'bundle.scireport.zip') as bundle:
-    used = {value.kind for value in bundle.manifest.values.values()}
+  used: set[str] = set()
+  for case in ('full-kinds', 'bibliography'):
+    with open_bundle(CORPUS / case / 'bundle.scireport.zip') as bundle:
+      used |= {value.kind for value in bundle.manifest.values.values()}
   assert used == set(KINDS)
 
 

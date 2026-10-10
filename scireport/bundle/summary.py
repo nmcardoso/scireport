@@ -8,6 +8,7 @@ from typing import Any
 from scireport.bundle.reader import Bundle
 from scireport.spec.kinds import (
   AlertValue,
+  BibliographyValue,
   BoolValue,
   CodeValue,
   DateValue,
@@ -84,6 +85,9 @@ def summarise_value(value: Envelope) -> str:
     )
   if isinstance(value, FlowValue):
     return f'{len(value.stages)} stages'
+  if isinstance(value, BibliographyValue):
+    style = f', style {value.csl.path.rpartition("/")[2]}' if value.csl else ''
+    return f'{value.asset.path.rpartition("/")[2]} ({value.asset.bytes:,} bytes{style})'
   return f'{value.filename} ({value.asset.bytes:,} bytes)'
 
 

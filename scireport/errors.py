@@ -2,10 +2,10 @@
 
 Every problem scireport reports carries a code (``E`` for errors, ``W`` for warnings) that never
 changes meaning once released. The families are ``E1xx`` keys, ``E2xx`` kinds and value fields,
-``E3xx`` table schema, ``E4xx`` assets and bundles, ``E5xx`` versions of the spec, templates and
-layouts, ``E6xx`` pre-processing, ``E7xx`` template and layout definitions, ``E8xx`` rendering,
-``W4xx`` unused items, ``E9xx`` PDF engines, ``W6xx`` math, ``W7xx`` Markdown prose and
-``W9xx`` PDF engine warnings.
+``E3xx`` table schema, ``E4xx`` assets and bundles, ``E5xx`` versions of the spec, templates,
+layouts and pandoc, ``E6xx`` pre-processing, ``E7xx`` template and layout definitions, ``E8xx``
+rendering and export, ``W4xx`` unused items, ``E9xx`` PDF engines and optional extras, ``W6xx``
+math, ``W7xx`` Markdown prose and ``W9xx`` PDF engine warnings.
 """
 
 from __future__ import annotations
@@ -30,6 +30,8 @@ CODES: dict[str, str] = {
   'E208': 'Component cannot render this kind of value',
   'E209': 'Raw LaTeX text has no replacement for this output format',
   'E210': 'Figure has no rendition this output format can use',
+  'E211': 'A bundle holds more than one bibliography',
+  'E212': 'Citation refers to a key that the bibliography does not have',
   'E301': 'Inline table rows do not match its columns',
   'E302': 'Table column definitions are inconsistent',
   'E303': 'Table lacks a column the template requires',
@@ -46,11 +48,14 @@ CODES: dict[str, str] = {
   'E409': 'Bundle form is not allowed here',
   'E410': 'Destination cannot be written',
   'E411': 'One asset path is declared with different hashes',
+  'E412': 'A path is outside the directory this server may use',
   'E501': 'Bundle was written by a newer spec version',
   'E502': 'Spec version is missing or malformed',
   'E503': 'Spec version is too old and has no migration',
   'E504': 'Template or layout version does not exist',
   'E505': 'Template or layout does not support this spec version',
+  'E506': 'Pandoc is needed and scireport[pandoc] is not installed',
+  'E507': 'Pandoc failed',
   'E601': 'Pre-processor is not registered (or not in this version)',
   'E602': 'Pre-processor parameters are invalid',
   'E603': 'Pre-processor input or output does not fit its ports',
@@ -72,12 +77,16 @@ CODES: dict[str, str] = {
   'E804': 'Rendering failed',
   'E805': 'Option is not supported by this scireport version',
   'E806': 'Layout option is unknown or has an invalid value',
+  'E807': 'Two keys give the same LaTeX macro name',
+  'E808': 'Key cannot be exported as a LaTeX fragment',
   'E901': 'A system dependency of a PDF engine is missing',
   'E902': 'The PDF engine failed',
   'E903': 'Layout does not support the requested PDF engine',
+  'E904': 'An optional extra (scireport[mcp]) is not installed',
   'W401': 'Value is never rendered by the template',
   'W402': 'Asset file is not referenced by the manifest',
   'W403': 'Key is computed at render time and cannot be checked in advance',
+  'W501': 'Pandoc version differs from the one recorded in the bundle',
   'W601': 'Math could not be drawn and is shown as source',
   'W602': 'LaTeX could not typeset math and the source is shown instead',
   'W701': 'Markdown construct is outside the supported subset',
@@ -241,10 +250,21 @@ class TemplateError(ScireportError):
 
 
 class MissingDependencyError(ScireportError):
-  """A dependency is missing: pango, TeX Live or a TeX package (E901), or an extra (E607)."""
+  """A dependency is missing: pango, TeX Live (E901), pandoc (E506) or an extra (E607, E904)."""
 
   exit_code = 3
   """Process exit code of the CLI: 3 for a missing system dependency."""
+
+
+class ExportError(ScireportError):
+  """Values cannot be exported as LaTeX fragments (E807, E808, or E103 for an unknown key)."""
+
+
+class PandocError(ScireportError):
+  """Pandoc ran and failed, or the converted content cannot be used (E507, E212)."""
+
+  exit_code = 1
+  """Process exit code of the CLI: 1, a failure that is not a problem in the data file."""
 
 
 class PdfError(ScireportError):

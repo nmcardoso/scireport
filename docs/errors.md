@@ -16,7 +16,7 @@ as data.
 | 0 | Success. |
 | 1 | Failure that is not a validation problem (I/O error, bug). |
 | 2 | The data file, template or layout is invalid (errors; with `--strict` also warnings). |
-| 3 | A system dependency of a PDF engine is missing (pango, TeX Live, a TeX package), or an extra such as `scireport[astro]` is not installed. |
+| 3 | A system dependency of a PDF engine is missing (pango, TeX Live, a TeX package), or an extra such as `scireport[astro]`, `scireport[pandoc]` or `scireport[mcp]` is not installed. |
 
 The table below is checked against `scireport.errors.CODES` by a test, so the two cannot drift.
 
@@ -50,6 +50,8 @@ A value has the wrong kind, or a field of it is wrong.
 | E208 | Component cannot render this kind of value |
 | E209 | Raw LaTeX text has no replacement for this output format |
 | E210 | Figure has no rendition this output format can use |
+| E211 | A bundle holds more than one bibliography |
+| E212 | Citation refers to a key that the bibliography does not have |
 
 ## Table schema
 
@@ -80,10 +82,12 @@ Files in a bundle, hashes, sizes, archive safety.
 | E409 | Bundle form is not allowed here |
 | E410 | Destination cannot be written |
 | E411 | One asset path is declared with different hashes |
+| E412 | A path is outside the directory this server may use |
 
-## Versions
+## Versions and pandoc
 
-Spec, template and layout versions.
+Spec, template and layout versions, and the pandoc that formats citations, converts Markdown and writes
+`docx`, `odt` and `epub`. `E506` exits with code 3 and an install hint.
 
 | Code | Meaning |
 |---|---|
@@ -92,6 +96,8 @@ Spec, template and layout versions.
 | E503 | Spec version is too old and has no migration |
 | E504 | Template or layout version does not exist |
 | E505 | Template or layout does not support this spec version |
+| E506 | Pandoc is needed and scireport[pandoc] is not installed |
+| E507 | Pandoc failed |
 
 ## Pre-processing
 
@@ -125,7 +131,7 @@ Definition files, syntax and plugins.
 
 ## Rendering
 
-Component arguments, the sandbox, options.
+Component arguments, the sandbox, options, and the LaTeX fragments of `scireport export tex`.
 
 | Code | Meaning |
 |---|---|
@@ -135,6 +141,8 @@ Component arguments, the sandbox, options.
 | E804 | Rendering failed |
 | E805 | Option is not supported by this scireport version |
 | E806 | Layout option is unknown or has an invalid value |
+| E807 | Two keys give the same LaTeX macro name |
+| E808 | Key cannot be exported as a LaTeX fragment |
 
 ## PDF engines
 
@@ -146,6 +154,13 @@ code 3 and an install hint; `E902` is a failure of the engine itself, with the e
 | E901 | A system dependency of a PDF engine is missing |
 | E902 | The PDF engine failed |
 | E903 | Layout does not support the requested PDF engine |
+| E904 | An optional extra (scireport[mcp]) is not installed |
+
+## Versions (warnings)
+
+| Code | Meaning |
+|---|---|
+| W501 | Pandoc version differs from the one recorded in the bundle |
 
 ## Unused items (warnings)
 

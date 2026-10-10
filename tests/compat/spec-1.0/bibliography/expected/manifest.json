@@ -1,0 +1,59 @@
+{
+  "scireport": "1.0",
+  "meta": {
+    "title": "Bibliography case",
+    "authors": [],
+    "date": "2026-10-09",
+    "keywords": [],
+    "language": "en"
+  },
+  "render": {
+    "formats": [],
+    "options": {}
+  },
+  "outline": [
+    {
+      "title": "Intro",
+      "children": [
+        {
+          "key": "intro",
+          "children": [],
+          "in_contents": true
+        }
+      ],
+      "in_contents": true
+    },
+    {
+      "title": "Refs",
+      "children": [
+        {
+          "key": "refs",
+          "children": [],
+          "in_contents": true
+        }
+      ],
+      "in_contents": true
+    }
+  ],
+  "values": {
+    "intro": {
+      "kind": "text",
+      "text": "Agreement with [@smith2018, p. 3; @doe2020] and [-@doe2020].",
+      "format": "markdown"
+    },
+    "refs": {
+      "kind": "bibliography",
+      "asset": {
+        "path": "assets/text/refs.bib",
+        "sha256": "772da2e91d85f72a649eea958fd60ec1d3fe6c519cd6efe046b4f350b6b917fa",
+        "bytes": 207
+      },
+      "style": "authoryear"
+    }
+  },
+  "preprocess": [],
+  "provenance": {
+    "writer": "scireport 0.1.0.dev0",
+    "inputs": []
+  }
+}

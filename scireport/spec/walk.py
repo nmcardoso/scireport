@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from scireport.spec.assets import AssetRef
 from scireport.spec.kinds import (
   AttachmentValue,
+  BibliographyValue,
   CodeValue,
   FigureValue,
   ImageValue,
@@ -47,6 +48,10 @@ def _walk(value: object, pointer: str) -> Iterator[tuple[str, AssetRef]]:
       yield f'{pointer}/asset', value.asset
   elif isinstance(value, ImageValue | AttachmentValue):
     yield f'{pointer}/asset', value.asset
+  elif isinstance(value, BibliographyValue):
+    yield f'{pointer}/asset', value.asset
+    if value.csl is not None:
+      yield f'{pointer}/csl', value.csl
   elif isinstance(value, FigureValue):
     for index, rendition in enumerate(value.renditions):
       yield f'{pointer}/renditions/{index}', rendition

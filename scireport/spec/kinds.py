@@ -731,6 +731,38 @@ class AttachmentValue(Model):
     return self
 
 
+class BibliographyValue(Model):
+  """The references that ``[@key]`` citations in prose refer to (ADR-0011).
+
+  Parameters
+  ----------
+  kind : {'bibliography'}
+      The kind tag.
+  asset : AssetRef
+      A BibTeX (BibLaTeX) file, ``.bib``, in ``assets/text/``.
+  csl : AssetRef or None
+      A Citation Style Language file, ``.csl``, in ``assets/text/``: how pandoc formats the
+      citations of the Markdown and HTML outputs. None uses pandoc's default style.
+  style : str or None
+      The ``biblatex`` style of the LaTeX output (``authoryear``, ``numeric``, ...); None uses
+      the biblatex default.
+  """
+
+  kind: Literal['bibliography']
+  asset: AssetRef
+  csl: AssetRef | None = None
+  style: Annotated[str, Field(pattern=r'^[A-Za-z0-9][A-Za-z0-9-]*$')] | None = None
+
+  @model_validator(mode='after')
+  def _check(self) -> BibliographyValue:
+    """Require the ``.bib`` and ``.csl`` suffixes."""
+    if not self.asset.path.endswith('.bib'):
+      raise PydanticCustomError('E205', 'a bibliography asset must be a .bib file')
+    if self.csl is not None and not self.csl.path.endswith('.csl'):
+      raise PydanticCustomError('E205', 'a citation style asset must be a .csl file')
+    return self
+
+
 Envelope = (
   TextValue
   | NumberValue
@@ -748,6 +780,7 @@ Envelope = (
   | AlertValue
   | FlowValue
   | AttachmentValue
+  | BibliographyValue
 )
 
 type Value = Annotated[Envelope, Field(discriminator='kind'), BeforeValidator(canonicalise)]
@@ -770,6 +803,7 @@ KINDS: tuple[str, ...] = (
   'alert',
   'flow',
   'attachment',
+  'bibliography',
 )
 """Every v1.0 kind tag, in the order of the specification."""
 

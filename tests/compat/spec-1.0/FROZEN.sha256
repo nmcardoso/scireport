@@ -72,8 +72,11 @@
 6d1cd39419e7a2a4357919cdb48f1a331eaae32fa2ca97247bafd0780bcd298f  full-kinds/expected/render-generic-1-modern-1/tex/report.tex
 7112702977a0fd79fe77a6eb0901ac139985dfc668e9acb4c70ee44eb1d1d560  full-kinds/bundle.scireport/scireport.json
 7112702977a0fd79fe77a6eb0901ac139985dfc668e9acb4c70ee44eb1d1d560  full-kinds/expected/manifest.json
+772da2e91d85f72a649eea958fd60ec1d3fe6c519cd6efe046b4f350b6b917fa  bibliography/bundle.scireport/assets/text/refs.bib
+772da2e91d85f72a649eea958fd60ec1d3fe6c519cd6efe046b4f350b6b917fa  bibliography/expected/render-generic-1-minimal-1/tex/references.bib
 8d882aab3b1622e18253a756f3807375591b320eff2c57b698941600ba8e1e16  text-only/expected/manifest.json
 8d882aab3b1622e18253a756f3807375591b320eff2c57b698941600ba8e1e16  text-only/single.json
+8dc9134a5503743f539db9ee0fb65b6d1e6aed8001daa68836d6df60a38cc2e6  bibliography/expected/render-generic-1-minimal-1/tex/latexmkrc
 8dc9134a5503743f539db9ee0fb65b6d1e6aed8001daa68836d6df60a38cc2e6  full-kinds/expected/render-generic-1-default-1/tex/latexmkrc
 8dc9134a5503743f539db9ee0fb65b6d1e6aed8001daa68836d6df60a38cc2e6  full-kinds/expected/render-generic-1-minimal-1/tex/latexmkrc
 8dc9134a5503743f539db9ee0fb65b6d1e6aed8001daa68836d6df60a38cc2e6  full-kinds/expected/render-generic-1-modern-1/tex/latexmkrc
@@ -87,6 +90,8 @@
 919d36987f20e53213c1d6892e9c39d286afa89c011485088db4a3d4362e5bee  minimal/expected/render-generic-1-modern-1/md/report.md
 9259a90b98ac80b476d06c93038ac14123f4937c14b831c27e68f4a00ba32daa  full-kinds/bundle.scireport/assets/figures/kinds.figure.data.parquet
 93787363ca8d8608b35cc74d8b021dd6bc973e3f5ec504576eb92ccc01ad520e  full-kinds/bundle.scireport/assets/tables/kinds.table-cut.parquet
+97dff1546c8267b43ad6e4fa259a4a795b1dbc4254988f2944a8e63817e73a40  bibliography/bundle.scireport/scireport.json
+97dff1546c8267b43ad6e4fa259a4a795b1dbc4254988f2944a8e63817e73a40  bibliography/expected/manifest.json
 997c84a9114cbbb6c5c0c5ec0b843bbd62cc370c648d315d33e1ba350d926d21  full-kinds/expected/render-generic-1-default-1/tex/report.tex
 a4ae51060a8690b92851c0ee8576003133ff23c1fee6bada05b5f72fe96682ff  full-kinds/expected/render-generic-1-modern-1/pdf-text-weasyprint.sha256
 a4fc0b0060ba61edd6a1c07529f03b0e8b1baca2f4af9f35d281c0547e680769  text-only/source/scireport.yaml
@@ -94,6 +99,7 @@ a79ac58f5221c3a435efa584aa30b5ad63a9579f858956ab5ed4a1631a3895ba  text-only/bund
 a7f4b7fbf8fa601f508f4b861315be55b2c482bfcfee35dd7e1b46f09e328612  full-kinds/bundle.scireport/assets/tables/kinds.table-parquet.parquet
 aa676ab06d3bdcf4aeb0a79e553aae30ebea81ff6edfa6c617fe9ac92e40901e  minimal/expected/summary.json
 aba8356f4cc4cdb2a5a3708bf4a7dac4c1708c7695982606240dacbaf8d90ff4  full-kinds/expected/render-generic-1-minimal-1/tex/report.tex
+acd4760e14b69769473654b93597d3e2e8031ceeaf78e2f5277c4d7112793450  bibliography/expected/render-generic-1-minimal-1/tex/report.tex
 ae1ecafdc9ce91ceb140df55051032dd0888ccc260dd2644ebb07deb0d9aaa9a  minimal/bundle.scireport/scireport.json
 ae1ecafdc9ce91ceb140df55051032dd0888ccc260dd2644ebb07deb0d9aaa9a  minimal/expected/manifest.json
 afc310916b3368d6ed2762dce8d65b406148e09c186bb53fd0ffecac6ca47e9a  text-only/expected/render-generic-1-minimal-1/tex/report.tex
@@ -101,6 +107,7 @@ b0951c26b268cb2e26d601d4126fa866c535e3c24a37bd377226dfd0b2b7fcbf  full-kinds/exp
 b0bd77a25fca2070c0988346ed5038ebd7ef3886f73e89632f87c7bc3a8ef712  full-kinds/expected/render-generic-1-modern-1/md/values.md
 b5cd99a989ca2dfb477e9315b07171cc35d498dcdba890cdd4f6cc0388fc8125  full-kinds/bundle.scireport/assets/images/kinds.image.png
 b84fa0fdcd2dc398db4b0d7072d39cff859a3df2fd9aebc00f7bc475008d075c  full-kinds/bundle.scireport.zip
+bf3e1db94cb5d3a8adc8593cd9bbdd6863cd81550d5b2fb98cd35a493388ba52  bibliography/expected/render-generic-1-minimal-1/tex/scireport-minimal.sty
 bf3e1db94cb5d3a8adc8593cd9bbdd6863cd81550d5b2fb98cd35a493388ba52  full-kinds/expected/render-generic-1-minimal-1/tex/scireport-minimal.sty
 bf3e1db94cb5d3a8adc8593cd9bbdd6863cd81550d5b2fb98cd35a493388ba52  minimal/expected/render-generic-1-minimal-1/tex/scireport-minimal.sty
 bf3e1db94cb5d3a8adc8593cd9bbdd6863cd81550d5b2fb98cd35a493388ba52  text-only/expected/render-generic-1-minimal-1/tex/scireport-minimal.sty
@@ -119,12 +126,14 @@ cf65e3be484eca0790ec8cd0dd0efb397e96bebf907b856afd1cacf520d5ddff  minimal/expect
 cf65e3be484eca0790ec8cd0dd0efb397e96bebf907b856afd1cacf520d5ddff  text-only/expected/render-generic-1-default-1/tex/fonts/Inter-SemiBold.otf
 cf65e3be484eca0790ec8cd0dd0efb397e96bebf907b856afd1cacf520d5ddff  text-only/expected/render-generic-1-modern-1/tex/fonts/Inter-SemiBold.otf
 d2d324705ba5f910ce9da773414fd1caea87f63050af905b89fade783c62a297  text-only/expected/render-generic-1-default-1/pdf-text-lualatex.sha256
+d5b0ce694564065220f7d60365368c4bed1378b90ee01fcf58eee7c2409637aa  bibliography/bundle.scireport.zip
 daee585ab3b4abd13ef8a1bb5de097f94b18924b8fa734b2357430a5b658666d  full-kinds/expected/render-generic-1-default-1/tex/scireport-default.sty
 daee585ab3b4abd13ef8a1bb5de097f94b18924b8fa734b2357430a5b658666d  minimal/expected/render-generic-1-default-1/tex/scireport-default.sty
 daee585ab3b4abd13ef8a1bb5de097f94b18924b8fa734b2357430a5b658666d  text-only/expected/render-generic-1-default-1/tex/scireport-default.sty
 de1f026f2e4640ad964a2836a847e48aee108907c27241be1ba739c241b4b61f  text-only/expected/render-generic-1-minimal-1/html/report.html
 e2896360b16f8a9e1225b1c47726e62b4eff74dd8e9fd50d2b9f5f74325e24f5  text-only/expected/render-generic-1-default-1/pdf-text-weasyprint.sha256
 e3f9d878254e9719f7e0ff73b5a21562bb0804ba2bfdbf43719cad0ae09956a2  full-kinds/expected/render-generic-1-minimal-1/html/report.html
+eb9df4589efaa31aeef63bcd9e63cc4aa81e914275ff987ff397f5c70032a209  bibliography/expected/summary.json
 ebfaa57282a36fb39a352c2ac343a24182bae1592eef0e6e9349bccd323d186c  text-only/expected/render-generic-1-default-1/tex/report.tex
 ed1a84e5bfeec9f2cce7e487235affec6c4da08d5e1266a513b944668d9ec43b  text-only/expected/render-generic-1-modern-1/pdf-text-weasyprint.sha256
 ef7e5f4004e67a47a425ab90d52770051a90cf89b01b5f0adfc5adea454e63eb  minimal/expected/render-generic-1-modern-1/html/report.html
