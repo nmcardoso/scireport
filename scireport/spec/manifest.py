@@ -304,7 +304,7 @@ def check_manifest(manifest: Manifest) -> list[Issue]:
   -------
   list of Issue
       Every problem found, in a stable order: ``E102`` prefix conflicts, ``E103`` dangling
-      references, ``E202`` references to the wrong kind, ``E205`` repeated Markdown file names
+      references (a key that a ``preprocess`` step will write is not dangling), ``E202`` references to the wrong kind, ``E205`` repeated Markdown file names
       and ``E411`` assets declared twice with different hashes.
   """
   issues: list[Issue] = []
