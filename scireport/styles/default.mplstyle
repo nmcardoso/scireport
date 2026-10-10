@@ -1,0 +1,46 @@
+# Matplotlib rcParams of every figure drawn in the default@1 look. Applied only inside
+# scireport.mplstyle(), never globally. The colours are copied by hand from
+# scireport/layouts/default/1/palette.yaml and checked against it by
+# tests/unit/styles/test_consistency.py; the file is frozen with the layout (ADR-0008).
+
+font.family: sans-serif
+font.sans-serif: Inter, Source Sans 3, Helvetica Neue, Arial, sans-serif
+font.monospace: IBM Plex Mono, JetBrains Mono, DejaVu Sans Mono, monospace
+font.size: 8.0
+
+axes.facecolor: "#ffffff"
+axes.edgecolor: "#c4cacf"
+axes.labelcolor: "#17212b"
+axes.titlecolor: "#17212b"
+axes.linewidth: 0.7
+axes.grid: True
+axes.axisbelow: True
+axes.prop_cycle: cycler('color', ["#315f82", "#2b8c9e", "#c47b45", "#4f8066", "#a95454", "#78838c"])
+
+grid.color: "#dce0e2"
+grid.linewidth: 0.5
+grid.alpha: 1.0
+
+xtick.color: "#44515c"
+ytick.color: "#44515c"
+xtick.labelsize: 7.5
+ytick.labelsize: 7.5
+
+text.color: "#17212b"
+
+legend.frameon: False
+legend.fontsize: 7.5
+
+figure.facecolor: "#ffffff"
+figure.edgecolor: "#ffffff"
+
+savefig.facecolor: "#ffffff"
+savefig.edgecolor: "#ffffff"
+
+image.cmap: cividis
+
+lines.linewidth: 1.2
+lines.markersize: 4.0
+
+patch.edgecolor: "#c4cacf"
+patch.linewidth: 0.5

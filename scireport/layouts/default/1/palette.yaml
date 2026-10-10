@@ -1,0 +1,63 @@
+# The single source of truth of the look of default@1 (ADR-0007). Hand-written and read by people:
+# tokens.css, the .sty file and styles/default.mplstyle repeat these hex values, and
+# tests/unit/styles/test_consistency.py parses all four and fails when one drifts.
+# Colours follow the MOSAICS report design system.
+name: default
+colors:
+  ink: "#17212b"
+  ink-soft: "#44515c"
+  navy: "#14283d"
+  navy-deep: "#0d1b2a"
+  blue: "#315f82"
+  blue-light: "#dce8f0"
+  cyan: "#2b8c9e"
+  cyan-light: "#dceff2"
+  accent: "#c47b45"
+  accent-light: "#f3e5d9"
+  green: "#4f8066"
+  green-light: "#e1eee7"
+  red: "#a95454"
+  red-light: "#f3e1e1"
+  paper: "#ffffff"
+  paper-warm: "#f8f8f6"
+  gray-50: "#f7f8f8"
+  gray-100: "#eef0f1"
+  gray-200: "#dce0e2"
+  gray-300: "#c4cacf"
+  gray-500: "#78838c"
+  gray-700: "#4a555e"
+# Colours that mean something in a chart, whatever the position in the colour cycle.
+role:
+  failed: red
+  flagged: red
+  success: green
+  warning: accent
+  neutral: gray-500
+  annotation: ink
+# One colour per level of the status component.
+status:
+  success: green
+  warning: accent
+  partial: accent
+  failed: red
+  running: cyan
+# Colours that tell series apart, in order (the matplotlib property cycle).
+cycle: [blue, cyan, accent, green, red, gray-500]
+# cividis and RdBu_r stay readable when printed in grey; magma, viridis and coolwarm do not.
+cmap:
+  sequential: cividis
+  diverging: RdBu_r
+fonts:
+  sans: [Inter, Source Sans 3, Helvetica Neue, Arial, sans-serif]
+  mono: [IBM Plex Mono, JetBrains Mono, DejaVu Sans Mono, monospace]
+# Points.
+spacing: [4, 8, 12, 16, 24, 32, 48, 64]
+type_scale:
+  title: 33.0
+  section: 20.0
+  subsection: 14.0
+  body: 10.0
+  metadata: 8.5
+  table: 8.0
+body_line_height: 1.55
+heading_line_height: 1.2
