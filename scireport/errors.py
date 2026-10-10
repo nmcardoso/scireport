@@ -319,10 +319,10 @@ class RenderError(ScireportError):
 
 
 def catalogue_markdown() -> str:
-  """Return the error catalogue as the Markdown page ``docs/errors.md``.
+  """Return the error catalogue as a short Markdown page (``scireport spec errors``).
 
-  The page is generated so that the table in the documentation and :data:`CODES` cannot drift;
-  a test compares the committed page with this text and ``make errors`` rewrites it.
+  The documentation site lists the same codes with what to do about each; its table is generated
+  by :mod:`scireport.agent.skillgen` and a test fails when it differs from :data:`CODES`.
 
   Returns
   -------
@@ -334,7 +334,7 @@ def catalogue_markdown() -> str:
     '',
     'Every problem scireport reports has a stable code (ADR-0005, ADR-0008). A code never changes',
     'meaning and is never reused. `E` codes are errors, `W` codes are warnings; `--strict` turns',
-    'warnings into errors. This page is generated from `scireport.errors.CODES` (`make errors`).',
+    'warnings into errors. This page is generated from `scireport.errors.CODES`.',
     '',
     '| Code | Severity | Meaning |',
     '|---|---|---|',

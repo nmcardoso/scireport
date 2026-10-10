@@ -17,16 +17,53 @@ A layout is the look of a report (ADR-0003). Three ship with scireport; each is 
 ## Options
 
 Options are set in the data file (`render.options`), with `-O name=value` or in Python; a value outside
-the choices is `E806`.
+the choices is `E806`. Generated from the layouts' `layout.yaml`.
 
-| Option | Default | Meaning |
-|---|---|---|
-| `toc` | `true` | write a table of contents |
-| `cover` | `true` | a cover page (otherwise a plain title block) |
-| `paper` | `a4` | `a4` or `letter` |
-| `chapter_breaks` | `true` | start every chapter on a new page |
-| `numbered_captions` | `true` | "Table 3." and "Figure 2." before captions |
-| `header` | `true` | the running header and footer of a PDF |
+<!-- generated:layouts -->
+### `default@1`
+
+Default (MOSAICS look). Navy cover, chapter openers, a table of contents with page numbers, a running header and footer. Inter and IBM Plex Mono.
+
+Formats: md, html, tex. PDF engines: weasyprint, latex.
+
+| Option | Type | Default | Choices | Meaning |
+|---|---|---|---|---|
+| `toc` | bool | `True` |  | Write a table of contents. |
+| `cover` | bool | `True` |  | Start with the navy cover page (otherwise a plain title block). |
+| `paper` | str | `a4` | a4\|letter | Paper size of the PDF and of the LaTeX project. |
+| `chapter_breaks` | bool | `True` |  | Start every chapter on a new page, below an opener band. |
+| `numbered_captions` | bool | `True` |  | Prefix captions with "Table N." and "Figure N.". |
+| `header` | bool | `True` |  | Print the running header and footer on the pages of a PDF. |
+
+### `minimal@1`
+
+Minimal. Plain reference layout for Markdown, self-contained HTML and a LaTeX project.
+
+Formats: md, html, tex. PDF engines: none.
+
+| Option | Type | Default | Choices | Meaning |
+|---|---|---|---|---|
+| `toc` | bool | `True` |  | Write a table of contents. |
+| `cover` | bool | `True` |  | Write the title block (subtitle, authors, date, version) under the title. |
+| `accent` | str | `#1f4e79` |  | Accent colour as #rrggbb. |
+| `paper` | str | `a4` | a4\|letter | Paper size of the LaTeX project. |
+| `numbered_captions` | bool | `True` |  | Prefix captions with "Table N." and "Figure N.". |
+
+### `modern@1`
+
+Modern (Signal). A white page with a vermilion cover band, giant chapter numerals, heavy rules and rule-only tables. Inter and IBM Plex Mono.
+
+Formats: md, html, tex. PDF engines: weasyprint, latex.
+
+| Option | Type | Default | Choices | Meaning |
+|---|---|---|---|---|
+| `toc` | bool | `True` |  | Write a table of contents. |
+| `cover` | bool | `True` |  | Start with the cover page (otherwise a plain title block). |
+| `paper` | str | `a4` | a4\|letter | Paper size of the PDF and of the LaTeX project. |
+| `chapter_breaks` | bool | `True` |  | Start every chapter on a new page. |
+| `numbered_captions` | bool | `True` |  | Prefix captions with "Table N." and "Figure N.". |
+| `header` | bool | `True` |  | Print the running header and footer on the pages of a PDF. |
+<!-- /generated -->
 
 ## Design rules both layouts keep
 

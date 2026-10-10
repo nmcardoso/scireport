@@ -134,36 +134,556 @@ one, and a step that names `version: 1` keeps getting version 1 (ADR-0008).
 Every entry has version 1. The `astro` plots that need no astropy (colour diagrams, number counts and the
 photometry diagnostics) run in the core install; the sky maps need the `astro` extra (astropy and astropy-healpix;
 no `mocpy`, no `hats`) and give `E607` with an install hint when it is missing. Run `scireport preprocessors NAME`
-for the ports and parameters of one, and see `docs/errors.md` for the codes. A test checks that this table lists
-exactly the registered pre-processors.
+for the ports and parameters of one, and see {doc}`errors` for the codes. Both tables are generated from the
+registry; a test fails when this page is stale.
 
-| Name | Needs | Does |
-|---|---|---|
-| `astro.color_color` |  | Hybrid density colour-colour diagram. |
-| `astro.color_magnitude` |  | Hybrid density colour-magnitude diagram. |
-| `astro.footprint` | `scireport[astro]` | Coverage footprint of one or several catalogues on a Mollweide sky map. |
-| `astro.magnitude_residual` |  | Draw a magnitude residual against magnitude as a hexagon density. |
-| `astro.number_counts` |  | Differential number counts, log-scaled, against the Euclidean reference slope. |
-| `astro.sky_density` | `scireport[astro]` | Mollweide sky map of source density on a HEALPix grid. |
-| `astro.sky_grid` | `scireport[astro]` | Small multiples: one Mollweide sky-density panel per group, on one shared colour scale. |
-| `astro.snr_magnitude` |  | Signal-to-noise against magnitude, with the 5-sigma depth marked. |
-| `astro.zeropoint_offsets` |  | One band's cross-survey magnitude offset against colour, as a hexagon density. |
-| `core.achieved_vs_target` |  | Paired horizontal bars of what was asked for and what came out. |
-| `core.bar` |  | Horizontal bars of a table of labelled counts. |
-| `core.corner` |  | Corner plot of two to eight numeric columns. |
-| `core.density_scatter` |  | Scatter of two columns: hexagons where it is crowded, individual points where it is not. |
-| `core.distribution` |  | Box or violin plot of a per-object value, one per group. |
-| `core.duration_bars` |  | Wall-clock seconds per artifact, with the reused ones hatched. |
-| `core.funnel` |  | Rows surviving each cumulative step, and rows removed by each step. |
-| `core.heatmap` |  | Heatmap of a matrix given as a long table (one row per cell). |
-| `core.histogram` |  | Histogram of a column of samples, or of counts tallied elsewhere. |
-| `core.metric_scatter` |  | Compare a per-object metric of the left dataset with the right one, against ``y = x``. |
-| `core.pp` |  | P-P plot of a sample against a normal distribution or a second sample. |
-| `core.pvalue_strip` |  | Every p-value of a family of tests on one logarithmic axis, against its threshold. |
-| `core.qq` |  | Q-Q plot of a sample against a normal distribution or a second sample. |
-| `core.separation_histogram` |  | Histogram of match separations, with the match radius marked. |
-| `core.split_balance` |  | One split's arms (train, validation, test) on one stratifier, normalised and overlaid. |
-| `core.split_marginals` |  | Each split's marginal on one stratifier, normalised and overlaid. |
-| `core.stacked_shares` |  | One stacked horizontal bar per group, each segment a label's share of the group. |
-| `core.table_profile` |  | Per-column profile of a table, with its size. |
+<!-- generated:preprocessors -->
+| Name | Version | Extra | What it does |
+|---|---|---|---|
+| `astro.color_color` | 1 |  | Hybrid density colour-colour diagram. |
+| `astro.color_magnitude` | 1 |  | Hybrid density colour-magnitude diagram. |
+| `astro.footprint` | 1 | astro | Coverage footprint of one or several catalogues on a Mollweide sky map. |
+| `astro.magnitude_residual` | 1 |  | Draw a magnitude residual against magnitude as a hexagon density. |
+| `astro.number_counts` | 1 |  | Differential number counts, log-scaled, against the Euclidean reference slope. |
+| `astro.sky_density` | 1 | astro | Mollweide sky map of source density on a HEALPix grid. |
+| `astro.sky_grid` | 1 | astro | Small multiples: one Mollweide sky-density panel per group, on one shared colour scale. |
+| `astro.snr_magnitude` | 1 |  | Signal-to-noise against magnitude, with the 5-sigma depth marked. |
+| `astro.zeropoint_offsets` | 1 |  | One band's cross-survey magnitude offset against colour, as a hexagon density. |
+| `core.achieved_vs_target` | 1 |  | Paired horizontal bars of what was asked for and what came out. |
+| `core.bar` | 1 |  | Horizontal bars of a table of labelled counts. |
+| `core.corner` | 1 |  | Corner plot of two to eight numeric columns. |
+| `core.density_scatter` | 1 |  | Scatter of two columns: hexagons where it is crowded, individual points where it is not. |
+| `core.distribution` | 1 |  | Box or violin plot of a per-object value, one per group. |
+| `core.duration_bars` | 1 |  | Wall-clock seconds per artifact, with the reused ones hatched. |
+| `core.funnel` | 1 |  | Rows surviving each cumulative step, and rows removed by each step. |
+| `core.heatmap` | 1 |  | Heatmap of a matrix given as a long table (one row per cell). |
+| `core.histogram` | 1 |  | Histogram of a column of samples, or of counts tallied elsewhere. |
+| `core.metric_scatter` | 1 |  | Compare a per-object metric of the left dataset with the right one, against ``y = x``. |
+| `core.pp` | 1 |  | P-P plot of a sample against a normal distribution or a second sample. |
+| `core.pvalue_strip` | 1 |  | Every p-value of a family of tests on one logarithmic axis, against its threshold. |
+| `core.qq` | 1 |  | Q-Q plot of a sample against a normal distribution or a second sample. |
+| `core.separation_histogram` | 1 |  | Histogram of match separations, with the match radius marked. |
+| `core.split_balance` | 1 |  | One split's arms (train, validation, test) on one stratifier, normalised and overlaid. |
+| `core.split_marginals` | 1 |  | Each split's marginal on one stratifier, normalised and overlaid. |
+| `core.stacked_shares` | 1 |  | One stacked horizontal bar per group, each segment a label's share of the group. |
+| `core.table_profile` | 1 |  | Per-column profile of a table, with its size. |
+<!-- /generated -->
 
+## Reference
+
+Every figure pre-processor also takes `title` (default `''`), `width` (a fraction of the page frame, default `1.0`),
+`height` (inches, default `3.6`), `alt` (alt text; generated from the data when not given) and `caption`. The tables
+below list them only for the entries that change a default or require one. A parameter without a description is
+named by its type and default alone; `scireport preprocessors NAME --json` gives the JSON Schema.
+
+<!-- generated:preprocessor-reference -->
+### `astro.color_color`
+
+Hybrid density colour-colour diagram.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | One row per object, with two colour columns |
+| `figure` | outputs | figure | The colour-colour density diagram |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `color_x_column` | `str` | required |  |
+| `color_y_column` | `str` | required |  |
+| `gridsize` | `int` | `60` |  |
+| `threshold` | `int` | `3` |  |
+| `x_label` | `str \| None` | `None` |  |
+| `y_label` | `str \| None` | `None` |  |
+
+### `astro.color_magnitude`
+
+Hybrid density colour-magnitude diagram.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | One row per object, with a colour and a magnitude |
+| `figure` | outputs | figure | The colour-magnitude density diagram |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `color_column` | `str` | required | Column with a colour (a magnitude difference such as g - r), on the x axis. |
+| `magnitude_column` | `str` | required | Column with a single-band magnitude, on the inverted y axis. |
+| `gridsize` | `int` | `60` | Hexagons across the colour range. |
+| `threshold` | `int` | `3` | A hexagon with this many points or fewer is drawn as individual points. |
+| `x_label` | `str \| None` | `None` |  |
+| `y_label` | `str \| None` | `None` |  |
+
+### `astro.footprint`
+
+Coverage footprint of one or several catalogues on a Mollweide sky map. Needs `scireport[astro]`.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | Positions in degrees, or counts per HEALPix pixel |
+| `figure` | outputs | figure | The Mollweide coverage map |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `order` | `int` | `5` | HEALPix level of the coverage mask, nested ordering; 0 to 10. |
+| `ra_column` | `str` | `'ra'` |  |
+| `dec_column` | `str` | `'dec'` |  |
+| `ipix_column` | `str \| None` | `None` |  |
+| `counts_column` | `str \| None` | `None` |  |
+| `group_column` | `str \| None` | `None` |  |
+| `min_count` | `float` | `1.0` |  |
+| `height` | `float` | `3.2` |  |
+
+### `astro.magnitude_residual`
+
+Draw a magnitude residual against magnitude as a hexagon density.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | Catalogue with a magnitude and a residual column |
+| `figure` | outputs | figure | Density of the residual against magnitude |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `magnitude_column` | `str` | required | Reference magnitude column (x axis). |
+| `residual_column` | `str` | required | Residual column (y axis); the sign and meaning are the caller's. |
+| `gridsize` | `int` | `60` | Hexagons across the magnitude range. |
+| `threshold` | `int` | `3` | A hexagon with this many points or fewer is drawn as individual points. |
+| `x_label` | `str` | `'Published magnitude'` |  |
+| `y_label` | `str` | `'Recovered - published (mag)'` |  |
+| `height` | `float` | `3.4` |  |
+
+### `astro.number_counts`
+
+Differential number counts, log-scaled, against the Euclidean reference slope.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | Sources per magnitude bin, one row per bin |
+| `figure` | outputs | figure | The differential number counts |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `center_column` | `str` | required | Column with the magnitude bin centres. |
+| `count_column` | `str` | required | Column with the sources per bin. |
+| `group_column` | `str \| None` | `None` | Column with a series label (a survey, a band); one series when None. |
+| `reference_slope` | `float` | `0.6` | The Euclidean slope per magnitude, anchored through the fullest bin of each series. |
+| `x_label` | `str` | `'Magnitude'` | Label of the x axis. |
+| `height` | `float` | `3.2` | Figure height in inches. |
+
+### `astro.sky_density`
+
+Mollweide sky map of source density on a HEALPix grid. Needs `scireport[astro]`.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | Positions in degrees, or counts per HEALPix pixel |
+| `figure` | outputs | figure | The Mollweide density map |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `order` | `int` | `7` | HEALPix level of the bins, or of the indices of a tally; 0 to 10. The sky has ``12 * 4**order`` pixels, nested ordering. |
+| `ra_column` | `str` | `'ra'` |  |
+| `dec_column` | `str` | `'dec'` |  |
+| `ipix_column` | `str \| None` | `None` |  |
+| `counts_column` | `str \| None` | `None` |  |
+| `log` | `bool` | `True` |  |
+| `per_area` | `bool` | `True` |  |
+| `colorbar_label` | `str \| None` | `None` |  |
+| `min_count` | `float` | `1.0` |  |
+
+### `astro.sky_grid`
+
+Small multiples: one Mollweide sky-density panel per group, on one shared colour scale. Needs `scireport[astro]`.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | Positions in degrees, or counts per HEALPix pixel |
+| `figure` | outputs | figure | One Mollweide density map per group |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `group_column` | `str` | required | Column whose distinct values become panels (at most 30), in sorted order. |
+| `order` | `int` | `5` | HEALPix level of the bins, or of the indices of a tally; 0 to 10; nested ordering. |
+| `ncols` | `int` | `3` | Panels per row; at least 1. |
+| `ra_column` | `str` | `'ra'` |  |
+| `dec_column` | `str` | `'dec'` |  |
+| `ipix_column` | `str \| None` | `None` |  |
+| `counts_column` | `str \| None` | `None` |  |
+| `log` | `bool` | `True` |  |
+| `per_area` | `bool` | `True` |  |
+| `colorbar_label` | `str \| None` | `None` |  |
+| `min_count` | `float` | `1.0` |  |
+| `height` | `float \| None` | `None` |  |
+
+### `astro.snr_magnitude`
+
+Signal-to-noise against magnitude, with the 5-sigma depth marked.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | Catalogue with a magnitude and a signal-to-noise column |
+| `figure` | outputs | figure | Density of S/N against magnitude |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `magnitude_column` | `str` | required | Magnitude column. |
+| `snr_column` | `str` | required | Signal-to-noise column; rows with a value of zero or less are dropped. |
+| `depth` | `float \| None` | `None` | The magnitude at which the S/N crosses 5, drawn as a vertical mark. |
+| `estimate_depth` | `bool` | `True` | When ``depth`` is None, estimate it from the running median S/N; if that never crosses 5 no depth is drawn. |
+| `gridsize` | `int` | `60` | Hexagons across the magnitude range. |
+| `threshold` | `int` | `3` | A hexagon with this many points or fewer is drawn as individual points. |
+| `x_label` | `str` | `'Magnitude'` |  |
+| `y_label` | `str` | `'$\\log_{10}$ S/N'` |  |
+| `height` | `float` | `3.4` |  |
+
+### `astro.zeropoint_offsets`
+
+One band's cross-survey magnitude offset against colour, as a hexagon density.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | Catalogue with a colour and a magnitude offset |
+| `figure` | outputs | figure | Density of the offset against colour |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `color_column` | `str` | required | Colour column (x axis). |
+| `delta_column` | `str` | required | Offset column (y axis). |
+| `fit` | `bool` | `True` | Draw a least-squares line over the colour range; its slope is the colour term. |
+| `gridsize` | `int` | `60` | Hexagons across the colour range. |
+| `threshold` | `int` | `3` | A hexagon with this many points or fewer is drawn as individual points. |
+| `x_label` | `str` | `'Colour (mag)'` |  |
+| `y_label` | `str` | `'Δm (mag)'` |  |
+| `height` | `float` | `3.4` |  |
+
+### `core.achieved_vs_target`
+
+Paired horizontal bars of what was asked for and what came out.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | One row per pair: label, achieved and target |
+| `figure` | outputs | figure | Paired horizontal bars, achieved and requested |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `label_column` | `str` | required | Column with the name of each pair. |
+| `achieved_column` | `str` | required | Column with what was measured. |
+| `target_column` | `str` | required | Column with what was requested; null where nothing was requested. |
+| `x_label` | `str` | `'Parts per million'` | Label of the value axis. |
+| `height` | `float \| None` | `None` | Figure height in inches; from the number of pairs when None. |
+
+### `core.bar`
+
+Horizontal bars of a table of labelled counts.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | One row per bar: a label and a count |
+| `figure` | outputs | figure | The horizontal bar chart |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `label_column` | `str` | required | Column with the label of each bar. |
+| `value_column` | `str` | required | Numeric column with the count of each bar; null counts as zero. |
+| `highlight` | `list[str] \| None` | `None` | Labels to draw in the failure colour whatever their value. |
+| `log` | `bool` | `False` | Symmetric-logarithmic value axis. |
+| `x_label` | `str` | `'Rows'` | Label of the value axis. |
+| `sort` | `'none' \| 'ascending' \| 'descending'` | `'none'` | Order of the bars; 'none' keeps the table order. |
+| `height` | `float \| None` | `None` | Figure height in inches; computed from the number of bars when None. |
+
+### `core.corner`
+
+Corner plot of two to eight numeric columns.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | One row per object, several numeric columns |
+| `figure` | outputs | figure | The corner plot |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `columns` | `list[str]` | required | Two to eight distinct numeric columns, in grid order. |
+| `bins` | `int` | `20` | Bins of each diagonal histogram. |
+| `gridsize` | `int` | `12` | Hexagons across the x range of each pair. |
+| `threshold` | `int` | `3` | A hexagon with this many points or fewer is drawn as individual points. |
+| `title` | `str` | `'Corner plot'` | Title; nothing when empty. |
+| `height` | `float` | `6.0` | Figure height in inches. |
+
+### `core.density_scatter`
+
+Scatter of two columns: hexagons where it is crowded, individual points where it is not.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | One row per object, two numeric columns |
+| `figure` | outputs | figure | The hybrid density scatter |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `x_column` | `str` | required |  |
+| `y_column` | `str` | required |  |
+| `gridsize` | `int` | `50` |  |
+| `threshold` | `int` | `3` |  |
+| `x_label` | `str \| None` | `None` |  |
+| `y_label` | `str \| None` | `None` |  |
+
+### `core.distribution`
+
+Box or violin plot of a per-object value, one per group.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | One row per object, a value and optionally a group |
+| `figure` | outputs | figure | A box or violin per group |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `value_column` | `str` | required | Numeric column to summarise. |
+| `group_column` | `str \| None` | `None` | Column naming the group of each row; a single group when None. |
+| `kind` | `'box' \| 'violin'` | `'box'` | Box and whiskers, or a kernel density estimate. |
+| `max_outliers` | `int` | `200` | The most outlying values stored per group (box). |
+| `n_grid` | `int` | `100` | Points of the density curve per group (violin). |
+| `y_label` | `str \| None` | `None` | Label of the value axis; the column name when None. |
+
+### `core.duration_bars`
+
+Wall-clock seconds per artifact, with the reused ones hatched.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | One row per artifact: label, seconds, reused |
+| `figure` | outputs | figure | Horizontal bars of wall-clock seconds |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `label_column` | `str` | required | Column with the artifact's name. |
+| `seconds_column` | `str` | required | Column with the seconds spent. |
+| `reused_column` | `str \| None` | `None` | Boolean column that is true where the artifact was reused; all built when None. |
+| `height` | `float \| None` | `None` | Figure height in inches; from the number of bars when None. |
+
+### `core.funnel`
+
+Rows surviving each cumulative step, and rows removed by each step.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | One row per step: its name and rows surviving |
+| `figure` | outputs | figure | Rows surviving and rows removed by each step |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `label_column` | `str` | required | Column with the name of each step. |
+| `count_column` | `str` | required | Numeric column with the rows surviving the step; null marks a step that failed. |
+| `panels` | `'both' \| 'counts' \| 'drops'` | `'both'` | Running count on the left and rows removed on the right, or one of them alone. |
+| `height` | `float \| None` | `None` | Figure height in inches; computed from the number of steps when None. |
+
+### `core.heatmap`
+
+Heatmap of a matrix given as a long table (one row per cell).
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | A long table: one row per cell of the matrix |
+| `figure` | outputs | figure | The heatmap |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `row_column` | `str` | required |  |
+| `column_column` | `str` | required |  |
+| `value_column` | `str` | required |  |
+| `row_order` | `list[str] \| None` | `None` |  |
+| `column_order` | `list[str] \| None` | `None` |  |
+| `cmap` | `'sequential' \| 'diverging'` | `'sequential'` |  |
+| `vmin` | `float \| None` | `None` |  |
+| `vmax` | `float \| None` | `None` |  |
+| `symmetric` | `bool` | `False` |  |
+| `log` | `bool` | `False` |  |
+| `annotate` | `bool \| 'auto'` | `'auto'` |  |
+| `value_format` | `str` | `'.2g'` |  |
+| `colorbar_label` | `str` | `''` |  |
+| `row_label` | `str` | `''` |  |
+| `column_label` | `str` | `''` |  |
+| `square` | `bool` | `False` |  |
+| `height` | `float \| None` | `None` |  |
+
+### `core.histogram`
+
+Histogram of a column of samples, or of counts tallied elsewhere.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | Samples, or a tally of counts per bin |
+| `figure` | outputs | figure | The histogram |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `column` | `str` | required | Column of samples, or of bin centres (numbers) or labels (anything else) for a tally. |
+| `bins` | `int \| 'auto' \| 'fd' \| 'doane' \| 'scott' \| 'stone' \| 'rice' \| 'sturges' \| 'sqrt'` | `'auto'` | Number of bins or a numpy bin rule (``'auto'``, ``'fd'``, ``'sturges'``, ...); ignored for a tally. |
+| `counts_column` | `str \| None` | `None` | Column with the count of each row; makes the table a tally. |
+| `categorical` | `bool` | `False` | One bar per distinct label rather than a continuous axis. |
+| `log` | `bool` | `False` | Logarithmic count axis. |
+| `x_label` | `str \| None` | `None` | Label of the x axis; the column name when None. |
+| `y_label` | `str` | `'Count'` | Label of the y axis. |
+| `height` | `float` | `3.2` | Figure height in inches. |
+
+### `core.metric_scatter`
+
+Compare a per-object metric of the left dataset with the right one, against ``y = x``.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | One row per object, a left and a right metric |
+| `figure` | outputs | figure | Left metric against right metric |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `x_column` | `str` | required |  |
+| `y_column` | `str` | required |  |
+| `x_label` | `str` | `'left'` |  |
+| `y_label` | `str` | `'right'` |  |
+| `title` | `str` | `'Metric comparison'` |  |
+| `gridsize` | `int` | `50` |  |
+| `threshold` | `int` | `3` |  |
+
+### `core.pp`
+
+P-P plot of a sample against a normal distribution or a second sample.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | A table with the sample column (and the reference) |
+| `figure` | outputs | figure | The P-P plot |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `column` | `str` | required | The sample, drawn on the y axis. |
+| `reference_column` | `str \| None` | `None` | A second sample for the x axis; without it the standard normal distribution, against which the standardised sample is drawn. |
+| `max_points` | `int` | `2000` | The most points drawn (a deterministic grid, not every row). |
+| `x_label` | `str \| None` | `None` |  |
+| `y_label` | `str \| None` | `None` |  |
+| `height` | `float` | `3.4` |  |
+
+### `core.pvalue_strip`
+
+Every p-value of a family of tests on one logarithmic axis, against its threshold.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | One row per test: its name and p-value |
+| `figure` | outputs | figure | The p-values against the threshold |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `label_column` | `str` | required | Column with the name of each test. |
+| `pvalue_column` | `str` | required | Numeric column with the p-value; null or NaN means the test was not computable. |
+| `alpha` | `float` | `0.05` | Significance threshold, drawn as a vertical line. |
+| `height` | `float \| None` | `None` | Figure height in inches; computed from the number of tests when None. |
+
+### `core.qq`
+
+Q-Q plot of a sample against a normal distribution or a second sample.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | A table with the sample column (and the reference) |
+| `figure` | outputs | figure | The Q-Q plot |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `column` | `str` | required | The sample, drawn on the y axis. |
+| `reference_column` | `str \| None` | `None` | A second sample for the x axis; without it the standard normal distribution, against which the standardised sample is drawn. |
+| `max_points` | `int` | `2000` | The most points drawn (a deterministic quantile grid, not every row). |
+| `x_label` | `str \| None` | `None` |  |
+| `y_label` | `str \| None` | `None` |  |
+| `height` | `float` | `3.4` |  |
+
+### `core.separation_histogram`
+
+Histogram of match separations, with the match radius marked.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | Separations, or a tally of matches per bin |
+| `figure` | outputs | figure | The histogram of match separations |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `column` | `str` | required | Column of separations in arcseconds, or of bin centres (arcseconds) for a tally. |
+| `counts_column` | `str \| None` | `None` | Column with the number of matches in each bin; makes the table a tally. |
+| `radius` | `float \| None` | `None` | Match radius in arcseconds, drawn as a vertical rule; nothing when None. |
+| `bins` | `int` | `40` | Number of bins for a sample; ignored for a tally. |
+| `x_label` | `str` | `'Angular separation (arcsec)'` | Label of the separation axis. |
+| `height` | `float` | `3.2` | Figure height in inches. |
+
+### `core.split_balance`
+
+One split's arms (train, validation, test) on one stratifier, normalised and overlaid.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | One row per arm and bin: arm, bin, count |
+| `figure` | outputs | figure | Overlaid, normalised marginals of the arms |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `arm_column` | `str` | required | Column with the arm of each row. |
+| `bin_column` | `str` | required | Column with the bin of the stratifier (numbers are ordered by value). |
+| `count_column` | `str` | required | Column with the count of the arm in that bin. |
+| `stratifier` | `str` | `''` | Name of the stratified quantity, for the axis label and the title. |
+| `split` | `str` | `''` | Name of the split the arms belong to, for the title. |
+| `y_label` | `str` | `'Share of arm'` | Label of the share axis. |
+| `title` | `str \| None` | `None` | Title; ``<split>: label balance on <stratifier>`` when None, nothing when empty. |
+| `height` | `float` | `3.2` | Figure height in inches. |
+
+### `core.split_marginals`
+
+Each split's marginal on one stratifier, normalised and overlaid.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | One row per split and bin: split, bin, count |
+| `figure` | outputs | figure | Overlaid, normalised marginals of the splits |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `split_column` | `str` | required | Column with the split of each row. |
+| `bin_column` | `str` | required | Column with the bin of the stratifier (numbers are ordered by value). |
+| `count_column` | `str` | required | Column with the count of the split in that bin. |
+| `stratifier` | `str` | `''` | Name of the stratified quantity, for the axis label and the title. |
+| `reference` | `str` | `''` | The split drawn heavier so the eye has a baseline; none when empty. |
+| `y_label` | `str` | `'Share of split'` | Label of the share axis. |
+| `title` | `str \| None` | `None` | Title; ``Split marginals: <stratifier>`` when None, nothing when empty. |
+| `height` | `float` | `3.2` | Figure height in inches. |
+
+### `core.stacked_shares`
+
+One stacked horizontal bar per group, each segment a label's share of the group.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | Long table: group, label and count of each row |
+| `figure` | outputs | figure | The stacked share bars |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `group_column` | `str` | required | Column with the group of each row. |
+| `label_column` | `str` | required | Column with the label (segment) of each row. |
+| `count_column` | `str` | required | Numeric column with the count; null counts as zero, repeated pairs are summed. |
+| `reference` | `object \| None` | `None` | Requested shares as ``label -> share`` (summing to one), drawn as dashed verticals at the cumulative boundaries. |
+| `height` | `float \| None` | `None` | Figure height in inches; computed from the number of groups when None. |
+
+### `core.table_profile`
+
+Per-column profile of a table, with its size.
+
+| Port | Direction | Kind | Meaning |
+|---|---|---|---|
+| `table` | inputs | table | The table to profile |
+| `profile` | outputs | table | One row per column: type, nulls, zeros and shape |
+| `summary` | outputs | metrics | Rows, columns and size in memory |
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `caption` | `str \| None` | `None` | Caption below the profile table; a description of the columns when None. |
+<!-- /generated -->

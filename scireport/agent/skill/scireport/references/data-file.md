@@ -569,7 +569,7 @@ The YAML reader follows the YAML 1.2 core schema and is stricter than most:
 
 - Only `true` and `false` are booleans. `yes`, `no`, `on`, `off` are strings, and `12:30` is a string.
 - A date such as `2026-10-09` is a string, never a date object. Quote the spec version (`'1.0'`).
-- Anchors and aliases (`&a`, `*a`) are rejected. Duplicate keys are rejected. Both are `E408`, as is any
+- Aliases (`*a`) are rejected. Duplicate keys are rejected. Both are `E408`, as is any
   syntax error.
 - JSON manifests reject duplicate members, `NaN` and `Infinity` as well. A number that is not finite
   cannot be stored; use `null` (missing).

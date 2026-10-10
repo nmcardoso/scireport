@@ -66,7 +66,7 @@ def errors(
   ] = None,
   as_json: Annotated[bool, typer.Option('--json', help='Print the codes as JSON.')] = False,
 ) -> None:
-  """Print the error-code catalogue (the page docs/errors.md is generated from it)."""
+  """Print the error-code catalogue (the same codes the documentation site lists)."""
   if as_json:
     echo_json(
       [

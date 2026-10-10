@@ -57,13 +57,13 @@ Formats: md, html, tex. PDF engines: weasyprint, latex.
 
 Minimal. Plain reference layout for Markdown, self-contained HTML and a LaTeX project.
 
-Formats: md, html, tex. PDF engines: .
+Formats: md, html, tex. PDF engines: none.
 
 | Option | Type | Default | Choices | Meaning |
 |---|---|---|---|---|
 | `toc` | bool | `True` |  | Write a table of contents. |
 | `cover` | bool | `True` |  | Write the title block (subtitle, authors, date, version) under the title. |
-| `accent` | str | `#1f4e79` |  | Accent colour as |
+| `accent` | str | `#1f4e79` |  | Accent colour as #rrggbb. |
 | `paper` | str | `a4` | a4\|letter | Paper size of the LaTeX project. |
 | `numbered_captions` | bool | `True` |  | Prefix captions with "Table N." and "Figure N.". |
 

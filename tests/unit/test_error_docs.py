@@ -8,7 +8,7 @@ from pathlib import Path
 from scireport.errors import CODES
 
 PAGE = Path(__file__).resolve().parents[2] / 'docs' / 'errors.md'
-ROW = re.compile(r'^\| ([EW]\d{3}) \| (.+) \|$', re.MULTILINE)
+ROW = re.compile(r'^\| `([EW]\d{3})` \| (?:error|warning) \| (.+?) \| .* \|$', re.MULTILINE)
 
 
 def documented() -> dict[str, str]:
