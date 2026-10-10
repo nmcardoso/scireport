@@ -101,8 +101,3 @@ table body unchanged; (11) LuaLaTeX table header height; (12) LuaLaTeX unit or t
 - ADR-0001 to ADR-0011: approve all, including (a) ZIP bundle with a JSON manifest and (b) semantic keys with
   typed values.
 - Python 3.15: (a) keep experimental until wheels exist.
-
-## Open items handed to later phases
-
-1. **Pages:** the `docs` workflow failed on `main` at `configure-pages` before the Pages source was set to GitHub
-   Actions; check whether it passes after the merge, otherwise it is S6 work.
