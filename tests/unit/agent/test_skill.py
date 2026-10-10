@@ -137,6 +137,7 @@ def test_main_check_and_update(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
   page = folder / 'x.md'
   page.write_text('<!-- generated:exit-codes -->\nold\n<!-- /generated -->\n', encoding='utf-8')
   monkeypatch.setattr(skillgen, 'SKILL_DIR', folder)
+  monkeypatch.setattr(skillgen, 'DOCS_DIR', tmp_path / 'no-docs')
   assert skillgen.main(['--check']) == 1
   assert skillgen.main([]) == 0
   assert skillgen.main(['--check']) == 0 and 'Success' in page.read_text(encoding='utf-8')

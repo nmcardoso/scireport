@@ -1,7 +1,7 @@
-"""Generate the tables of the packaged skill from the code (``make skill``).
+"""Generate the tables of the packaged skill and of the documentation site from the code.
 
-The pages of ``scireport/agent/skill/scireport/`` are written by hand, except for blocks between
-markers::
+The pages of ``scireport/agent/skill/scireport/`` and of ``docs/`` (when the repository is
+checked out) are written by hand, except for blocks between markers::
 
     <!-- generated:cli -->
     ...whatever is here is replaced...
@@ -10,7 +10,7 @@ markers::
 :data:`GENERATORS` maps the name in the marker to a function that returns the Markdown of the
 block. ``python -m scireport.agent.skillgen`` rewrites the blocks; with ``--check`` it only
 reports pages whose blocks differ from the code, and exits with 1 (a test runs the same check, so
-the skill cannot drift from the code, ADR-0009).
+the skill and the site cannot drift from the code, ADR-0009).
 """
 
 from __future__ import annotations
@@ -28,6 +28,9 @@ from scireport.agent import catalogue
 from scireport.agent.skill import SKILL_DIR
 from scireport.error_help import HELP
 from scireport.errors import CODES
+
+DOCS_DIR = Path(__file__).resolve().parents[2] / 'docs'
+"""The Sphinx sources; absent in an installed wheel, where only the skill is checked."""
 
 _BLOCK_RE = re.compile(
   r'<!-- generated:(?P<name>[a-z0-9-]+) -->\n.*?<!-- /generated -->', re.DOTALL
@@ -67,8 +70,13 @@ def render_page(text: str) -> str:
 
 
 def pages() -> list[Path]:
-  """List the Markdown pages of the skill."""
-  return sorted(SKILL_DIR.rglob('*.md'))
+  """List the Markdown pages that may hold generated blocks: the skill's, then the site's."""
+  found = sorted(SKILL_DIR.rglob('*.md'))
+  if (DOCS_DIR / 'conf.py').is_file():
+    found += sorted(
+      p for p in DOCS_DIR.rglob('*.md') if '_build' not in p.relative_to(DOCS_DIR).parts
+    )
+  return found
 
 
 def stale_pages() -> list[Path]:
@@ -97,11 +105,19 @@ def main(argv: list[str] | None = None) -> int:
   if args.check:
     stale = stale_pages()
     for page in stale:
-      sys.stderr.write(f'stale: {page.relative_to(SKILL_DIR).as_posix()}\n')
+      sys.stderr.write(f'stale: {_label(page)}\n')
     return 1 if stale else 0
   for page in update_pages():
-    sys.stdout.write(f'updated {page.relative_to(SKILL_DIR).as_posix()}\n')
+    sys.stdout.write(f'updated {_label(page)}\n')
   return 0
+
+
+def _label(page: Path) -> str:
+  """Name a page relative to the skill folder or to the docs folder."""
+  for base in (SKILL_DIR, DOCS_DIR):
+    if page.is_relative_to(base):
+      return page.relative_to(base).as_posix()
+  return page.as_posix()
 
 
 # ---- tables ---------------------------------------------------------------------------------
@@ -393,7 +409,7 @@ def gen_layouts() -> str:
     parts.append(
       f'### `{detail["ref"]}`\n\n{detail["title"]}. {detail["description"]}\n\n'
       f'Formats: {", ".join(detail["formats"])}. '
-      f'PDF engines: {", ".join(detail["pdf_engines"])}.\n\n'
+      f'PDF engines: {", ".join(detail["pdf_engines"]) or "none"}.\n\n'
     )
     options = [
       (
@@ -472,12 +488,134 @@ def gen_engines() -> str:
   )
 
 
+def gen_exceptions() -> str:
+  """Write the public exception classes: each with its base class and what raises it."""
+  import scireport
+  from scireport.errors import ScireportError
+
+  rows = []
+  for name in scireport.__all__:
+    obj = getattr(scireport, name)
+    if inspect.isclass(obj) and issubclass(obj, ScireportError):
+      rows.append((f'`{name}`', f'`{obj.__mro__[1].__name__}`', summary(obj.__doc__)))
+  return table(['Exception', 'Base class', 'Raised when'], rows)
+
+
+def gen_error_catalogue() -> str:
+  """Write every code under the heading of its family, for the documentation site."""
+  parts = []
+  for prefix, about in catalogue.FAMILIES.items():
+    rows = [
+      (f'`{code}`', 'warning' if code.startswith('W') else 'error', title, HELP.get(code, ''))
+      for code, title in sorted(CODES.items())
+      if code.startswith(prefix)
+    ]
+    if rows:
+      parts.append(f'### `{prefix}xx`: {about}\n\n')
+      parts.append(table(['Code', 'Severity', 'Meaning', 'What to do'], rows) + '\n\n')
+  return ''.join(parts).rstrip()
+
+
+_COMMON_FIGURE_PARAMS: dict[str, Any] = {
+  'title': '',
+  'width': 1.0,
+  'height': 3.6,
+  'alt': None,
+  'caption': None,
+}
+"""Parameters every figure pre-processor takes; listed once in the docs, not in every table."""
+
+
+def gen_preprocessor_reference() -> str:
+  """Write every pre-processor with its extra, ports and parameters."""
+  from scireport.preprocess.registry import get_preprocessor
+
+  parts = []
+  for row in catalogue.list_preprocessors_data():
+    entry = get_preprocessor(row['name'], row['version'])
+    detail = catalogue.describe_preprocessor(row['ref'])
+    needs = f' Needs `scireport[{entry.requires}]`.' if entry.requires else ''
+    parts.append(f'### `{detail["name"]}`\n\n{detail["summary"]}{needs}\n\n')
+    ports = [
+      (
+        f'`{name}`',
+        direction,
+        port['kind'] + (' (optional)' if port['optional'] else ''),
+        port['description'],
+      )
+      for direction in ('inputs', 'outputs')
+      for name, port in detail[direction].items()
+    ]
+    parts.append(table(['Port', 'Direction', 'Kind', 'Meaning'], ports) + '\n\n')
+    docs = numpy_params(entry.func.__doc__)
+    schema = detail['params']
+    required = set(schema.get('required', []))
+    params = [
+      (
+        f'`{name}`',
+        f'`{_schema_type(prop)}`',
+        'required' if name in required else f'`{prop.get("default")!r}`',
+        docs.get(name, ('', ''))[1],
+      )
+      for name, prop in schema['properties'].items()
+      if not (
+        'figure' in detail['outputs']
+        and name in _COMMON_FIGURE_PARAMS
+        and name not in required
+        and prop.get('default') == _COMMON_FIGURE_PARAMS[name]
+      )
+    ]
+    if params:
+      parts.append(table(['Parameter', 'Type', 'Default', 'Meaning'], params) + '\n\n')
+  return ''.join(parts).rstrip()
+
+
+def _schema_type(prop: dict[str, Any]) -> str:
+  """Render the type of a JSON Schema property briefly (``int | 'auto' | None``)."""
+  if 'enum' in prop:
+    return ' | '.join(repr(v) for v in prop['enum'])
+  if 'const' in prop:
+    return repr(prop['const'])
+  if 'anyOf' in prop:
+    return ' | '.join(dict.fromkeys(_schema_type(option) for option in prop['anyOf']))
+  kind = prop.get('type')
+  if kind == 'array':
+    return f'list[{_schema_type(prop.get("items", {}))}]'
+  names = {'integer': 'int', 'number': 'float', 'string': 'str', 'boolean': 'bool', 'null': 'None'}
+  return names.get(str(kind), str(kind or 'any'))
+
+
+def gen_schema_files() -> str:
+  """Write the JSON Schema files shipped with the package, one row per spec version."""
+  import json
+
+  from scireport.spec.schema import SCHEMA_DIR
+  from scireport.spec.version import SPEC_VERSION
+
+  rows = []
+  for path in sorted(SCHEMA_DIR.glob('data-*.schema.json')):
+    schema = json.loads(path.read_text(encoding='utf-8'))
+    version = path.name.removeprefix('data-').removesuffix('.schema.json')
+    rows.append(
+      (
+        f'`{path.name}`',
+        version,
+        'current' if version == SPEC_VERSION else 'older minor',
+        ', '.join(f'`{name}`' for name in schema.get('required', [])),
+        len(schema.get('$defs', {})),
+      )
+    )
+  return table(['File', 'Spec version', 'Status', 'Required top-level fields', 'Definitions'], rows)
+
+
 GENERATORS: dict[str, Callable[[], str]] = {
   'api': gen_api,
   'cli': gen_cli,
   'components': gen_components,
   'engines': gen_engines,
+  'error-catalogue': gen_error_catalogue,
   'errors': gen_errors,
+  'exceptions': gen_exceptions,
   'exit-codes': gen_exit_codes,
   'families': gen_families,
   'filters': gen_filters,
@@ -485,8 +623,10 @@ GENERATORS: dict[str, Callable[[], str]] = {
   'layouts': gen_layouts,
   'manifest': gen_manifest,
   'palette': gen_palette,
+  'preprocessor-reference': gen_preprocessor_reference,
   'preprocessors': gen_preprocessors,
   'report-methods': gen_report_methods,
+  'schema-files': gen_schema_files,
   'templates': gen_templates,
 }
 """Name in a ``<!-- generated:NAME -->`` marker to the function that writes the block."""

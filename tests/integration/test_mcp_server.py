@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
@@ -67,6 +68,23 @@ def test_the_server_offers_exactly_the_documented_tools(root: Path) -> None:
   tools = run(root, lambda client: client.list_tools()).tools
   assert {tool.name for tool in tools} == TOOLS
   assert all(tool.description for tool in tools)
+
+
+def test_the_documentation_page_lists_every_tool_with_its_arguments(root: Path) -> None:
+  page = Path(__file__).resolve().parents[2] / 'docs' / 'mcp.md'
+  rows = re.findall(
+    r'^\| `(\w+)` \| (.+?) \| .+ \|$', page.read_text(encoding='utf-8'), re.MULTILINE
+  )
+  documented = {name: set(re.findall(r'`(\w+)`', arguments)) for name, arguments in rows}
+  tools = run(root, lambda client: client.list_tools()).tools
+  assert documented == {tool.name: set(tool.input_schema['properties']) for tool in tools}
+
+
+def test_the_documentation_page_names_the_resources(root: Path) -> None:
+  page = (Path(__file__).resolve().parents[2] / 'docs' / 'mcp.md').read_text(encoding='utf-8')
+  resources = run(root, lambda client: client.list_resources()).resources
+  assert any(str(r.uri).startswith('skill://scireport/') for r in resources)
+  assert 'skill://scireport/SKILL.md' in page and 'skill://scireport/<page>' in page
 
 
 def test_the_catalogue_tools_describe_scireport(root: Path) -> None:

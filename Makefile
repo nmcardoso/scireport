@@ -1,5 +1,5 @@
 # Thin wrappers around uv; the pipeline also runs without make.
-.PHONY: setup check lint format typecheck test test-integration compat schema skill docs examples clean
+.PHONY: setup check lint format typecheck test test-integration compat schema skill docs docs-linkcheck examples clean
 
 setup:            ; uv sync --locked --all-extras --group dev --group docs
 check:            lint typecheck test
@@ -12,9 +12,16 @@ test-integration: ; uv run pytest -m integration
 compat:           ; uv run pytest tests/compat
 # Regenerates the schema of the CURRENT spec version. Never for a released version: its file is frozen.
 schema:           ; uv run scireport spec schema -o scireport/spec/schemas/data-$$(uv run scireport spec version).schema.json
-# Rewrites the generated tables of the packaged skill from the code (a test fails when they are stale).
+# Rewrites the generated tables of the packaged skill and of the docs pages from the code (a test fails when they are stale).
 skill:            ; uv run python -m scireport.agent.skillgen
-docs:             ; uv run sphinx-build -W --keep-going -b html docs docs/_build/html
+# The site: HTML, then a Markdown twin of every page into the same directory (published together),
+# then a check of the result. `make docs DOCS_ARGS=--require-gallery` after `make examples` checks the gallery too.
+SITE ?= docs/_build/site
+docs:
+	uv run sphinx-build -W --keep-going -b html -d docs/_build/doctrees docs $(SITE)
+	uv run sphinx-build -W --keep-going -b markdown -d docs/_build/doctrees docs $(SITE)
+	uv run python docs/check_site.py $(SITE) $(DOCS_ARGS)
+docs-linkcheck:   ; uv run sphinx-build -b linkcheck -d docs/_build/doctrees docs docs/_build/linkcheck
 # 3 examples x 2 layouts x (md, html, tex, pdf via weasyprint, pdf via lualatex, xelatex and pdflatex)
 # into examples/_out/. Needs pango and TeX Live; `make examples EXAMPLES_ARGS=--no-pdf` skips the PDFs.
 examples:         ; uv run python examples/render_all.py $(EXAMPLES_ARGS)

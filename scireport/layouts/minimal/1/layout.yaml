@@ -31,7 +31,7 @@ options:
     type: str
     default: "#1f4e79"
     pattern: "#[0-9a-fA-F]{6}"
-    description: Accent colour as #rrggbb.
+    description: "Accent colour as #rrggbb."
   - name: paper
     type: str
     default: a4

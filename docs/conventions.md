@@ -46,9 +46,9 @@ The Inter and IBM Plex Mono subsets are copied from datex together with `OFL.txt
 | `pdf-latex` | ubuntu x 3.12, 3.15 | TeX Live from `.github/tl_packages` |
 | `pandoc` | ubuntu, 3.12 | `scireport[pandoc]` tests |
 | `examples` | ubuntu | renders every example (from phase S3) |
-| `docs` | ubuntu | Sphinx build with `-W` plus linkcheck |
+| `docs` | ubuntu | `make docs` (HTML and Markdown builds with `-W`, then `docs/check_site.py`) plus linkcheck |
 
-`docs.yml` deploys GitHub Pages on `main`. `release.yml` builds the sdist and wheel on a tag, creates the GitHub
+`docs.yml` builds the examples and the site with the gallery (pull requests build only) and deploys GitHub Pages from `main`. `release.yml` builds the sdist and wheel on a tag, creates the GitHub
 release, and runs a clean-room install from the `git+https://...@<tag>` URL on Linux.
 
 Only Linux is built and tested (DECISIONS, 2026-10-09). The code stays portable (`pathlib`, `.gitattributes`

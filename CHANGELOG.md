@@ -6,6 +6,19 @@ specification (ADR-0008).
 
 ## [Unreleased]
 
+### Added (phase S6)
+
+- **Documentation site** (ADR-0009) at <https://nmcardoso.github.io/scireport/>: quickstart, user guide, the data-file specification, the command line (generated tables plus the `sphinxcontrib-typer` help text), the Python API (generated tables plus autodoc), the error-code catalogue and the pre-processor reference (both generated from code and drift-tested), template, layout and matplotlib-style authoring guides, the example gallery (every example in both layouts as Markdown, HTML and two PDFs, built from `make examples`), the agent skill (ZIP download) and the MCP server pages, the ADRs, the compatibility policy and the changelog.
+- **For language models**: `llms.txt` and `llms-full.txt` (`sphinx-llms-txt`), and a Markdown twin of every page next to its HTML (`sphinx-markdown-builder`), linked from the index; the frozen JSON Schemas are published under `/schemas/` (where their `$id` points) and the skill as `downloads/scireport-skill.zip`.
+- `docs/check_site.py` (run by `make docs`) checks the built site; `make docs-linkcheck`.
+- `scireport.agent.skillgen` also fills the generated blocks of the `docs/` pages; new generators `error-catalogue`, `preprocessor-reference`, `schema-files` and `exceptions`.
+
+### Fixed (phase S6)
+
+- CI: the `lint`, `test` and `lowest` jobs installed only the `dev` group, so mypy could not import `mcp` and the pre-processor end-to-end test lacked astropy; they now sync `--all-extras`.
+- `minimal@1`: the description of the `accent` option was cut at its `#` (an unquoted YAML comment); it is quoted now. Only the listed description changes, not any output.
+- The skill and the docs said YAML anchors are rejected; only aliases (`*a`) are (`E408`).
+
 ### Added (phase S5)
 
 - **pandoc** (ADR-0011, `scireport[pandoc]`, `pypandoc-binary`, imported lazily): `--markup-engine pandoc` / `render.markup_engine: pandoc` next to the default `mistletoe`, never chosen automatically; prose is read with pandoc's CommonMark (footnotes, definition lists, task lists) under `--sandbox`, with the same rules for what is outside the subset (`W701`); the pandoc version goes into `render-manifest.json` and `render.pandoc_version` (set by `pack`) warns with `W501` when it differs. The differences between the engines are listed in `docs/markup.md` and committed as golden files for both.

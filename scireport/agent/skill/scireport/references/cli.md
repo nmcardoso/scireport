@@ -535,7 +535,7 @@ Inspect the data-file specification.
 
 ### `scireport spec errors`
 
-Print the error-code catalogue (the page docs/errors.md is generated from it).
+Print the error-code catalogue (the same codes the documentation site lists).
 
 | Option | Type | Default | Meaning |
 |---|---|---|---|

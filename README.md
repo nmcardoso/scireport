@@ -3,10 +3,13 @@
 Data-centric scientific report engine. One **data file** (a report bundle), one **template** (structure) and one
 **layout** (look) go in; **Markdown** (for LLMs), **HTML**, **LaTeX** and **PDF** (for humans) come out.
 
-> **Status: release candidate (phase S5).** The data file, templates, the `default` and `modern` layouts, the
+> **Status: release candidate (phase S6).** The data file, templates, the `default` and `modern` layouts, the
 > Markdown, HTML, LaTeX and PDF outputs, pre-processors, pandoc (citations, Word/ODT/EPUB), LaTeX fragments for
-> manuscripts, the full command line, the MCP server and the agent skill work. The documentation site arrives in
-> S6 and the 1.0 freeze in S7.
+> manuscripts, the full command line, the MCP server, the agent skill and the documentation site work. The 1.0
+> freeze is phase S7.
+
+**Documentation:** <https://nmcardoso.github.io/scireport/>. For language models: [`llms.txt`](https://nmcardoso.github.io/scireport/llms.txt),
+[`llms-full.txt`](https://nmcardoso.github.io/scireport/llms-full.txt), and a Markdown twin of every page (`.html` becomes `.md`).
 
 Inspired by the MOSAICS report engine of `datex`, but standalone and data-centric.
 
@@ -66,7 +69,7 @@ uv sync --all-extras --group dev --group docs
 make check              # ruff format and lint, mypy --strict, pytest with coverage >= 90 %
 make compat             # the frozen compat corpus only (tests/compat/)
 make test-integration   # PDF engines and pandoc (need the toolchains above)
-make docs               # Sphinx site in docs/_build/html
+make docs               # the site (HTML, a Markdown twin per page, llms files) in docs/_build/site
 ```
 
 Design decisions are in [`docs/adr/`](docs/adr/); repository conventions are in
