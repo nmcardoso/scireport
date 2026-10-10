@@ -4,7 +4,7 @@ Every problem scireport reports carries a code (``E`` for errors, ``W`` for warn
 changes meaning once released. The families are ``E1xx`` keys, ``E2xx`` kinds and value fields,
 ``E3xx`` table schema, ``E4xx`` assets and bundles, ``E5xx`` versions of the spec, templates and
 layouts, ``E7xx`` template and layout definitions, ``E8xx`` rendering, ``W4xx`` unused items,
-``W6xx`` math and ``W7xx`` Markdown prose.
+``E9xx`` PDF engines, ``W6xx`` math, ``W7xx`` Markdown prose and ``W9xx`` PDF engine warnings.
 """
 
 from __future__ import annotations
@@ -66,8 +66,14 @@ CODES: dict[str, str] = {
   'W401': 'Value is never rendered by the template',
   'W402': 'Asset file is not referenced by the manifest',
   'W403': 'Key is computed at render time and cannot be checked in advance',
+  'E901': 'A system dependency of a PDF engine is missing',
+  'E902': 'The PDF engine failed',
+  'E903': 'Layout does not support the requested PDF engine',
   'W601': 'Math could not be drawn and is shown as source',
+  'W602': 'LaTeX could not typeset math and the source is shown instead',
   'W701': 'Markdown construct is outside the supported subset',
+  'W901': 'pdfLaTeX falls back to TeX fonts',
+  'W902': 'The PDF engine reported characters the font does not have',
 }
 """Code to one-line title. Documented in ``docs`` from phase S6."""
 
@@ -223,6 +229,20 @@ class KeyConflictError(ScireportError):
 
 class TemplateError(ScireportError):
   """A template or layout cannot be found, loaded or used (E504, E505, E7xx)."""
+
+
+class MissingDependencyError(ScireportError):
+  """A system dependency of a PDF engine is missing: pango, TeX Live or a TeX package (E901)."""
+
+  exit_code = 3
+  """Process exit code of the CLI: 3 for a missing system dependency."""
+
+
+class PdfError(ScireportError):
+  """A PDF engine ran and failed; the issues carry the engine's own messages (E902)."""
+
+  exit_code = 1
+  """Process exit code of the CLI: 1, a failure that is not a problem in the data file."""
 
 
 class RenderError(ScireportError):

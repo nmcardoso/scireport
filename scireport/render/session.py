@@ -20,7 +20,7 @@ from jinja2.exceptions import SecurityError, TemplateRuntimeError, UndefinedErro
 
 from scireport._version import __version__
 from scireport.bundle.reader import Bundle
-from scireport.errors import Issue, ScireportError, TemplateError
+from scireport.errors import Issue, MissingDependencyError, ScireportError, TemplateError
 from scireport.logging_utils import get_logger
 from scireport.render.components import COMPONENT_MACROS, Components
 from scireport.render.data import DataNamespace, ValueStore
@@ -117,6 +117,8 @@ class RenderSession:
       The TeX engine the LaTeX project is meant for.
   math_color : str, default=DEFAULT_COLOR
       Colour of equations drawn for HTML.
+  math_renderer : {'mathtext', 'usetex'}, default='mathtext'
+      How equations are drawn for HTML.
   """
 
   def __init__(
@@ -131,6 +133,7 @@ class RenderSession:
     md_split: bool = False,
     latex_engine: str = 'lualatex',
     math_color: str = DEFAULT_COLOR,
+    math_renderer: str = 'mathtext',
   ) -> None:
     self.bundle = bundle
     self.template = template
@@ -140,6 +143,7 @@ class RenderSession:
     self.converter = converter
     self.md_split = md_split
     self.math_color = math_color
+    self.math_renderer = math_renderer
     self.issues: list[Issue] = []
     self.files: dict[str, bytes] = {}
     self.outline = Outline()
@@ -181,6 +185,8 @@ class RenderSession:
     except (TemplateSyntaxError, UndefinedError, SecurityError, TemplateRuntimeError) as exc:
       self._record_exception(exc)
       return '', ''
+    except MissingDependencyError:
+      raise
     except ScireportError as exc:
       location = exception_location(exc, self._roots)
       self.issues.extend(_located(issue, location) for issue in exc.issues)
@@ -254,7 +260,7 @@ class RenderSession:
     try:
       return self._draw_math(latex, display)
     except MathError as exc:
-      self.report('W601', exc.message, hint=exc.hint)
+      self.report(exc.code, exc.message, hint=exc.hint)
       return f'<code>{html.escape(latex)}</code>'
 
   def add_file(self, path: str, data: bytes) -> None:
@@ -351,7 +357,7 @@ class RenderSession:
 
   def _draw_math(self, latex: str, display: bool) -> str:
     """Draw math as an HTML image; raises :class:`MathError` when mathtext cannot."""
-    svg = render_math(latex, display=display, color=self.math_color)
+    svg = render_math(latex, display=display, color=self.math_color, renderer=self.math_renderer)
     alt = html.escape(latex, quote=True)
     if display:
       return f'<img class="math-display" src="{svg.data_uri}" alt="{alt}">'
