@@ -195,7 +195,7 @@ def render_snr_magnitude(
         color=ctx.look.color('warning'),
         linewidth=1,
         linestyle=':',
-        label=f'5σ depth {depth:.2f}',
+        label=rf'$5\sigma$ depth {depth:.2f}',
       )
       low, high = ax.get_xlim()
       ax.set_xlim(min(low, depth), max(high, depth))

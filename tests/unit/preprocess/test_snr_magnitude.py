@@ -137,7 +137,7 @@ def test_legend_names_the_depth(tmp_path: Path) -> None:
   assert legend is not None
   texts = [item.get_text() for item in legend.get_texts()]
   assert texts[0] == 'S/N = 5'
-  assert texts[1].startswith('5σ depth 21.')
+  assert texts[1].startswith('$5\\sigma$ depth 21.')
 
 
 def test_empty_input_draws_a_placeholder(tmp_path: Path) -> None:

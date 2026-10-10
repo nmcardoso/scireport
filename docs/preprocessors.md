@@ -353,7 +353,7 @@ One band's cross-survey magnitude offset against colour, as a hexagon density.
 | `gridsize` | `int` | `60` | Hexagons across the colour range. |
 | `threshold` | `int` | `3` | A hexagon with this many points or fewer is drawn as individual points. |
 | `x_label` | `str` | `'Colour (mag)'` |  |
-| `y_label` | `str` | `'Δm (mag)'` |  |
+| `y_label` | `str` | `'$\\Delta m$ (mag)'` |  |
 | `height` | `float` | `3.4` |  |
 
 ### `core.achieved_vs_target`
