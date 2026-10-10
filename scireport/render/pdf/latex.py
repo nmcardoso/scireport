@@ -139,7 +139,7 @@ def parse_log(text: str) -> list[Issue]:
       One ``E902`` issue per error, with ``file:line`` as its location; a missing package or file
       is ``E901`` with the name in the message.
   """
-  issues: list[Issue] = []
+  found: list[tuple[int, Issue]] = []
   seen: set[str] = set()
   for match in _ERROR_RE.finditer(text):
     message = match.group('message').strip()
@@ -147,14 +147,24 @@ def parse_log(text: str) -> list[Issue]:
     if key in seen:
       continue
     seen.add(key)
-    code = 'E901' if _MISSING_FILE_RE.search(message) else 'E902'
-    issues.append(Issue(code, message, location=f'{match.group("file")}:{match.group("line")}'))
-  if not issues:
-    for match in _BANG_RE.finditer(text):
-      message = match.group('message').strip()
-      code = 'E901' if _MISSING_FILE_RE.search(message) else 'E902'
-      issues.append(Issue(code, message))
+    location = f'{match.group("file")}:{match.group("line")}'
+    found.append((match.start(), Issue(_code(message), message, location=location)))
+  # Some errors (a missing file) print as "! message" with no file and line.
+  have = {issue.message for _, issue in found}
+  for match in _BANG_RE.finditer(text):
+    message = match.group('message').strip()
+    if message not in have and message not in seen:
+      seen.add(message)
+      found.append((match.start(), Issue(_code(message), message)))
+  issues = [issue for _, issue in sorted(found, key=lambda pair: pair[0])]
+  if len(issues) > 1:
+    issues = [issue for issue in issues if issue.message != 'Emergency stop.']
   return issues
+
+
+def _code(message: str) -> str:
+  """Return ``E901`` for a message about a file TeX cannot find, ``E902`` otherwise."""
+  return 'E901' if _MISSING_FILE_RE.search(message) else 'E902'
 
 
 def _run(root: Path, engine: str, epoch: int, ident: str) -> str:

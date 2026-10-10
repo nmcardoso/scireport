@@ -105,9 +105,7 @@ def _compare(target: Path, documents: list[tuple[str, Path]]) -> None:
 def _page_images(pdf: Path, scratch: Path) -> list[Image.Image]:
   """Rasterise a PDF and return the image of the first page that matches each row of PAGES."""
   scratch.mkdir(parents=True)
-  subprocess.run(
-    ['pdftoppm', '-r', '40', '-png', str(pdf), str(scratch / 'p')], check=True
-  )
+  subprocess.run(['pdftoppm', '-r', '40', '-png', str(pdf), str(scratch / 'p')], check=True)
   texts = _page_texts(pdf)
   files = sorted(scratch.glob('p-*.png'))
   chosen: list[Image.Image] = []

@@ -1,0 +1,414 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{scireport-modern}[2026/10/09 scireport modern layout (Signal), version 1]
+%
+% Works with LuaLaTeX (default), XeLaTeX and pdfLaTeX. Inter and IBM Plex Mono are loaded from the
+% fonts/ folder of the project through fontspec; pdfLaTeX cannot read OpenType fonts, so it falls
+% back to Latin Modern with a warning (W901).
+%
+% Geometry: 16 mm sides; the text column (140 mm on A4) is narrower than the 178 mm page frame, as
+% the paragraphs of the HTML look are (max-width: 70ch). Tables, figures, metrics, status boxes and
+% flows use the full frame width, \scfullwidth, by reaching \scoverhang into the right margin.
+\RequirePackage{iftex}
+\RequirePackage{etoolbox}
+
+\DeclareOption{a4}{\def\sc@paper{a4paper}}
+\DeclareOption{letter}{\def\sc@paper{letterpaper}}
+\ExecuteOptions{a4}
+\ProcessOptions\relax
+
+% ---- fonts -------------------------------------------------------------------------------------
+\ifPDFTeX
+  \RequirePackage[T1]{fontenc}
+  \RequirePackage[utf8]{inputenc}
+  \RequirePackage{lmodern}
+  \RequirePackage{textcomp}
+  \renewcommand{\familydefault}{\sfdefault}
+  \PackageWarningNoLine{scireport-modern}{%
+    W901: pdfLaTeX cannot load the OpenType fonts Inter and IBM Plex Mono; using Latin Modern Sans
+    and Typewriter. Use LuaLaTeX or XeLaTeX for the designed look}
+  \newcommand{\sctrack}[1]{#1}
+  \newcommand{\sctrackon}{}
+  \newcommand{\sctrackby}[2]{#2}
+  \newcommand{\sctrackonby}[1]{}
+  \newcommand{\scmedium}{}
+\else
+  \RequirePackage{lmodern}
+  \RequirePackage{fontspec}
+  \setmainfont{Inter}[Path=./fonts/, Extension=.otf, Ligatures=TeX,
+    UprightFont=*-Regular, ItalicFont=*-Italic, BoldFont=*-SemiBold, BoldItalicFont=*-Italic]
+  \setsansfont{Inter}[Path=./fonts/, Extension=.otf, Ligatures=TeX,
+    UprightFont=*-Regular, ItalicFont=*-Italic, BoldFont=*-SemiBold, BoldItalicFont=*-Italic]
+  \setmonofont{IBMPlexMono}[Path=./fonts/, Extension=.otf, Scale=MatchLowercase,
+    UprightFont=*-Regular, ItalicFont=*-Regular, BoldFont=*-Medium, BoldItalicFont=*-Medium]
+  \newcommand{\sctrack}[1]{{\addfontfeatures{LetterSpace=8}#1}}
+  \newcommand{\sctrackon}{\addfontfeatures{LetterSpace=8}}
+  % Tracking by a given amount, in percent of the em (negative: tighter).
+  \newcommand{\sctrackby}[2]{{\addfontfeatures{LetterSpace=#1}#2}}
+  \newcommand{\sctrackonby}[1]{\addfontfeatures{LetterSpace=#1}}
+  \newfontfamily\scmedium[Path=./fonts/, Extension=.otf, Ligatures=TeX,
+    BoldFont=Inter-SemiBold]{Inter-Medium}
+  % The vendored subsets have no bullet glyph.
+  \renewcommand{\textbullet}{\ensuremath{\bullet}}
+  % ... and no curly quotes, which the TeX ligatures of XeTeX would make of a typed backtick: print
+  % that one character as it is (LuaTeX does not report it).
+  \ifXeTeX
+    \begingroup\catcode`\`=\active
+    \gdef\sc@grave{\ifmmode\mathchar"0060 \else{\addfontfeatures{Mapping=}\symbol{96}}\fi}
+    \gdef\sc@activategrave{\catcode96=\active \let`\sc@grave}
+    \endgroup
+    \AtBeginDocument{\sc@activategrave}
+  \fi
+\fi
+
+
+\RequirePackage[\sc@paper, left=16mm, right=54mm, top=24mm, bottom=18mm,
+  headheight=14pt, headsep=14pt, footskip=12mm]{geometry}
+\RequirePackage{amsmath,amssymb}
+\RequirePackage{graphicx}
+\RequirePackage{array}
+\RequirePackage{booktabs}
+\RequirePackage{longtable}
+\RequirePackage[table]{xcolor}
+\RequirePackage{colortbl}
+\RequirePackage{changepage}
+\RequirePackage{enumitem}
+\RequirePackage{needspace}
+\RequirePackage{fancyhdr}
+\RequirePackage{caption}
+\RequirePackage[normalem]{ulem}
+\RequirePackage{refcount}
+\RequirePackage{tikz}
+\usetikzlibrary{calc}
+\RequirePackage[skins,breakable]{tcolorbox}
+\RequirePackage[hidelinks, bookmarksnumbered=false]{hyperref}
+
+% ---- palette: the hex values repeat palette.yaml; tests/unit/styles/test_consistency.py checks them
+% Black, white and one vermilion; green, blue and cyan are mapped onto ink so nothing depends on hue.
+\definecolor{sc-ink}{HTML}{0A0A0A}
+\definecolor{sc-ink-soft}{HTML}{3A3A3A}
+\definecolor{sc-navy}{HTML}{0A0A0A}
+\definecolor{sc-navy-deep}{HTML}{0A0A0A}
+\definecolor{sc-blue}{HTML}{0A0A0A}
+\definecolor{sc-blue-light}{HTML}{EBEBEB}
+\definecolor{sc-cyan}{HTML}{3A3A3A}
+\definecolor{sc-cyan-light}{HTML}{EBEBEB}
+\definecolor{sc-accent}{HTML}{F04E23}
+\definecolor{sc-accent-light}{HTML}{FDE8E0}
+\definecolor{sc-accent-ink}{HTML}{B3340F}
+\definecolor{sc-green}{HTML}{0A0A0A}
+\definecolor{sc-green-light}{HTML}{F0F0F0}
+\definecolor{sc-red}{HTML}{B3340F}
+\definecolor{sc-red-light}{HTML}{FBD9CD}
+\definecolor{sc-paper}{HTML}{FFFFFF}
+\definecolor{sc-paper-warm}{HTML}{F4F4F2}
+\definecolor{sc-gray-50}{HTML}{F5F5F5}
+\definecolor{sc-gray-100}{HTML}{EBEBEB}
+\definecolor{sc-gray-200}{HTML}{D9D9D9}
+\definecolor{sc-gray-300}{HTML}{B5B5B5}
+\definecolor{sc-gray-500}{HTML}{5C5C5C}
+\definecolor{sc-gray-700}{HTML}{333333}
+\definecolor{sc-data-blue}{HTML}{0072B2}
+\definecolor{sc-data-green}{HTML}{009E73}
+\definecolor{sc-data-purple}{HTML}{CC79A7}
+\definecolor{sc-data-sky}{HTML}{56B4E9}
+
+% ---- type scale: 10 pt body on a 1.5 line height -----------------------------------------------
+\renewcommand{\normalsize}{%
+  \@setfontsize\normalsize{10}{15}%
+  \abovedisplayskip 10\p@ \@plus 2\p@ \@minus 2\p@
+  \abovedisplayshortskip 4\p@ \@plus 2\p@
+  \belowdisplayskip \abovedisplayskip
+  \belowdisplayshortskip \abovedisplayshortskip
+  \let\@listi\@listI}
+\renewcommand{\small}{\@setfontsize\small{8.5}{12.5}\let\@listi\@listI}
+\renewcommand{\footnotesize}{\@setfontsize\footnotesize{8}{12}\let\@listi\@listI}
+\renewcommand{\scriptsize}{\@setfontsize\scriptsize{7.5}{11}}
+\newcommand{\sc@zero}[1]{\ifnum#1<10 0\fi\number#1\relax}
+
+\color{sc-ink}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{9pt}
+\setlength{\emergencystretch}{3em}
+\setcounter{secnumdepth}{-1}
+\setcounter{tocdepth}{2}
+\widowpenalty=10000
+\clubpenalty=10000
+\raggedright
+\hypersetup{colorlinks=false}
+
+% The frame is 178 mm wide on A4 (16 mm sides): \textwidth + \scoverhang.
+\newlength{\scoverhang}
+\setlength{\scoverhang}{38mm}
+\newlength{\scfullwidth}
+\newlength{\sctablew}
+\AtBeginDocument{\setlength{\scfullwidth}{\dimexpr\textwidth+\scoverhang\relax}}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{-\scoverhang}
+\setlength{\LTpre}{12pt}
+\setlength{\LTpost}{4pt}
+
+% Caption label: a 6 pt accent square, then the semibold "Figure 2."; a rule above is drawn by the
+% figure macro.
+\DeclareCaptionLabelFormat{scsquare}{%
+  \textcolor{sc-accent}{\rule[0.5pt]{6pt}{6pt}}\hspace{5pt}\textbf{\textcolor{sc-ink}{#1 #2}}}
+\captionsetup{font={small,color=sc-ink-soft}, labelformat=scsquare, labelsep=period,
+  justification=raggedright, singlelinecheck=false, skip=0pt, hypcap=false}
+\setlist{itemsep=3pt, parsep=0pt, topsep=0pt, partopsep=0pt, leftmargin=24pt, labelsep=6pt}
+\setlist[itemize]{label=\raisebox{0.1ex}{\textcolor{sc-accent-ink}{\ensuremath{\bullet}}}}
+\setlist[enumerate]{label=\textcolor{sc-accent-ink}{\arabic*.}}
+
+% ---- spacing helpers ---------------------------------------------------------------------------
+% A rule over the whole frame, as a box of its own (no paragraph, no parskip, no interline glue).
+\newcommand{\scrule}[2]{\par\nointerlineskip
+  \hbox to \z@{\textcolor{#1}{\rule{\scfullwidth}{#2}}\hss}\nointerlineskip\nobreak}
+% A paragraph as wide as the frame; the box has no width so TeX reports nothing. Set the font inside.
+\newcommand{\scwide}[1]{\par\nointerlineskip{\parskip=0pt\noindent
+  \makebox[\z@][l]{\parbox[t]{\scfullwidth}{\raggedright#1}}\par}}
+% Space below a heading, counted from the heading to the next paragraph: the parskip is part of it.
+\newcommand{\scgap}[1]{\par\nobreak\vspace{\dimexpr#1-\parskip\relax}}
+
+% ---- running header and footer ---------------------------------------------------------------
+\newcommand{\sc@running@pipeline}{}
+\newcommand{\sc@running@author}{}
+\newcommand{\sc@running@footer}{}
+\newcommand{\scsetrunning}[3]{%
+  \renewcommand{\sc@running@pipeline}{#1}%
+  \renewcommand{\sc@running@author}{#2}%
+  \renewcommand{\sc@running@footer}{#3}}
+\AtEndDocument{\label{sc@lastpage}%
+  \immediate\write\@auxout{\string\gdef\string\sc@total{\the\value{scchapter}}}}
+\newcounter{scchapter}
+\providecommand{\sc@total}{00}
+% The chapter title travels in the right mark (\scchapter sets it).
+\newcommand{\sc@headfont}{\fontsize{8}{10}\selectfont}
+\fancypagestyle{scdefault}{%
+  \fancyhf{}%
+  \fancyhfoffset[R]{\scoverhang}%
+  \renewcommand{\headrulewidth}{3pt}%
+  \renewcommand{\footrulewidth}{0.5pt}%
+  \renewcommand{\footruleskip}{6pt}%
+  \renewcommand{\headrule}{\color{sc-ink}\hrule width\headwidth height\headrulewidth}%
+  \renewcommand{\footrule}{\color{sc-ink}\hrule width\headwidth height\footrulewidth}%
+  \fancyhead[L]{\color{sc-ink}\sc@headfont
+    \raisebox{0pt}[0pt][0pt]{\parbox[b]{0.35\headwidth}{\raggedright\bfseries
+      \sctrackby{6}{\MakeUppercase{\sc@running@pipeline}}}}%
+    \raisebox{0pt}[0pt][0pt]{\parbox[b]{0.30\headwidth}{\raggedright\color{sc-ink-soft}\rightmark\mbox{}}}%
+    \raisebox{0pt}[0pt][0pt]{\parbox[b]{0.35\headwidth}{\raggedleft\fontsize{8.5}{10}\ttfamily
+      \bfseries\selectfont
+      \sc@zero{\value{page}}\ /\ \sc@zero{\getpagerefnumber{sc@lastpage}}}}}%
+  \fancyfoot[L]{\color{sc-gray-500}\fontsize{7.5}{9}\ttfamily\selectfont\sc@running@footer}%
+  \fancyfoot[R]{\color{sc-gray-500}\fontsize{7.5}{9}\selectfont\sc@running@author}}
+\pagestyle{scdefault}
+\setlength{\headsep}{14pt}
+
+% ---- cover: vermilion band, black disc, giant title ----------------------------------------------
+% #1 label, #2 title, #3 subtitle, #4 authors (one \par each), #5 facts (rows of label & value)
+\newcommand{\sccover}[5]{%
+  \thispagestyle{empty}%
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[sc-accent] (current page.north west) rectangle ($(current page.north east)+(0,-72mm)$);
+    \fill[sc-ink] ($(current page.north east)+(-42mm,-72mm)$) circle (26mm);
+    \ifstrempty{#1}{}{\node[anchor=north west, inner sep=0pt, text=sc-ink]
+      at ($(current page.north west)+(16mm,-16mm)$)
+      {\fontsize{9}{12}\ttfamily\bfseries\selectfont\sctrackby{12}{\MakeUppercase{#1}}};}
+    \node[anchor=north west, inner sep=0pt, text=sc-ink]
+      at ($(current page.north west)+(16mm,-100mm)$) {\parbox{178mm}{\raggedright%
+      \setlength{\parskip}{0pt}%
+      {\fontsize{50}{49}\selectfont\bfseries\sctrackonby{-4}\color{sc-ink}#2\par}%
+      \ifstrempty{#3}{}{\vspace{14pt}{\parbox{140mm}{\raggedright\fontsize{14}{21}\selectfont
+        \color{sc-ink-soft}#3}}}}};
+    \node[anchor=south west, inner sep=0pt, text=sc-ink]
+      at ($(current page.south west)+(16mm,62mm)$) {\parbox{178mm}{\raggedright%
+      \setlength{\parskip}{0pt}\fontsize{11}{14}\selectfont\bfseries\color{sc-ink}#4}};
+    \node[anchor=south west, inner sep=0pt, text=sc-ink]
+      at ($(current page.south west)+(16mm,20mm)$) {\parbox{178mm}{\raggedright%
+      \setlength{\parskip}{0pt}\textcolor{sc-ink}{\rule{178mm}{3pt}}\par\vspace{2pt}%
+      {\fontsize{8.5}{13}\ttfamily\selectfont\setlength{\tabcolsep}{0pt}%
+        \begin{tabular}{@{}>{\color{sc-gray-500}\sctrackonby{5}}p{24mm}@{}>{\color{sc-ink}}p{154mm}@{}}
+          #5
+        \end{tabular}}}};
+  \end{tikzpicture}%
+  \clearpage}
+
+% A plain title block, for `cover: false`.
+\newcommand{\sctitleblock}[2]{%
+  \scwide{\fontsize{50}{49}\selectfont\bfseries\sctrackonby{-4}\color{sc-ink}#1}%
+  \ifstrempty{#2}{}{\vspace{14pt}{\fontsize{14}{21}\selectfont\color{sc-ink-soft}#2\par}}%
+  \vspace{24pt}}
+
+% ---- headings -------------------------------------------------------------------------------------
+% \scanchor{anchor}{pdf text}{pdf level}: a target for the table of contents and the PDF outline.
+\newcommand{\scanchor}[3]{%
+  \phantomsection\label{#1}%
+  \ifstrempty{#3}{}{\pdfbookmark[#3]{#2}{#1}}}
+
+% \scchapter{index}{title}{anchor}{pdf text}{flow}: index is "01" or empty; flow is 0 or 1.
+\newcommand{\scchapter}[5]{%
+  \ifnumequal{#5}{0}{\clearpage\vspace*{8mm}}{\par\vspace{18pt}}%
+  \markright{#2}%
+  \ifstrempty{#1}{\scanchor{#3}{#4}{}}{\stepcounter{scchapter}\scanchor{#3}{#4}{0}%
+    {\parskip=0pt\noindent\hspace{-3pt}{\fontsize{84}{69}\selectfont\bfseries\color{sc-accent}%
+      \sctrackonby{-6}#1}\hspace{12pt}%
+      {\fontsize{9}{12}\ttfamily\bfseries\selectfont\color{sc-ink}\sctrackby{10}{/\ \sc@zero{\sc@total}}}%
+      \par}\vspace{14pt}}%
+  \scwide{\fontsize{48}{47}\selectfont\bfseries\sctrackonby{-4}\color{sc-ink}#2}%
+  \vspace{12pt}}
+
+% The level 1 heading shape, shared with the title of the contents.
+\newcommand{\scsectiontitle}[1]{%
+  \vspace{28pt}\scrule{sc-ink}{3pt}\vspace{9pt}%
+  \scwide{\fontsize{21}{23}\selectfont\bfseries\sctrackonby{-3}\color{sc-ink}#1}%
+  \scgap{10pt}}
+
+% \scheading{level}{title}{anchor}{pdf text}{listed}{break}
+\newcommand{\scheading}[6]{%
+  \ifnumequal{#6}{1}{\clearpage}{\ifnumcomp{#1}{=}{1}{\needspace{10\baselineskip}}{\needspace{6\baselineskip}}}%
+  \ifnumequal{#5}{1}{\scanchor{#3}{#4}{#1}}{\scanchor{#3}{#4}{}}%
+  \ifnumcomp{#1}{=}{1}{\scsectiontitle{#2}}{%
+  \ifnumcomp{#1}{=}{2}{%
+    \vspace{16pt}%
+    {\parskip=0pt\noindent\textcolor{sc-accent}{\rule[0.5pt]{7pt}{7pt}}\hspace{7pt}%
+      {\fontsize{12.5}{16}\selectfont\bfseries\sctrackonby{-1}\color{sc-ink}#2}\par}%
+    \scgap{5pt}}{%
+    \vspace{12pt}%
+    {\parskip=0pt\noindent\fontsize{7.5}{10}\ttfamily\bfseries\selectfont\color{sc-accent-ink}%
+      \sctrackby{10}{\MakeUppercase{#2}}\par}%
+    \scgap{4pt}}}}
+
+% ---- table of contents --------------------------------------------------------------------------
+% \sctocrow{level}{number}{title}{anchor}
+\newcommand{\sctocrow}[4]{%
+  \ifnumequal{#1}{0}{\vspace{10pt}\scrule{sc-ink}{2pt}\vspace{7pt}}{\vspace{5pt}}%
+  \scwide{\leftskip=\ifcase#1 0pt\or 14mm\or 22mm\else 30mm\fi\relax
+   \rightskip=3em plus 1fil\relax \parfillskip=-3em\relax
+   \ifnumcomp{#1}{=}{0}{\fontsize{13}{19}\selectfont\bfseries\sctrackonby{-1.5}}{%
+     \ifnumcomp{#1}{=}{1}{\small}{\footnotesize}}%
+   \hyperref[#4]{\ifstrempty{#2}{}{\hbox to 14mm{\fontsize{10}{14}\ttfamily\bfseries\selectfont
+     \color{sc-accent-ink}#2\hfil}}#3}%
+   \nobreak\hfill\nobreak
+   \hbox to 3em{\hfill\fontsize{8.5}{12}\ttfamily\bfseries\selectfont\color{sc-ink}\pageref{#4}}}%
+  \ifnumequal{#1}{0}{\vspace{5pt}}{\vspace{5pt}\scrule{sc-gray-200}{0.5pt}}}
+
+% ---- boxes (status, alert, flow, details, note, code) ------------------------------------------
+\tcbset{
+  scbase/.style={enhanced, boxrule=0pt, arc=0pt, frame hidden, colback=sc-gray-50, coltext=sc-ink,
+    before skip=8pt, after skip=10pt, left=14pt, right=14pt, top=13pt, bottom=8pt},
+}
+% Status: the top rule carries the level (solid / dashed / dotted / double), a marker the shape.
+\tcbset{
+  scstatus-success/.style={top=13pt, overlay={\draw[line width=5pt, color=sc-ink]
+    ([yshift=-2.5pt]frame.north west) -- ([yshift=-2.5pt]frame.north east);}},
+  scstatus-warning/.style={top=13pt, overlay={\draw[line width=5pt, color=sc-accent,
+    dash pattern=on 10pt off 6pt] ([yshift=-2.5pt]frame.north west) --
+    ([yshift=-2.5pt]frame.north east);}},
+  scstatus-partial/.style={top=13pt, overlay={\draw[line width=5pt, color=sc-accent,
+    line cap=round, dash pattern=on 0pt off 7pt] ([xshift=2.5pt,yshift=-2.5pt]frame.north west) --
+    ([xshift=-2.5pt,yshift=-2.5pt]frame.north east);}},
+  scstatus-failed/.style={top=16pt, overlay={%
+    \draw[line width=2.67pt, color=sc-accent-ink] ([yshift=-1.33pt]frame.north west) --
+      ([yshift=-1.33pt]frame.north east);
+    \draw[line width=2.67pt, color=sc-accent-ink] ([yshift=-6.67pt]frame.north west) --
+      ([yshift=-6.67pt]frame.north east);}},
+  scstatus-running/.style={top=13pt, overlay={\draw[line width=5pt, color=sc-ink,
+    line cap=round, dash pattern=on 0pt off 7pt] ([xshift=2.5pt,yshift=-2.5pt]frame.north west) --
+    ([xshift=-2.5pt,yshift=-2.5pt]frame.north east);}},
+}
+\newtcolorbox{scstatusbox}[1]{scbase, scstatus-#1}
+% The 11 pt marker before the headline of a status box.
+\newcommand{\scstatusmark}[1]{\tikz[baseline=-4.3pt]{%
+  \path[use as bounding box] (-5.5pt,-5.5pt) rectangle (5.5pt,5.5pt);
+  \ifstrequal{#1}{success}{\fill[sc-ink] (0,0) circle (5.5pt);}{}%
+  \ifstrequal{#1}{warning}{\fill[sc-accent] (-6.5pt,-5.5pt) -- (6.5pt,-5.5pt) -- (0,5.5pt) -- cycle;}{}%
+  \ifstrequal{#1}{partial}{\fill[sc-accent] (0,0) -- (0,4.75pt) arc (90:270:4.75pt) -- cycle;
+    \draw[sc-ink, line width=1.5pt] (0,0) circle (4.75pt);}{}%
+  \ifstrequal{#1}{failed}{\fill[sc-accent-ink] (-5.5pt,-5.5pt) rectangle (5.5pt,5.5pt);}{}%
+  \ifstrequal{#1}{running}{\fill[sc-ink] (-3pt,-6pt) -- (7pt,0) -- (-3pt,6pt) -- cycle;}{}}}
+
+% Alerts: a bar on the left (solid / dashed / double) and a chip with the level word.
+\tcbset{
+  scalertbase/.style={enhanced, boxrule=0pt, arc=0pt, frame hidden, colback=white,
+    coltext=sc-ink, before skip=4pt, after skip=4pt, top=3pt, bottom=3pt, right=0pt},
+  scalert-info/.style={scalertbase, left=17pt, overlay={\draw[line width=5pt, color=sc-ink]
+    ([xshift=2.5pt]frame.south west) -- ([xshift=2.5pt]frame.north west);}},
+  scalert-warning/.style={scalertbase, left=17pt, overlay={\draw[line width=5pt, color=sc-accent,
+    dash pattern=on 6pt off 4pt] ([xshift=2.5pt]frame.south west) --
+    ([xshift=2.5pt]frame.north west);}},
+  scalert-error/.style={scalertbase, left=20pt, overlay={%
+    \draw[line width=2.67pt, color=sc-accent-ink] ([xshift=1.33pt]frame.south west) --
+      ([xshift=1.33pt]frame.north west);
+    \draw[line width=2.67pt, color=sc-accent-ink] ([xshift=6.67pt]frame.south west) --
+      ([xshift=6.67pt]frame.north west);}},
+}
+\newtcolorbox{scalertbox}[1]{scalert-#1}
+\newcommand{\scchip}[1]{{\setlength{\fboxsep}{1.5pt}\setlength{\fboxrule}{1pt}%
+  \ifstrequal{#1}{info}{\fcolorbox{sc-ink}{sc-paper}{\hspace{4.5pt}\textcolor{sc-ink}{%
+    \fontsize{7}{9}\ttfamily\selectfont\sctrackby{10}{\MakeUppercase{#1}}}\hspace{4.5pt}}}{}%
+  \ifstrequal{#1}{warning}{\fcolorbox{sc-ink}{sc-accent}{\hspace{4.5pt}\textcolor{sc-ink}{%
+    \fontsize{7}{9}\ttfamily\selectfont\sctrackby{10}{\MakeUppercase{#1}}}\hspace{4.5pt}}}{}%
+  \ifstrequal{#1}{error}{\fcolorbox{sc-ink}{sc-ink}{\hspace{4.5pt}\textcolor{sc-paper}{%
+    \fontsize{7}{9}\ttfamily\selectfont\sctrackby{10}{\MakeUppercase{#1}}}\hspace{4.5pt}}}{}}}
+
+\newtcolorbox{scnotebox}{enhanced, breakable, boxrule=0pt, arc=0pt, colback=white, frame hidden,
+  borderline west={4pt}{0pt}{sc-accent}, coltext=sc-ink, left=16pt, right=0pt, top=2pt,
+  bottom=2pt, before skip=8pt, after skip=8pt, enlarge right by=0pt}
+\newtcolorbox{scdetailsbox}{enhanced, breakable, boxrule=0pt, arc=0pt, frame hidden,
+  colback=sc-gray-50, coltext=sc-ink, borderline north={2pt}{0pt}{sc-ink}, left=12pt, right=12pt,
+  top=10pt, bottom=8pt, before skip=8pt, after skip=12pt}
+\newtcolorbox{sccodebox}{enhanced, breakable, boxrule=0pt, arc=0pt, frame hidden,
+  colback=sc-gray-50, coltext=sc-ink, borderline north={2pt}{0pt}{sc-ink},
+  borderline south={0.5pt}{0pt}{sc-ink}, left=12pt, right=12pt, top=11pt, bottom=9pt,
+  before skip=0pt, after skip=12pt}
+
+% Flow: a 3 pt spine and a 12 pt marker per stage; the shape carries the state.
+\newcommand{\scflowmark}[1]{%
+  \begin{scope}[shift={($(frame.north west)+(1.5pt,-10.5pt)$)}]
+    \ifstrequal{#1}{done}{\fill[sc-ink] (0,0) circle (6pt);}{}%
+    \ifstrequal{#1}{reused}{\fill[sc-ink, rotate=45] (-4.7pt,-4.7pt) rectangle (4.7pt,4.7pt);}{}%
+    \ifstrequal{#1}{running}{\fill[sc-ink] (-3.5pt,-6.5pt) -- (7.5pt,0) -- (-3.5pt,6.5pt) -- cycle;}{}%
+    \ifstrequal{#1}{failed}{\fill[sc-accent-ink] (-6pt,-6pt) rectangle (6pt,6pt);}{}%
+    \ifstrequal{#1}{skipped}{\filldraw[fill=sc-paper, draw=sc-gray-500, line width=1.25pt]
+      (0,0) circle (5.4pt); \draw[sc-gray-500, line width=1.25pt] (-4.4pt,-4.4pt) -- (4.4pt,4.4pt);}{}%
+    \ifstrequal{#1}{pending}{\filldraw[fill=sc-paper, draw=sc-ink, line width=2.5pt]
+      (0,0) circle (4.75pt);}{}%
+  \end{scope}}
+\newtcolorbox{scflowstage}[1]{enhanced, boxrule=0pt, arc=0pt, frame hidden, colback=white,
+  coltext=sc-ink, left=21pt, right=0pt, top=4pt, bottom=5pt, before skip=0pt, after skip=0pt,
+  overlay={\draw[line width=3pt, color=sc-ink] ([xshift=1.5pt]frame.south west) --
+    ([xshift=1.5pt]frame.north west); \scflowmark{#1}}}
+% The small outlined tag with the state word; FAILED is filled.
+\newcommand{\scflowtag}[1]{{\setlength{\fboxsep}{0.5pt}\setlength{\fboxrule}{0.75pt}%
+  \ifstrequal{#1}{failed}{\fcolorbox{sc-accent-ink}{sc-accent-ink}{\hspace{3.5pt}\textcolor{sc-paper}{%
+    \fontsize{7}{9}\ttfamily\selectfont\sctrackby{10}{\MakeUppercase{#1}}}\hspace{3.5pt}}}{%
+  \fcolorbox{sc-ink-soft}{sc-paper}{\hspace{3.5pt}\textcolor{sc-ink-soft}{%
+    \fontsize{7}{9}\ttfamily\selectfont\sctrackby{10}{\MakeUppercase{#1}}}\hspace{3.5pt}}}}}
+
+% Metrics: a 3 pt ink rule, a caps label, a 40 pt value (shrunk to fit the column), a 10 mm accent bar.
+\newsavebox{\sc@valuebox}
+\newcommand{\scmetricvalue}[3]{%
+  \parskip=0pt\textcolor{sc-ink}{\rule{\linewidth}{3pt}}\par\vspace{6pt}%
+  {\color{sc-ink}\fontsize{7}{9}\ttfamily\selectfont\sctrackby{10}{\MakeUppercase{#1}}}\par\vspace{6pt}%
+  \savebox{\sc@valuebox}{\fontsize{40}{40}\selectfont\bfseries\sctrackonby{-4.5}\color{sc-ink}#2}%
+  \ifdim\wd\sc@valuebox>\linewidth
+    \resizebox{\linewidth}{!}{\usebox{\sc@valuebox}}%
+  \else
+    \usebox{\sc@valuebox}%
+  \fi\par\vspace{0pt}%
+  \textcolor{sc-accent}{\rule{10mm}{3pt}}\par
+  \ifstrempty{#3}{}{\vspace{2pt}{\fontsize{8.5}{12}\selectfont\color{sc-ink-soft}#3}\par}}
+
+% Tables: rule-only. \scheadrule is the 1 pt rule under the header, \scrowrule a hairline between rows.
+\newcommand{\sctoprule}{\noalign{\global\arrayrulewidth=2.5pt}\arrayrulecolor{sc-ink}\hline}
+\newcommand{\scheadrule}{\noalign{\global\arrayrulewidth=1pt}\arrayrulecolor{sc-ink}\hline}
+\newcommand{\scrowrule}{\noalign{\global\arrayrulewidth=0.5pt}\arrayrulecolor{sc-gray-200}\hline}
+% Verdict markers in the first cell: circle (pass), triangle (warn), square (fail).
+\newcommand{\scverdictmark}[1]{\tikz[baseline=-2.3pt]{%
+  \path[use as bounding box] (-3pt,-3pt) rectangle (3pt,3pt);
+  \ifstrequal{#1}{pass}{\fill[sc-ink] (0,0) circle (3pt);}{}%
+  \ifstrequal{#1}{warn}{\fill[sc-accent] (-3.5pt,-3pt) -- (3.5pt,-3pt) -- (0,3.5pt) -- cycle;}{}%
+  \ifstrequal{#1}{fail}{\fill[sc-accent-ink] (-3pt,-3pt) rectangle (3pt,3pt);}{}}\hspace{5pt}}
+
+\newcommand{\scmetarule}{\noalign{\global\arrayrulewidth=0.5pt}\arrayrulecolor{sc-gray-300}\hline}
+\newcommand{\scmetatop}{\noalign{\global\arrayrulewidth=2pt}\arrayrulecolor{sc-ink}\hline}
+
+\hypersetup{pdfborder={0 0 0}}
+\endinput

@@ -1,0 +1,52 @@
+# Matplotlib rcParams of every figure drawn in the modern@1 look: Inter, ink spines on the left and
+# bottom only, hairline horizontal grid, one vermilion accent. Applied only inside
+# scireport.mplstyle(), never globally. The colours are copied by hand from
+# scireport/layouts/modern/1/palette.yaml and checked against it by
+# tests/unit/styles/test_consistency.py; the file is frozen with the layout (ADR-0008).
+
+font.family: sans-serif
+font.sans-serif: Inter, Source Sans 3, Helvetica Neue, Arial, sans-serif
+font.monospace: IBM Plex Mono, Inter, JetBrains Mono, DejaVu Sans Mono, monospace
+font.size: 8.0
+
+axes.facecolor: "#ffffff"
+axes.edgecolor: "#0a0a0a"
+axes.labelcolor: "#0a0a0a"
+axes.titlecolor: "#0a0a0a"
+axes.titleweight: 600
+axes.titlelocation: left
+axes.linewidth: 0.8
+axes.spines.top: False
+axes.spines.right: False
+axes.grid: True
+axes.grid.axis: y
+axes.axisbelow: True
+axes.prop_cycle: cycler('color', ["#0072b2", "#f04e23", "#009e73", "#cc79a7", "#0a0a0a", "#5c5c5c"])
+
+grid.color: "#d9d9d9"
+grid.linewidth: 0.5
+grid.alpha: 1.0
+
+xtick.color: "#3a3a3a"
+ytick.color: "#3a3a3a"
+xtick.labelsize: 7.5
+ytick.labelsize: 7.5
+
+text.color: "#0a0a0a"
+
+legend.frameon: False
+legend.fontsize: 7.5
+
+figure.facecolor: "#ffffff"
+figure.edgecolor: "#ffffff"
+
+savefig.facecolor: "#ffffff"
+savefig.edgecolor: "#ffffff"
+
+image.cmap: cividis
+
+lines.linewidth: 1.4
+lines.markersize: 4.0
+
+patch.edgecolor: "#ffffff"
+patch.linewidth: 0.5
