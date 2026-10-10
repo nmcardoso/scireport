@@ -7,12 +7,19 @@ from typing import Annotated, Any
 
 import typer
 
+from scireport.agent.catalogue import (
+  describe_layout,
+  describe_template,
+  list_layouts_data,
+  list_templates_data,
+)
 from scireport.bundle import open_bundle
 from scireport.bundle.backends import DEFAULT_MAX_BYTES
 from scireport.cli._common import MEGABYTE, echo_json, reporting_errors
 from scireport.errors import TemplateError
 from scireport.logging_utils import get_logger
 from scireport.render.definition import FORMATS
+from scireport.render.office import OFFICE_FORMATS
 from scireport.render.pdf import PDF_ENGINES
 from scireport.render.pipeline import (
   DEFAULT_LATEX_ENGINE,
@@ -20,7 +27,6 @@ from scireport.render.pipeline import (
   check_bundle,
   render_bundle,
 )
-from scireport.render.registry import list_layouts, list_templates
 
 log = get_logger(__name__)
 
@@ -34,7 +40,11 @@ LayoutOpt = Annotated[
 ]
 FormatOpt = Annotated[
   list[str] | None,
-  typer.Option('--format', '-f', help='Output format: md, html, tex or pdf (repeat for several).'),
+  typer.Option(
+    '--format',
+    '-f',
+    help='Output format: md, html, tex, pdf, docx, odt or epub (repeat for several).',
+  ),
 ]
 OptionOpt = Annotated[
   list[str] | None,
@@ -58,6 +68,25 @@ AllowImportOpt = Annotated[
 CacheDirOpt = Annotated[
   Path | None, typer.Option('--cache-dir', help='Pre-processor cache directory.')
 ]
+MarkupOpt = Annotated[
+  str | None,
+  typer.Option(
+    '--markup-engine',
+    help='Markdown converter: mistletoe (default) or pandoc (needs scireport[pandoc]).',
+  ),
+]
+OfficeSourceOpt = Annotated[
+  str | None,
+  typer.Option(
+    '--office-source', help='What docx, odt and epub are converted from: md (default) or html.'
+  ),
+]
+ReferenceDocOpt = Annotated[
+  Path | None,
+  typer.Option(
+    '--reference-doc', help="A reference.docx whose styles docx and odt use (else the layout's)."
+  ),
+]
 MaxSize = Annotated[
   int, typer.Option('--max-size', min=1, help='Size cap of a ZIP bundle, in MiB (uncompressed).')
 ]
@@ -69,6 +98,8 @@ def validate(
   layout: LayoutOpt = None,
   formats: FormatOpt = None,
   option: OptionOpt = None,
+  markup_engine: MarkupOpt = None,
+  office_source: OfficeSourceOpt = None,
   strict: StrictOpt = False,
   as_json: JsonOpt = False,
   dry_render: Annotated[
@@ -97,6 +128,8 @@ def validate(
       layout=layout,
       formats=_formats(formats),
       options=_options(option),
+      markup_engine=markup_engine,
+      office_source=office_source,
       strict=strict,
       render=dry_render,
       preprocess=preprocess,
@@ -138,9 +171,9 @@ def render(
       help=f'TeX engine of the LaTeX project and the PDF (default {DEFAULT_LATEX_ENGINE}).',
     ),
   ] = None,
-  markup_engine: Annotated[
-    str | None, typer.Option('--markup-engine', help='Markdown converter (mistletoe).')
-  ] = None,
+  markup_engine: MarkupOpt = None,
+  office_source: OfficeSourceOpt = None,
+  reference_doc: ReferenceDocOpt = None,
   math_renderer: Annotated[
     str | None,
     typer.Option('--math-renderer', help='Math renderer for HTML: mathtext or usetex.'),
@@ -189,6 +222,8 @@ def render(
       preprocess=preprocess,
       allow_import=allow_import,
       cache_dir=cache_dir,
+      office_source=office_source,
+      reference_doc=reference_doc,
     )
     written = result.write(output)
     names = [path.relative_to(output).as_posix() for path in written]
@@ -206,27 +241,59 @@ def render(
         typer.echo(name)
 
 
-def templates(as_json: JsonOpt = False) -> None:
-  """List the templates that can be used: built in and from plugins."""
-  _echo_listing(list_templates(), as_json)
+def templates(
+  ref: Annotated[
+    str | None,
+    typer.Argument(help='Describe one template (name, name@version or a directory).'),
+  ] = None,
+  as_json: JsonOpt = False,
+) -> None:
+  """List the templates that can be used (built in and from plugins), or describe one."""
+  with reporting_errors(as_json=as_json):
+    if ref is None:
+      _echo_listing(list_templates_data(), as_json)
+      return
+    detail = describe_template(ref)
+    if as_json:
+      echo_json(detail)
+      return
+    typer.echo(f'{detail["ref"]}: {detail["title"]}')
+    typer.echo(f'formats: {", ".join(detail["formats"])}   spec: {detail["spec"]}')
+    for field in detail['fields']:
+      need = 'required' if field['required'] else 'optional'
+      typer.echo(f'  {field["key"]:<28} {" or ".join(field["kinds"]):<10} {need}')
+      if field['description']:
+        typer.echo(f'    {field["description"]}')
 
 
-def layouts(as_json: JsonOpt = False) -> None:
-  """List the layouts that can be used: built in and from plugins."""
-  _echo_listing(list_layouts(), as_json)
+def layouts(
+  ref: Annotated[
+    str | None, typer.Argument(help='Describe one layout (name, name@version or a directory).')
+  ] = None,
+  as_json: JsonOpt = False,
+) -> None:
+  """List the layouts that can be used (built in and from plugins), or describe one."""
+  with reporting_errors(as_json=as_json):
+    if ref is None:
+      _echo_listing(list_layouts_data(), as_json)
+      return
+    detail = describe_layout(ref)
+    if as_json:
+      echo_json(detail)
+      return
+    typer.echo(f'{detail["ref"]}: {detail["title"]}')
+    typer.echo(
+      f'formats: {", ".join(detail["formats"])}   pdf engines: {", ".join(detail["pdf_engines"])}'
+    )
+    for option in detail['options']:
+      choices = f' ({"|".join(map(str, option["choices"]))})' if option['choices'] else ''
+      typer.echo(f'  {option["name"]:<20} {option["type"]:<5} = {option["default"]!r}{choices}')
+      if option['description']:
+        typer.echo(f'    {option["description"]}')
 
 
-def _echo_listing(listing: list[Any], as_json: bool) -> None:
+def _echo_listing(rows: list[dict[str, Any]], as_json: bool) -> None:
   """Print templates or layouts, one per line, or as JSON."""
-  rows = [
-    {
-      'ref': item.ref,
-      'title': item.title,
-      'formats': list(item.formats),
-      'origin': item.origin,
-    }
-    for item in listing
-  ]
   if as_json:
     echo_json(rows)
     return
@@ -240,19 +307,14 @@ def _formats(names: list[str] | None) -> list[str] | None:
   """Check the formats given on the command line."""
   if not names:
     return None
-  allowed = (*FORMATS, 'pdf')
-  chosen: list[str] = []
+  allowed = (*FORMATS, 'pdf', *OFFICE_FORMATS)
   for name in names:
     if name not in allowed:
-      later = {'docx': 'phase S5', 'odt': 'phase S5', 'epub': 'phase S5'}
-      hint = f'{name} output arrives in {later[name]}.' if name in later else None
       raise TemplateError(
         f'unknown output format {name!r} (this version writes: {", ".join(allowed)})',
-        code='E805' if name in later else 'E801',
-        hint=hint,
+        code='E801',
       )
-    chosen.append(name)
-  return chosen
+  return list(names)
 
 
 def _options(items: list[str] | None) -> dict[str, str]:

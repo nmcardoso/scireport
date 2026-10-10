@@ -125,8 +125,8 @@ def test_a_bad_option_is_an_error(bundle_zip: Path, tmp_path: Path) -> None:
   assert not out.exists()
 
 
-@pytest.mark.parametrize(('name', 'code'), [('docx', 'E805'), ('rtf', 'E801')])
-def test_unknown_or_later_formats_are_refused(
+@pytest.mark.parametrize(('name', 'code'), [('rtf', 'E801'), ('doc', 'E801')])
+def test_unknown_formats_are_refused(
   bundle_zip: Path, tmp_path: Path, name: str, code: str
 ) -> None:
   result = runner.invoke(

@@ -7,18 +7,16 @@ from typing import Annotated, Any
 
 import typer
 
+from scireport.agent.catalogue import describe_preprocessor, describe_row
 from scireport.bundle import open_bundle, write_bundle
 from scireport.bundle.backends import DEFAULT_MAX_BYTES
 from scireport.cli._common import MEGABYTE, echo_json, reporting_errors
 from scireport.logging_utils import get_logger
 from scireport.preprocess import (
-  get_preprocessor,
   list_preprocessors,
-  params_schema,
   preprocess_bundle,
   write_back,
 )
-from scireport.preprocess.registry import Preprocessor
 
 log = get_logger(__name__)
 
@@ -113,42 +111,19 @@ def preprocessors(
   """List the registered pre-processors, or describe one."""
   with reporting_errors(as_json=as_json):
     if name is not None:
-      entry = get_preprocessor(name)
-      detail = _describe(entry, full=True)
+      detail = describe_preprocessor(name)
       if as_json:
         echo_json(detail)
       else:
         _echo_detail(detail)
       return
-    rows = [_describe(entry, full=False) for entry in list_preprocessors()]
+    rows = [describe_row(entry, full=False) for entry in list_preprocessors()]
     if as_json:
       echo_json(rows)
       return
     for row in rows:
       needs = f'[{row["requires"]}]' if row['requires'] else ''
       typer.echo(f'{row["ref"]:<34} {needs:<8} {row["summary"]}')
-
-
-def _describe(entry: Preprocessor, *, full: bool) -> dict[str, Any]:
-  """Return the listing row of a pre-processor, with its ports and parameters when ``full``."""
-  row: dict[str, Any] = {
-    'ref': entry.ref,
-    'name': entry.name,
-    'version': entry.version,
-    'summary': entry.summary,
-    'requires': entry.requires,
-  }
-  if full:
-    row['inputs'] = {
-      port: {'kind': spec.kind, 'optional': spec.optional, 'description': spec.description}
-      for port, spec in entry.inputs.items()
-    }
-    row['outputs'] = {
-      port: {'kind': spec.kind, 'optional': spec.optional, 'description': spec.description}
-      for port, spec in entry.outputs.items()
-    }
-    row['params'] = params_schema(entry)
-  return row
 
 
 def _echo_detail(detail: dict[str, Any]) -> None:

@@ -9,7 +9,7 @@ from typing import Annotated
 import typer
 
 from scireport._version import __version__
-from scireport.cli import bundle, preprocess, render, spec
+from scireport.cli import agent, bundle, export, mplstyle, new, preprocess, render, spec
 from scireport.logging_utils import setup_logging
 
 app = typer.Typer(
@@ -21,13 +21,18 @@ app = typer.Typer(
 app.command('pack')(bundle.pack)
 app.command('unpack')(bundle.unpack)
 app.command('inspect')(bundle.inspect)
+app.command('new')(new.new)
 app.command('validate')(render.validate)
 app.command('render')(render.render)
 app.command('templates')(render.templates)
 app.command('layouts')(render.layouts)
 app.command('preprocess')(preprocess.preprocess)
 app.command('preprocessors')(preprocess.preprocessors)
+app.add_typer(export.app, name='export')
 app.add_typer(spec.app, name='spec')
+app.add_typer(mplstyle.app, name='mplstyle')
+app.add_typer(agent.agent_app, name='agent')
+app.add_typer(agent.mcp_app, name='mcp')
 
 
 class LogLevel(StrEnum):
