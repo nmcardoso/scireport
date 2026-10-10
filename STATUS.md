@@ -1,65 +1,105 @@
 # STATUS
 
-**Phase:** S2 (templates, validation and the md, html and tex writers). Implementation complete on branch
-`s2/templates-validation-writers` (pushed). **No human gate in S2.** S1 was merged into `main` (PR #1) before S2
-started. Next: open and merge the S2 pull request, then S3 (`prompts/scireport/s3_kickoff.md` in the monorepo).
+**Phase:** S3 (default and modern layouts, PDF engines, styles, examples). Implementation complete on branch
+`s3/layouts-pdf` (stacked on `s2/templates-validation-writers`, see DECISIONS). **Blocked on gate HG-S1** (visual
+sign-off, below). Next after the gate: S4 (`prompts/scireport/s4_kickoff.md` in the monorepo).
 
-## Done in S2
+## Done in S3
 
-- Template and layout models, loaded by name, `name@version`, path or entry point; `pack` pins the resolved versions.
-- Sandboxed Jinja environments per format (strict undefined, format-aware escaping, `((* *))` delimiters for
-  LaTeX files), the MOSAICS filters and 24 components with Markdown, HTML and LaTeX macros in the `minimal@1`
-  layout. `generic@1` renders any bundle from its outline.
-- Mistletoe converter with a documented Markdown subset (limits in `docs/markup.md`).
-- Validation: aggregated coded issues, `--strict`, `--json`, Jinja AST lint, render-time usage tracking.
-- Writers: Markdown (single and split), self-contained HTML, standalone LaTeX project, `render-manifest.json`.
-- Commands `validate`, `render`, `templates`, `layouts`.
-- Docs: templates and layouts, Markdown limits, outputs, error catalogue (drift-tested against the code).
-- Choices the kickoff left open, and two bugs found on the way, are in `DECISIONS.md` and `CHANGELOG.md`:
-  `md_escape` mishandled a bare `.` or `)` (found by a property test), and the CI TeX Live list lacked `ulem`.
+- Layouts `default@1` (the MOSAICS look) and `modern@1` ("Signal"), each with Markdown, HTML and LaTeX components;
+  `default@1` is the default layout.
+- PDF engines: WeasyPrint and `latexmk` (LuaLaTeX default, XeLaTeX, pdfLaTeX with a `W901` fallback to TeX fonts);
+  exit code 3 with an install hint for a missing system dependency; `SOURCE_DATE_EPOCH` honoured.
+- Math: `mathtext` and `usetex` renderers, `W602`.
+- Vendored Inter and IBM Plex Mono subsets with `OFL.txt`; the style API (`mplstyle()`, `mplstyle_path()`,
+  `palette()`, `figure()`, deterministic PNG, PDF and SVG saving) and the palette, CSS, LaTeX and mplstyle
+  consistency test.
+- `kitchen-sink@1`, three examples, and a real `make examples`: 3 examples x 2 layouts x (md, html, tex, PDF via
+  WeasyPrint, PDF via LuaLaTeX, XeLaTeX and pdfLaTeX) into `examples/_out/`.
+- **CI is Linux only** (requested 2026-10-10): macOS and Windows jobs are removed from `ci.yml` and `release.yml`;
+  both platforms are unsupported. This settles kickoff item 9 (Windows WeasyPrint status) by decision, not by
+  evidence (DECISIONS, 2026-10-10).
+- PDF determinism per engine is recorded in DECISIONS (2026-10-10).
 
-## Verification
+## Verification (local, 2026-10-10)
 
 | Check | Result |
 |---|---|
-| `make check` (ruff format and lint, mypy strict, pytest) | passes; 906 tests, coverage 97.7 % (gate 90 %) |
-| `make test-integration` | 9 passed: the golden LaTeX project and a bundle of hostile text compile with pdfLaTeX, XeLaTeX and LuaLaTeX (Debian's TeX Live 2023, `latexmk`) |
-| Docs (`sphinx-build -W`) | builds without warnings |
-| Clean install | the built wheel, installed in a fresh Python 3.12 venv, renders a corpus bundle to md, html and tex; it contains the built-in template and layout |
-| Hypothesis | the Markdown escape property also ran once with 30,000 examples without a counterexample |
-| GitHub Actions matrix | run 38012617081 (workflow_dispatch on `5c2ecee`): 31 of 31 jobs green, no failed step in any job (test on 3 OSes x Python 3.12 to 3.15 with 906 passed and 97.68 % coverage, lowest, lint, docs, examples, pandoc, pdf-weasyprint, pdf-latex). The `pdf-latex` jobs ran 7 tests each on Linux, macOS and Windows (6 compiles = 3 engines x 2 projects, plus the smoke test); they fail instead of skipping when TeX is missing |
+| `make check` (ruff format and lint, mypy strict, pytest) | passes; 1048 tests, coverage 96.48 % (gate 90 %) |
+| `pytest -m integration` with `SCIREPORT_REQUIRE_TOOLCHAIN=1` | 58 passed (PDF text against the Markdown output, double-build byte identity per engine, PDF text hashes of the compat cases, LaTeX error and missing-package paths) |
+| `make examples` | exit 0 for 3 examples x 2 layouts; `W901` only for the pdfLaTeX runs, as designed |
+| Toolchain | Debian TeX Live 2023 (`latexmk`, lualatex, xelatex, pdflatex); WeasyPrint 70.0 with fontTools (HarfBuzz-Subset absent locally, so WeasyPrint warns) |
 
 ## Not verified yet
 
-- `ci.yml` runs only on pull requests and on pushes to `main`, so pushing the branch starts nothing. I started the run above with `gh workflow run ci.yml --ref s2/templates-validation-writers` and did not open a pull request; opening it will run the matrix again on the final commit.
-- Local Python is 3.12 only; other Python versions, macOS and Windows run in CI only.
-- The LaTeX compile tests ran here against Debian's TeX Live 2023. CI installs the current TeX Live from
-  `.github/tl_packages`; each package name and collection was checked against `texlive.tlpdb`.
-- The golden and compat HTML hide the SVG of drawn math (`<math-svg>`), because its bytes depend on the matplotlib
-  build. The drawing itself is tested in `tests/unit/render/test_math.py`, not compared with a reference image.
-- `generic@1` renders what the outline lists, so the expected renders of the compat cases leave out the values
-  their outlines omit (19 in `full-kinds`). `tests/golden/` renders every kind.
+- **GitHub Actions on the Linux-only matrix has not run.** Nothing was pushed before the CI change and `gh` is not
+  logged in here. Until the first run is green, the CI edit (`ci.yml`, `release.yml`) is checked only as valid
+  YAML.
+- Python 3.13 to 3.15 and the `lowest` job run in CI only; local Python is 3.12.
+- The TeX Live in CI is the current release from `.github/tl_packages`, not Debian 2023.
+- The gate files in `examples/_out/hg-s1/` were built in the previous session (2026-10-09 23:41) from the same
+  layout code as now. `make examples` does not rebuild them; `examples/gate_s1.py --mosaics <pdf>` does.
 
-## Open items handed to later phases
+## Gate HG-S1: visual sign-off (blocking)
 
-1. **S3:** designed layouts `default@1` and `modern@1`; PDF engines (WeasyPrint, LaTeX); exit code 3 for a missing
-   system dependency; add `default@1` renders and the PDF text hash to the compat cases; re-check the Windows
-   `pdf-weasyprint` jobs (`continue-on-error` until then).
-2. **S3:** `minimal@1` is the default layout until `default@1` exists, so a bundle that names `default@1` needs an
-   explicit `-l` today.
-3. **Pages:** the `docs` workflow failed on `main` at `configure-pages` before the Pages source was set to GitHub
-   Actions; check whether it passes after the S1 merge, otherwise it is S6 work.
-4. `.github/tl_packages` still lists packages for later layouts (`siunitx`, `tcolorbox`, `biblatex`, ...); S3 should
-   prune or confirm them.
+**What this is for.** `default@1` and `modern@1` are the two designs that every later phase (S4 to S8) and the
+first consumer, the `2_dataset` report, build on. After release a layout is frozen (ADR-0008): a look change then
+needs a new version (`default@2`), and old bundles keep the old look. Changing a look is cheapest now.
 
-## Next
+**Terms.** *Kitchen sink*: one test report that uses every component and hard case. *MOSAICS*: the report design
+system in the datex repository that `default@1` ports. *Signal*: the working name of `modern@1` (black, white and
+one vermilion accent, rule-only tables, giant chapter numerals). *WeasyPrint*: the engine that prints the HTML to
+PDF. *LuaLaTeX*: the default LaTeX engine (XeLaTeX gives the same look; pdfLaTeX uses TeX fonts, `W901`).
 
-1. Open the pull request for `s2/templates-validation-writers` (I do not merge) and review it.
-2. Start S3 on a new branch from the updated `main`.
+**Files to inspect** (in `examples/_out/hg-s1/`, not committed; rebuild with `uv run python examples/gate_s1.py
+--mosaics <datex demo pdf>`):
+
+| File | Pages | What it is |
+|---|---|---|
+| `mosaics-kitchen-sink.pdf` | 17 | the MOSAICS demo |
+| `default-weasyprint.pdf` | 19 | `default@1`, WeasyPrint |
+| `default-lualatex.pdf` | 22 | `default@1`, LuaLaTeX |
+| `modern-weasyprint.pdf` | 19 | `modern@1`, WeasyPrint |
+| `modern-lualatex.pdf` | 20 | `modern@1`, LuaLaTeX |
+| `compare-default.png` | | cover, contents, chapter opener, status levels, flow, table: MOSAICS, WeasyPrint and LuaLaTeX side by side |
+| `compare-modern.png` | | the same pages for `modern@1`, both engines |
+
+Also: `examples/_out/modern-alternatives/` (mock-ups of A Folio, B Gridline and C Signal) and the per-example
+outputs for all engines in `examples/_out/<example>/<layout>/`. Page counts differ because each engine breaks
+pages its own way.
+
+**What I see in `compare-*.png`** (my reading of the images, not a measurement): `default@1` follows the MOSAICS
+cover (navy, grid, circle), contents and chapter opener on both engines; the LuaLaTeX chapter title wraps earlier
+and the circle on the cover is larger and lower than in WeasyPrint. `modern@1` has a vermilion cover band with a
+black circle, a giant numeral (`01 / 02`) on chapter openers, and rules, shapes and a text word (not hue alone)
+for the status levels, identically on both engines. Please check the table and flow pages yourself: I did not
+verify pixel-level parity.
+
+**Known limitations** waiting for your decision:
+
+1. The vendored font subsets have no Greek letters or `≥ ≤ ≈ √`. LaTeX draws them with math macros and HTML falls
+   back to another font. Widening the subsets costs about +10 KB per face (the fonts inlined in one HTML file are
+   about 350 KB today).
+2. The LuaLaTeX `default@1` PDF has 22 pages against 19 for WeasyPrint. I have not investigated why.
+
+**Options.**
+
+- (a) Accept as is. Consequence: both layouts are frozen as version 1 at release; S4 starts on them.
+- (b) List defects to fix before S4. Consequence: I fix them inside `default/1` and `modern/1` (nothing is
+  released, so no new version is needed), including limitations 1 and 2 if you want them.
+- (c) Change the modern direction (Folio or Gridline from the alternatives, or a new round). Consequence:
+  `modern/1` is redone with its HTML and LaTeX components, golden files and compat renders; `default@1` is
+  untouched.
+
+**Recommendation: (b), with limitation 1 fixed.** Missing Greek letters are a real limitation for scientific
+reports and are cheap to fix now and impossible to fix inside a frozen version. The rest is your call after
+looking at the PDFs.
 
 ## Blocked / questions
 
-None.
+- HG-S1 above. I stopped and did not start S4.
+- The pull request is not open yet: `gh` is not logged in on this machine (`gh auth login`), or push the branch
+  and open it from the web. The first run of the Linux-only CI happens then.
 
 ## Record: HG-S0 (answered, 2026-10-09)
 
@@ -67,3 +107,9 @@ None.
 - ADR-0001 to ADR-0011: approve all, including (a) ZIP bundle with a JSON manifest and (b) semantic keys with
   typed values.
 - Python 3.15: (a) keep experimental until wheels exist.
+
+## Open items handed to later phases
+
+1. **Pages:** the `docs` workflow failed on `main` at `configure-pages` before the Pages source was set to GitHub
+   Actions; check whether it passes after the merge, otherwise it is S6 work.
+2. `.github/tl_packages` was pruned in S3 (`siunitx`, `biblatex`, `biber` removed); S5 re-adds what it needs.

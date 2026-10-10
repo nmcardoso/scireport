@@ -54,7 +54,7 @@ reproduce the environment. Tags are listed at <https://github.com/nmcardoso/scir
 
 | Feature | Needs |
 |---|---|
-| `pdf` extra (WeasyPrint) | pango and HarfBuzz: `apt install libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0`, `brew install pango`, or MSYS2 `mingw-w64-ucrt-x86_64-pango` (Windows) |
+| `pdf` extra (WeasyPrint) | pango and HarfBuzz: `apt install libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0` |
 | LaTeX PDF engine | TeX Live with `latexmk`, `lualatex` (see `.github/tl_packages`) |
 | `pandoc` extra | nothing (pypandoc-binary bundles pandoc) |
 

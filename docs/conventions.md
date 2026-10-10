@@ -40,16 +40,17 @@ The Inter and IBM Plex Mono subsets are copied from datex together with `OFL.txt
 | Job | Matrix | Runs |
 |---|---|---|
 | `lint` | ubuntu, Python 3.12 | `ruff format --check`, `ruff check`, `mypy --strict` |
-| `test` | ubuntu, macOS, Windows x Python 3.12 to 3.15 | unit, property, golden and compat tests; coverage at least 90 % |
+| `test` | ubuntu x Python 3.12 to 3.15 | unit, property, golden and compat tests; coverage at least 90 % |
 | `lowest` | ubuntu, 3.12 | `uv sync --resolution lowest-direct`, then the tests |
-| `pdf-weasyprint` | three OSes x 3.12, 3.15 | PDF integration tests (pango from apt, brew or MSYS2) |
-| `pdf-latex` | three OSes x 3.12, 3.15 | TeX Live from `.github/tl_packages` |
-| `pandoc` | three OSes, 3.12 | `scireport[pandoc]` tests |
+| `pdf-weasyprint` | ubuntu x 3.12, 3.15 | PDF integration tests (pango from apt) |
+| `pdf-latex` | ubuntu x 3.12, 3.15 | TeX Live from `.github/tl_packages` |
+| `pandoc` | ubuntu, 3.12 | `scireport[pandoc]` tests |
 | `examples` | ubuntu | renders every example (from phase S3) |
 | `docs` | ubuntu | Sphinx build with `-W` plus linkcheck |
 
 `docs.yml` deploys GitHub Pages on `main`. `release.yml` builds the sdist and wheel on a tag, creates the GitHub
-release, and runs a clean-room install from the `git+https://...@<tag>` URL on all three OSes.
+release, and runs a clean-room install from the `git+https://...@<tag>` URL on Linux.
 
-Windows care: `.gitattributes` forces `eol=lf`; outputs are written with `newline='\n'`; tests never rely on the
-repository's symlinks.
+Only Linux is built and tested (DECISIONS, 2026-10-09). The code stays portable (`pathlib`, `.gitattributes`
+forces `eol=lf`, outputs are written with `newline='\n'`, tests never rely on the repository's symlinks), but
+macOS and Windows are not checked by CI and are not supported.

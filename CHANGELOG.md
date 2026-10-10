@@ -20,6 +20,7 @@ specification (ADR-0008).
 
 ### Changed (phase S3)
 
+- CI runs on Linux only: the macOS and Windows jobs and the MSYS2 and Homebrew steps are removed, and the release clean-room install runs on Linux. macOS and Windows are unsupported (DECISIONS, 2026-10-10).
 - `Report.add_figure` renders matplotlib figures with `scireport.styles.figure_bytes` (PDF with embedded TrueType fonts).
 - `.github/tl_packages`: `siunitx`, `biblatex` and `biber` removed (unused before S5); `changepage`, `enumitem` and `needspace` added.
 - Layout files may list `fonts` (vendored font files) and a `palette` that the loader checks (`E703`).
@@ -77,6 +78,6 @@ specification (ADR-0008).
 - Agent files (`.agents/`, symlinks for Claude), copied subagents and the `python-logging` skill, a placeholder
   packaged `scireport` skill.
 - Architecture decision records ADR-0001 to ADR-0011 (status: proposed) and repository conventions.
-- GitHub Actions: lint, test matrix (Linux, macOS, Windows x Python 3.12 to 3.15), lowest-direct bounds, WeasyPrint,
+- GitHub Actions: lint, test matrix (Python 3.12 to 3.15; originally also macOS and Windows, dropped in S3), lowest-direct bounds, WeasyPrint,
   LaTeX and pandoc toolchain jobs, docs, Pages deploy and release workflows.
 - Sphinx documentation skeleton with `llms.txt` and per-page Markdown builders.

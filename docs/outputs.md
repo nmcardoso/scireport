@@ -47,8 +47,7 @@ A PDF alone goes to `pdf/report.pdf` (or `report.pdf` with `--flat`); next to ot
 the `pdf/` folder. Both designed layouts support both engines; `minimal@1` has no PDF (`E903`).
 
 **Missing system dependencies exit with code 3** and say what to install: pango (Linux: `apt install
-libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0`; macOS: `brew install pango`; Windows: MSYS2, see
-below) or TeX Live (a missing TeX package is named: `tcolorbox.sty not found`). A failed compile is
+libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0`) or TeX Live (a missing TeX package is named: `tcolorbox.sty not found`). A failed compile is
 `E902` with the `file:line` of each error in the LaTeX log. Warnings of a build that still made a PDF
 are `W901` (pdfLaTeX had to fall back to TeX fonts, because it cannot load OpenType fonts) and `W902`
 (the font has no glyph for some character; the vendored subsets have no Greek letters or `≥ ≤ ≈ √`, which
@@ -67,5 +66,5 @@ are drawn as SVG paths by matplotlib: `render.math_renderer: mathtext` (default,
 LaTeX math) or `usetex` (a real LaTeX run, full LaTeX math, needs `latex`). A construct the renderer
 cannot draw is shown as source with a warning (`W601` mathtext, `W602` usetex); `--strict` makes it an error.
 
-**Windows.** WeasyPrint needs the pango libraries (GTK for Windows or MSYS2). See `DECISIONS.md` for the
-status of the Windows CI jobs.
+**Platforms.** CI builds and tests on Linux only. The PDF engines are not checked on macOS or Windows, and
+those platforms are unsupported.

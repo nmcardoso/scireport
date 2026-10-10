@@ -71,8 +71,8 @@ Planned layout (`docs/conventions.md`). Phase S0 ships only the skeleton; the re
 
 - Python >= 3.12, `uv`: `uv add <pkg>` (latest versions become the lower bounds), `uv run <cmd>`. Commit
   `pyproject.toml` and `uv.lock`.
-- Matrix: Python 3.12 to 3.15 on Linux, macOS and Windows. Use `pathlib`; write text with `newline='\n'`;
-  never rely on symlinks in tests (Windows checkouts do not have them).
+- Matrix: Python 3.12 to 3.15 on Linux only; macOS and Windows are not built, tested or supported. Keep the code
+  portable anyway: use `pathlib`; write text with `newline='\n'`; never rely on symlinks in tests.
 - `ruff` (line length 100, `indent-width = 2`, single quotes), `mypy --strict`, `pytest`, coverage >= 90 %.
 - Logging: stdlib `logging` through `scireport.logging_utils` (see the `python-logging` skill). Configure it only
   in CLI entry points, never at import time. Never `print()`; `typer.echo` only for a command's result.
