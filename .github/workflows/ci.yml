@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: "3.12"
           enable-cache: true
-      - run: uv sync --group dev
+      - run: uv sync --group dev --all-extras
       - run: uv run ruff format --check .
       - run: uv run ruff check .
       - run: uv run mypy scireport tests
@@ -42,7 +42,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           enable-cache: true
-      - run: uv sync --group dev
+      - run: uv sync --group dev --all-extras
       - run: uv run pytest -m "not integration" --cov=scireport --cov-report=xml
       - uses: actions/upload-artifact@v7
         if: matrix.python == '3.12'
@@ -59,7 +59,7 @@ jobs:
           python-version: "3.12"
           enable-cache: true
       # Checks that the lower bounds in pyproject.toml still work.
-      - run: uv sync --no-frozen --resolution lowest-direct --group dev
+      - run: uv sync --no-frozen --resolution lowest-direct --group dev --all-extras
       - run: uv run pytest -m "not integration"
 
   pdf-weasyprint:
