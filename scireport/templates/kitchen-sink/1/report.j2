@@ -1,0 +1,96 @@
+{#- kitchen-sink@1: every component once, then the hard cases. -#}
+{{ c.metrics(data.summary.metrics) }}
+
+{{ c.status(data.summary.status) }}
+
+{{ c.chapter('Quality Control Results Overview') }}
+
+{{ c.heading('Status levels', 1) }}
+
+{% filter md %}
+One of each level a report can show, back to back, so that all five stay legible at a glance and
+in grey scale: the colour is never the only signal.
+{% endfilter %}
+
+{{ c.status(data.qc.status.success) }}
+{{ c.status(data.qc.status.warning) }}
+{{ c.status(data.qc.status.partial) }}
+{{ c.status(data.qc.status.failed) }}
+{{ c.status(data.qc.status.running) }}
+
+{{ c.heading('Reproducibility metadata', 1) }}
+
+{{ c.metadata(data.qc.meta) }}
+
+{{ c.heading('Alerts', 1) }}
+
+{{ c.alert(data.qc.alert.info) }}
+{{ c.alert(data.qc.alert.warning) }}
+{{ c.alert(data.qc.alert.error) }}
+
+{{ c.heading('Pipeline flow', 1) }}
+
+{{ c.flow(data.qc.flow) }}
+
+{{ c.heading('Numbers', 1) }}
+
+{{ c.heading('Every number format', 2) }}
+
+{{ c.value(data.qc.num.count, label='Objects') }}
+{{ c.value(data.qc.num.share, label='Share') }}
+{{ c.value(data.qc.num.sep, label='Separation') }}
+{{ c.value(data.qc.num.range, label='Range') }}
+{{ c.value(data.qc.num.flux, label='Flux density') }}
+{{ c.value(data.qc.num.tiny, label='A small number') }}
+{{ c.value(data.qc.num.missing, label='A missing number') }}
+
+{{ c.heading('Equations', 1) }}
+
+{% filter md %}
+Math is set in the font of the format: an image in HTML, native LaTeX in the LaTeX project. For
+instance $f_\nu = f_\lambda \lambda^2 / c$ relates flux density in frequency and in wavelength.
+{% endfilter %}
+
+{{ c.equation(data.qc.eq.mag) }}
+{{ c.equation(data.qc.eq.chi) }}
+
+{{ c.heading('Figures at three widths', 1) }}
+
+{{ c.figure(data.qc.fig.wide) }}
+{{ c.figure(data.qc.fig.half) }}
+{{ c.figure(data.qc.fig.narrow) }}
+{{ c.figure(data.qc.fig.density) }}
+
+{{ c.heading('Prose, lists and code', 1) }}
+
+{{ c.text(data.qc.rich) }}
+
+{{ c.bullets(data.qc.bullets) }}
+
+{{ c.bullets(data.qc.steps) }}
+
+{% call c.note() %}{{ c.value(data.qc.note) }}{% endcall %}
+
+{% call c.details('A collapsible block') %}{{ c.value(data.qc.details) }}{% endcall %}
+
+{{ c.code(data.qc.code) }}
+
+{{ c.heading('A nine-hundred-word paragraph', 2) }}
+
+{{ c.text(data.qc.long_paragraph) }}
+
+{{ c.chapter('Detailed Cross-Match Reconciliation Between Legacy Sweep Catalogues and Euclid Q1 Spectra.') }}
+
+{{ c.heading('Long identifiers', 1) }}
+
+{{ c.table(data.recon.paths) }}
+
+{{ c.heading('Missing values', 1) }}
+
+{{ c.table(data.recon.missing) }}
+
+{{ c.heading('A 250-row profile table', 1) }}
+
+{{ c.table(data.recon.profile) }}
+
+{{ c.attachment(data.recon.attachment) }}

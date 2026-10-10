@@ -26,7 +26,7 @@ from scireport.render.definition import FORMATS, Format
 from scireport.render.layout import Layout
 from scireport.render.markup import default_converter
 from scireport.render.outputs import assemble
-from scireport.render.pdf import LATEX_ENGINES, PDF_ENGINES, PDF_NAME
+from scireport.render.pdf import LATEX_ENGINES, PDF_ENGINES, PDF_NAME, source_date_epoch
 from scireport.render.registry import DEFAULT_LAYOUT, DEFAULT_TEMPLATE, load_layout, load_template
 from scireport.render.session import RenderSession
 from scireport.render.template import Template
@@ -189,7 +189,13 @@ def render_bundle(
     flat,
   )
   static = validate_bundle(
-    bundle, plan.template, plan.layout, _sources(plan), options=plan.options, strict=strict
+    bundle,
+    plan.template,
+    plan.layout,
+    _sources(plan),
+    options=plan.options,
+    strict=strict,
+    math_renderer=plan.math_renderer,
   )
   static.raise_for_errors()
   files, found = _render_all(bundle, plan)
@@ -256,7 +262,13 @@ def check_bundle(
     False,
   )
   static = validate_bundle(
-    bundle, plan.template, plan.layout, _sources(plan), options=plan.options, strict=strict
+    bundle,
+    plan.template,
+    plan.layout,
+    _sources(plan),
+    options=plan.options,
+    strict=strict,
+    math_renderer=plan.math_renderer,
   )
   if not static.ok or not render:
     return static
@@ -364,8 +376,11 @@ def _make_pdf(
   if plan.pdf_engine == 'weasyprint':
     from scireport.render.pdf.weasy import html_to_pdf
 
-    return html_to_pdf(rendered['html']['report.html'].decode('utf-8'))
-  from scireport.render.pdf.latex import compile_project, source_date_epoch
+    return html_to_pdf(
+      rendered['html']['report.html'].decode('utf-8'),
+      epoch=source_date_epoch(bundle.manifest.meta.date),
+    )
+  from scireport.render.pdf.latex import compile_project
 
   return compile_project(
     rendered['tex'],

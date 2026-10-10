@@ -1,0 +1,24 @@
+{{ c.status(data.dash.status) }}
+
+{{ c.metrics(data.dash.metrics) }}
+
+{{ c.chapter('Pipeline') }}
+
+{{ c.heading('Stages', 1) }}
+
+{{ c.flow(data.dash.flow) }}
+
+{{ c.heading('Alerts', 1) }}
+
+{{ c.alert(data.dash.alert.memory) }}
+{{ c.alert(data.dash.alert.info) }}
+
+{{ c.chapter('Quality') }}
+
+{{ c.heading('Validation checks', 1) }}
+
+{{ c.table(data.dash.checks) }}
+
+{{ c.heading('Where the time went', 1) }}
+
+{{ c.figure(data.dash.durations) }}

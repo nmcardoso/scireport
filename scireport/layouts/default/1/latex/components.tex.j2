@@ -60,7 +60,7 @@
 \emph{Nothing recorded.}\par
 
 ((* else *))
-{\fontsize{8}{11}\selectfont
+{\fontsize{8}{11}\selectfont\renewcommand{\arraystretch}{1.45}
 ((* if spec.has_verdicts *))\setlength{\sctablew}{\dimexpr\scfullwidth-3pt\relax}((* else *))\setlength{\sctablew}{\scfullwidth}((* endif *))
 \begin{longtable}{((* if spec.has_verdicts *))@{}p{3pt}@{}((* endif *))((* for col in spec.columns *))(((tcol(col))))((* endfor *))}
 (((head_row(spec)))) \\

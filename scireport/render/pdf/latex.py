@@ -13,6 +13,7 @@ issues with ``file:line``, missing characters ``W902`` and the layout's own fall
 
 from __future__ import annotations
 
+import hashlib
 import os
 import re
 import shutil
@@ -23,7 +24,7 @@ from pathlib import Path
 
 from scireport.errors import Issue, MissingDependencyError, PdfError
 from scireport.logging_utils import get_logger
-from scireport.render.pdf import EPOCH_DEFAULT, LATEX_ENGINES
+from scireport.render.pdf import LATEX_ENGINES
 
 log = get_logger(__name__)
 
@@ -35,7 +36,7 @@ INSTALL_HINT = (
   'texlive-luatex texlive-xetex latexmk texlive-fonts-recommended on Debian or Ubuntu; '
   'brew install --cask mactex-no-gui on macOS; the TeX Live installer on Windows.'
 )
-_ERROR_RE = re.compile(r'^(?P<file>[^\s:][^:]*):(?P<line>\d+): (?P<message>.+)$', re.MULTILINE)
+_ERROR_RE = re.compile(r'^(?P<file>[^\s:][^:\n]*):(?P<line>\d+): (?P<message>.+)$', re.MULTILINE)
 _BANG_RE = re.compile(r'^! (?P<message>.+)$', re.MULTILINE)
 _MISSING_FILE_RE = re.compile(r"File [`'](?P<name>[^']+)' not found")
 _MISSING_CHAR_RE = re.compile(
@@ -71,34 +72,6 @@ def latex_version(engine: str) -> str:
   except (OSError, subprocess.SubprocessError):
     return ''
   return done.stdout.splitlines()[0].strip() if done.stdout else ''
-
-
-def source_date_epoch(date: str | None) -> int:
-  """Choose the ``SOURCE_DATE_EPOCH`` of a build.
-
-  Parameters
-  ----------
-  date : str or None
-      The ``meta.date`` of the bundle (ISO 8601), or None.
-
-  Returns
-  -------
-  int
-      The environment's ``SOURCE_DATE_EPOCH`` when it is set; otherwise midnight UTC of ``date``;
-      otherwise 1980-01-01. Never the wall clock.
-  """
-  given = os.environ.get('SOURCE_DATE_EPOCH', '')
-  if given.isdecimal():
-    return int(given)
-  if date:
-    from datetime import UTC, datetime
-
-    try:
-      stamp = datetime.fromisoformat(date.replace('Z', '+00:00'))
-    except ValueError:
-      return EPOCH_DEFAULT
-    return int((stamp if stamp.tzinfo else stamp.replace(tzinfo=UTC)).timestamp())
-  return EPOCH_DEFAULT
 
 
 def compile_project(
@@ -143,7 +116,8 @@ def compile_project(
       target = root / name
       target.parent.mkdir(parents=True, exist_ok=True)
       target.write_bytes(data)
-    log_text = _run(root, engine, epoch)
+    ident = hashlib.sha256(files[f'{MAIN}.tex']).hexdigest()[:32].upper()
+    log_text = _run(root, engine, epoch, ident)
     pdf = root / f'{MAIN}.pdf'
     if not pdf.is_file():
       raise _failure(log_text)
@@ -183,8 +157,12 @@ def parse_log(text: str) -> list[Issue]:
   return issues
 
 
-def _run(root: Path, engine: str, epoch: int) -> str:
-  """Run latexmk in ``root`` and return the text of the log, which may be empty."""
+def _run(root: Path, engine: str, epoch: int, ident: str) -> str:
+  r"""Run latexmk in ``root`` and return the text of the log, which may be empty.
+
+  LuaTeX writes a random file id into the PDF trailer even when ``SOURCE_DATE_EPOCH`` is set, so
+  for it the id is fixed to a hash of the main file (``\pdfvariable trailerid``).
+  """
   env = {
     **os.environ,
     'SOURCE_DATE_EPOCH': str(epoch),
@@ -199,6 +177,11 @@ def _run(root: Path, engine: str, epoch: int) -> str:
     '-file-line-error',
     f'{MAIN}.tex',
   ]
+  if engine == 'lualatex':
+    command[1:1] = [
+      f'-pretex=\\pdfvariable trailerid{{[<{ident}><{ident}>]}}',
+      '-usepretex',
+    ]
   log.info('compiling the LaTeX project with latexmk and %s', engine)
   try:
     done = subprocess.run(

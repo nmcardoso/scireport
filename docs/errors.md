@@ -16,7 +16,7 @@ as data.
 | 0 | Success. |
 | 1 | Failure that is not a validation problem (I/O error, bug). |
 | 2 | The data file, template or layout is invalid (errors; with `--strict` also warnings). |
-| 3 | A system dependency is missing (pango, TeX Live); used from phase S3. |
+| 3 | A system dependency of a PDF engine is missing (pango, TeX Live, a TeX package). |
 
 The table below is checked against `scireport.errors.CODES` by a test, so the two cannot drift.
 
@@ -120,6 +120,17 @@ Component arguments, the sandbox, options.
 | E805 | Option is not supported by this scireport version |
 | E806 | Layout option is unknown or has an invalid value |
 
+## PDF engines
+
+The WeasyPrint and LaTeX engines that turn the HTML or the LaTeX project into a PDF. `E901` exits with
+code 3 and an install hint; `E902` is a failure of the engine itself, with the engine's own messages.
+
+| Code | Meaning |
+|---|---|
+| E901 | A system dependency of a PDF engine is missing |
+| E902 | The PDF engine failed |
+| E903 | Layout does not support the requested PDF engine |
+
 ## Unused items (warnings)
 
 Values and files nothing uses.
@@ -137,6 +148,7 @@ Math that could not be drawn.
 | Code | Meaning |
 |---|---|
 | W601 | Math could not be drawn and is shown as source |
+| W602 | LaTeX could not typeset math and the source is shown instead |
 
 ## Markdown (warnings)
 
@@ -145,3 +157,12 @@ Markdown outside the supported subset.
 | Code | Meaning |
 |---|---|
 | W701 | Markdown construct is outside the supported subset |
+
+## PDF engines (warnings)
+
+Things a PDF engine reported on a build that still produced a PDF.
+
+| Code | Meaning |
+|---|---|
+| W901 | pdfLaTeX falls back to TeX fonts |
+| W902 | The PDF engine reported characters the font does not have |

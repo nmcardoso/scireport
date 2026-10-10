@@ -13,6 +13,7 @@ compat:           ; uv run pytest tests/compat
 # Regenerates the schema of the CURRENT spec version. Never for a released version: its file is frozen.
 schema:           ; uv run scireport spec schema -o scireport/spec/schemas/data-$$(uv run scireport spec version).schema.json
 docs:             ; uv run sphinx-build -W --keep-going -b html docs docs/_build/html
-# Phase S3 replaces this body with the example renders (3 examples x 2 layouts x all formats).
-examples:         ; uv run scireport --version && echo "examples are added in phase S3"
+# 3 examples x 2 layouts x (md, html, tex, pdf via weasyprint, pdf via lualatex, xelatex and pdflatex)
+# into examples/_out/. Needs pango and TeX Live; `make examples EXAMPLES_ARGS=--no-pdf` skips the PDFs.
+examples:         ; uv run python examples/render_all.py $(EXAMPLES_ARGS)
 clean:            ; rm -rf docs/_build examples/_out .coverage htmlcov dist build

@@ -91,7 +91,9 @@ def check_fields(template: Template, bundle: Bundle) -> list[Issue]:
   return issues
 
 
-def check_values(bundle: Bundle, formats: list[Format]) -> list[Issue]:
+def check_values(
+  bundle: Bundle, formats: list[Format], *, math_renderer: str = 'mathtext'
+) -> list[Issue]:
   """Check the values for the formats that will be written, whatever the template.
 
   Parameters
@@ -100,6 +102,9 @@ def check_values(bundle: Bundle, formats: list[Format]) -> list[Issue]:
       The bundle.
   formats : list of {'md', 'html', 'tex'}
       The formats about to be rendered.
+  math_renderer : {'mathtext', 'usetex'}, default='mathtext'
+      The renderer of math for HTML. Only mathtext can be asked in advance whether it draws an
+      expression; a ``usetex`` failure (``W602``) is found while rendering.
 
   Returns
   -------
@@ -129,7 +134,7 @@ def check_values(bundle: Bundle, formats: list[Format]) -> list[Issue]:
               hint='Add alt: {html: ..., md: ...} to the value.',
             )
           )
-    elif isinstance(value, MathValue) and 'html' in formats:
+    elif isinstance(value, MathValue) and 'html' in formats and math_renderer == 'mathtext':
       from scireport.render.math import math_problem
 
       problem = math_problem(value.latex)

@@ -26,6 +26,7 @@ def validate_bundle(
   *,
   options: Mapping[str, object] | None = None,
   strict: bool = False,
+  math_renderer: str = 'mathtext',
 ) -> ValidationReport:
   """Validate a bundle for a template, a layout and the formats to write.
 
@@ -43,6 +44,8 @@ def validate_bundle(
       Layout options given by the caller; checked against the layout (``E806``).
   strict : bool, default=False
       Make warnings fail the validation.
+  math_renderer : {'mathtext', 'usetex'}, default='mathtext'
+      The math renderer of HTML; see :func:`~scireport.validate.checks.check_values`.
 
   Returns
   -------
@@ -62,7 +65,7 @@ def validate_bundle(
   issues.extend(lint.issues)
   issues.extend(_unknown_keys(lint, bundle))
   issues.extend(check_fields(template, bundle))
-  issues.extend(check_values(bundle, formats))
+  issues.extend(check_values(bundle, formats, math_renderer=math_renderer))
   return ValidationReport(tuple(dedupe(issues)), strict)
 
 

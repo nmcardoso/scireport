@@ -1,0 +1,30 @@
+# kitchen-sink@1: one of every component and every hard case, read from the bundle that
+# scireport.demo.kitchen_sink_bundle() builds. Meant for looking at a layout, not for real reports.
+spec: ">=1.0,<2.0"
+name: kitchen-sink
+version: 1
+title: Kitchen sink
+description: Every component of a layout, once, plus the cases that stress it (long headings, long paths, missing values, a 250-row table).
+formats: [md, html, tex]
+entry: report.j2
+fields:
+  - {key: summary.metrics, kind: metrics}
+  - {key: summary.status, kind: status}
+  - {key: "qc.status.*", kind: status}
+  - {key: qc.meta, kind: mapping}
+  - {key: "qc.alert.*", kind: alert}
+  - {key: qc.flow, kind: flow}
+  - {key: "qc.num.*", kind: number}
+  - {key: "qc.eq.*", kind: math}
+  - {key: qc.long_paragraph, kind: text}
+  - {key: qc.rich, kind: text}
+  - {key: qc.bullets, kind: list}
+  - {key: qc.steps, kind: list}
+  - {key: qc.details, kind: text}
+  - {key: qc.note, kind: text}
+  - {key: qc.code, kind: code}
+  - {key: "qc.fig.*", kind: figure}
+  - {key: recon.paths, kind: table}
+  - {key: recon.missing, kind: table}
+  - {key: recon.profile, kind: table}
+  - {key: recon.attachment, kind: attachment}

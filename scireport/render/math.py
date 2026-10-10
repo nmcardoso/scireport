@@ -136,7 +136,9 @@ def render_math(
       hint='Install TeX Live, or use the default mathtext renderer (--math-renderer mathtext).',
     )
   rc = (
-    {**_RC, 'text.usetex': True, 'text.latex.preamble': r'\usepackage{amsmath}'} if usetex else _RC
+    {**_RC, 'text.usetex': True, 'text.latex.preamble': r'\usepackage{amsmath,amssymb}'}
+    if usetex
+    else _RC
   )
   try:
     with mpl.rc_context(rc):

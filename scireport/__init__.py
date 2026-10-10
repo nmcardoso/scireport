@@ -18,6 +18,7 @@ from scireport.errors import (
 )
 from scireport.report import Report
 from scireport.spec import SPEC_VERSION, Manifest, parse_manifest
+from scireport.styles import figure, mplstyle, mplstyle_path, palette
 
 __all__ = [
   'SPEC_VERSION',
@@ -31,7 +32,11 @@ __all__ = [
   'SpecError',
   'SpecVersionError',
   '__version__',
+  'figure',
+  'mplstyle',
+  'mplstyle_path',
   'open_bundle',
+  'palette',
   'parse_manifest',
   'write_bundle',
 ]

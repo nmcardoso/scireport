@@ -104,7 +104,7 @@ def test_flat_output_needs_one_format() -> None:
 
 
 def test_the_bundle_picks_the_formats_and_unknown_ones_are_skipped() -> None:
-  report = Report('T').add_text('t', 'x').set_render(formats=['md', 'pdf'])
+  report = Report('T').add_text('t', 'x').set_render(formats=['md', 'docx'])
   assert render_bundle(report.build()).formats == ('md',)
 
 
@@ -151,9 +151,11 @@ def test_the_latex_engine_goes_into_latexmkrc() -> None:
 
 @pytest.mark.parametrize(
   ('kwargs', 'fragment'),
-  [({'markup_engine': 'pandoc'}, 'pandoc'), ({'math_renderer': 'usetex'}, 'usetex')],
+  [({'markup_engine': 'pandoc'}, 'pandoc'), ({'math_renderer': 'katex'}, 'katex')],
 )
-def test_engines_of_later_phases_are_refused(kwargs: dict[str, str], fragment: str) -> None:
+def test_engines_that_do_not_exist_or_come_later_are_refused(
+  kwargs: dict[str, str], fragment: str
+) -> None:
   with pytest.raises(TemplateError) as caught:
     render_bundle(kitchen_sink(), **kwargs)  # type: ignore[arg-type]
   assert caught.value.code == 'E805' and fragment in caught.value.message

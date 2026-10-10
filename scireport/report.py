@@ -91,12 +91,6 @@ _MEDIA_TYPES = {
   'zip': 'application/zip',
 }
 _TEXT_SUFFIX = {'plain': 'txt', 'markdown': 'md', 'latex': 'tex'}
-_FIGURE_METADATA: dict[str, dict[str, None]] = {
-  'png': {'Software': None},
-  'pdf': {'Creator': None, 'Producer': None, 'CreationDate': None},
-  'svg': {'Creator': None, 'Date': None},
-}
-_SVG_HASHSALT = 'scireport'
 _ZSTD_LEVEL = 9
 
 _P = ParamSpec('_P')
@@ -1139,9 +1133,6 @@ def _read(content: bytes | Path | str) -> bytes:
 
 def _render_figure(figure: Any, fmt: str, dpi: float) -> bytes:
   """Render a matplotlib figure with the metadata that would make the bytes vary removed."""
-  import matplotlib
+  from scireport.styles.figures import figure_bytes
 
-  buffer = io.BytesIO()
-  with matplotlib.rc_context({'svg.hashsalt': _SVG_HASHSALT}):
-    figure.savefig(buffer, format=fmt, dpi=dpi, metadata=_FIGURE_METADATA[fmt])
-  return buffer.getvalue()
+  return figure_bytes(figure, fmt, dpi=round(dpi), tight=False)  # type: ignore[arg-type]

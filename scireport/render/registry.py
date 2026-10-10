@@ -32,8 +32,8 @@ TEMPLATE_GROUP = 'scireport.templates'
 LAYOUT_GROUP = 'scireport.layouts'
 DEFAULT_TEMPLATE = 'generic@1'
 """Template used when neither the bundle nor the caller names one."""
-DEFAULT_LAYOUT = 'minimal@1'
-"""Layout used when neither the bundle nor the caller names one (``default@1`` from S3)."""
+DEFAULT_LAYOUT = 'default@1'
+"""Layout used when neither the bundle nor the caller names one."""
 
 Kind = Literal['template', 'layout']
 

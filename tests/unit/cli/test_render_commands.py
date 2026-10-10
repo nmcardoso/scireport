@@ -40,8 +40,8 @@ def test_layouts_lists_the_built_ins_as_json() -> None:
   result = runner.invoke(app, ['layouts', '--json'])
   assert result.exit_code == 0, result.output
   rows = json.loads(result.stdout)
-  assert [row['ref'] for row in rows] == ['minimal@1']
-  assert rows[0]['formats'] == ['md', 'html', 'tex']
+  assert [row['ref'] for row in rows] == ['default@1', 'minimal@1', 'modern@1']
+  assert all(row['formats'] == ['md', 'html', 'tex'] for row in rows)
 
 
 def test_validate_passes_a_good_bundle(bundle_zip: Path) -> None:
@@ -125,7 +125,7 @@ def test_a_bad_option_is_an_error(bundle_zip: Path, tmp_path: Path) -> None:
   assert not out.exists()
 
 
-@pytest.mark.parametrize(('name', 'code'), [('pdf', 'E805'), ('rtf', 'E801')])
+@pytest.mark.parametrize(('name', 'code'), [('docx', 'E805'), ('rtf', 'E801')])
 def test_unknown_or_later_formats_are_refused(
   bundle_zip: Path, tmp_path: Path, name: str, code: str
 ) -> None:

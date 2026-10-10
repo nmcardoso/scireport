@@ -19,6 +19,7 @@ from typing import Any
 
 from scireport.errors import Issue, MissingDependencyError, PdfError
 from scireport.logging_utils import get_logger
+from scireport.render.pdf import EPOCH_DEFAULT, fixed_epoch
 
 log = get_logger(__name__)
 
@@ -42,13 +43,16 @@ def weasyprint_version() -> str:
     return ''
 
 
-def html_to_pdf(html: str) -> tuple[bytes, list[Issue]]:
+def html_to_pdf(html: str, *, epoch: int = EPOCH_DEFAULT) -> tuple[bytes, list[Issue]]:
   """Print a self-contained HTML document to PDF.
 
   Parameters
   ----------
   html : str
       The document, with CSS, fonts and pictures inlined.
+  epoch : int, default=EPOCH_DEFAULT
+      ``SOURCE_DATE_EPOCH`` while printing: the modification time that fontTools writes into
+      every embedded font.
 
   Returns
   -------
@@ -70,7 +74,8 @@ def html_to_pdf(html: str) -> tuple[bytes, list[Issue]]:
   logger.addHandler(collector)
   try:
     document = weasyprint.HTML(string=html)
-    data: bytes = document.write_pdf(pdf_tags=True)
+    with fixed_epoch(epoch):
+      data: bytes = document.write_pdf(pdf_tags=True)
   except (OSError, ImportError) as exc:
     raise _missing(exc) from exc
   except Exception as exc:  # WeasyPrint raises many types on a document it cannot lay out
