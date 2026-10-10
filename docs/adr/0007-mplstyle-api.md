@@ -21,3 +21,10 @@ A consistency test ties `palette.yaml`, `tokens.css`, the mplstyle and the LaTeX
 
 Figures made by consuming projects look like the report. Changing a colour is one edit, checked by the
 consistency test.
+
+## Notes from implementation (phase S3)
+
+- The style files are `scireport/styles/<name>.mplstyle`; `layout.yaml` names one (`mplstyle: default`) and the palette
+  (`palette: palette.yaml`, inside the layout directory, so it is frozen with the layout).
+- The fonts (`scireport/styles/fonts/`) are shared by both layouts, the HTML writer, the LaTeX project and matplotlib.
+- `scireport.figure()` sizes a figure as a fraction of the page frame of the layout's paper (`a4` or `letter`).

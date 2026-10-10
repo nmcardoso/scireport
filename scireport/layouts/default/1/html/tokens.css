@@ -40,7 +40,7 @@
   /* Type stack: the vendored family first, then the system stack, in case a page is opened
      without @font-face applying. */
   --font-sans: 'Inter', 'Source Sans 3', 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'JetBrains Mono', 'DejaVu Sans Mono', monospace;
+  --font-mono: 'IBM Plex Mono', 'Inter', 'JetBrains Mono', 'DejaVu Sans Mono', monospace;
 
   /* Type scale, points (palette.yaml: type_scale). */
   --text-title: 33pt;

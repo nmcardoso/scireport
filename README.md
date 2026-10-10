@@ -3,9 +3,9 @@
 Data-centric scientific report engine. One **data file** (a report bundle), one **template** (structure) and one
 **layout** (look) go in; **Markdown** (for LLMs), **HTML**, **LaTeX** and **PDF** (for humans) come out.
 
-> **Status: pre-alpha (phase S1).** The data file works: the specification models, the report bundle (directory,
-> ZIP, single file), the `Report` builder, JSON Schemas and the `spec`, `pack`, `unpack` and `inspect` commands.
-> Templates, layouts and the Markdown, HTML, LaTeX and PDF outputs arrive in phases S2 to S5.
+> **Status: pre-alpha (phase S3).** The data file, templates, the `default` and `modern` layouts, and the
+> Markdown, HTML, LaTeX and PDF (WeasyPrint and LaTeX) outputs work. Pre-processors, pandoc and the agent kit
+> arrive in phases S4 to S5.
 
 Inspired by the MOSAICS report engine of `datex`, but standalone and data-centric.
 
@@ -27,6 +27,14 @@ scireport unpack crossmatch.scireport.zip             # -> crossmatch.scireport/
 scireport pack my-report/ -o report.scireport.zip     # hand-authored YAML directory -> sealed ZIP
 scireport spec schema                                 # JSON Schema of the manifest
 ```
+
+```bash
+scireport render crossmatch.scireport.zip -o out -l modern -f html -f pdf          # WeasyPrint PDF
+scireport render crossmatch.scireport.zip -o out -f pdf --pdf-engine latex --latex-engine xelatex
+```
+
+Figures that look like the report: `with scireport.mplstyle('default'): fig, ax = scireport.figure(0.8, 3.0)`
+(see `docs/styles.md`). `make examples` renders three examples with both layouts to every output.
 
 Exit codes: 0 ok, 1 runtime error, 2 invalid input (every problem is listed, each with a stable code such as
 `E101`), 3 missing system dependency.
@@ -66,4 +74,4 @@ Design decisions are in [`docs/adr/`](docs/adr/); repository conventions are in
 
 ## Licence
 
-GPL-3.0-only. Vendored fonts (added in phase S3) are under the SIL Open Font Licence.
+GPL-3.0-only. The vendored fonts (Inter and IBM Plex Mono, `scireport/styles/fonts/`) are under the SIL Open Font Licence 1.1.

@@ -110,6 +110,8 @@ convention = "numpy"
 python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
+# The examples are plain modules next to render_all.py; the tests import them by name.
+mypy_path = ["examples"]
 
 [[tool.mypy.overrides]]
 # Third-party packages without type information. Never relaxed for scireport itself.

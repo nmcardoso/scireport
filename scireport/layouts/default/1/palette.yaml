@@ -49,7 +49,7 @@ cmap:
   diverging: RdBu_r
 fonts:
   sans: [Inter, Source Sans 3, Helvetica Neue, Arial, sans-serif]
-  mono: [IBM Plex Mono, JetBrains Mono, DejaVu Sans Mono, monospace]
+  mono: [IBM Plex Mono, Inter, JetBrains Mono, DejaVu Sans Mono, monospace]
 # Points.
 spacing: [4, 8, 12, 16, 24, 32, 48, 64]
 type_scale:

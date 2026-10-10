@@ -211,7 +211,7 @@
 
 % \scheading{level}{title}{anchor}{pdf text}{listed}{break}
 \newcommand{\scheading}[6]{%
-  \ifnumequal{#6}{1}{\clearpage}{\needspace{5\baselineskip}}%
+  \ifnumequal{#6}{1}{\clearpage}{\ifnumcomp{#1}{=}{1}{\needspace{9\baselineskip}}{\needspace{6\baselineskip}}}%
   \ifnumequal{#5}{1}{\scanchor{#3}{#4}{#1}}{\scanchor{#3}{#4}{}}%
   \ifnumcomp{#1}{=}{1}{%
     \vspace{32pt}%
@@ -290,8 +290,6 @@
 
 \newcommand{\scheadrule}{\noalign{\global\arrayrulewidth=1pt}\arrayrulecolor{sc-gray-300}\hline}
 \newcommand{\scrowrule}{\noalign{\global\arrayrulewidth=0.5pt}\arrayrulecolor{sc-gray-200}\hline}
-
-\newcommand{\scmetarule}{\noalign{\global\arrayrulewidth=0.5pt}\arrayrulecolor{sc-gray-100}\hline}
 
 \hypersetup{pdfborder={0 0 0}}
 \endinput

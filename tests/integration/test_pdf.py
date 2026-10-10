@@ -15,6 +15,7 @@ import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Any
 
 import pytest
 from pdf_text import letters, missing_words, pages, pdf_text
@@ -124,7 +125,8 @@ def test_weasyprint_pdf_is_tagged_and_titled(layout: str, tmp_path: Path) -> Non
   reader = PdfReader(io.BytesIO(data))
   assert reader.metadata is not None
   assert reader.metadata.title == 'Design notes: a reproducible pipeline'
-  assert reader.trailer['/Root'].get('/StructTreeRoot') is not None
+  root: Any = reader.trailer['/Root']
+  assert root.get('/StructTreeRoot') is not None
 
 
 @pytest.mark.pdf_weasyprint

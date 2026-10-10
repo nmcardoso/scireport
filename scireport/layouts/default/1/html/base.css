@@ -129,6 +129,44 @@ p {
   max-width: 68ch;
 }
 
+/* There is no 700 face: bold text uses the 600 one instead of whatever bold the machine has. */
+strong, b, th {
+  font-weight: 600;
+}
+
+code, kbd, pre, samp {
+  font-family: var(--font-mono);
+}
+
+code {
+  font-size: 0.92em;
+}
+
+/* Prose from Markdown: tables and quotes outside the components. */
+table {
+  border-collapse: collapse;
+  margin: var(--space-3) 0 var(--space-4);
+}
+
+th, td {
+  padding: 3pt 10pt 3pt 0;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 0.5pt solid var(--gray-200);
+}
+
+th {
+  color: var(--ink-soft);
+  border-bottom: 1pt solid var(--gray-300);
+}
+
+blockquote {
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-3);
+  border-left: 1.5pt solid var(--gray-300);
+  color: var(--ink-soft);
+}
+
 p.p--muted {
   color: var(--ink-soft);
 }

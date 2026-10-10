@@ -26,3 +26,12 @@
 
 md, html and tex are byte-deterministic; PDF determinism is verified per engine and recorded (best-effort).
 WeasyPrint needs the pango system libraries; CI installs them on each OS.
+
+## Notes from implementation (phase S3)
+
+- PDF is made from another output, never from the template: `weasyprint` prints the HTML and `latex` compiles the LaTeX
+  project in a scratch directory. `-f pdf` is never a default; `render.pdf_engine` and `render.latex_engine` choose the
+  engines, and a layout lists the engines it supports (`E903`).
+- Exit code 3 is `E901`: pango or TeX Live (or one TeX package) is missing, with an install hint for the platform.
+- Reproducibility inputs: `SOURCE_DATE_EPOCH` (environment, else `meta.date`, else 1980-01-01), `FORCE_SOURCE_DATE=1`,
+  and a trailer id derived from `report.tex` for LuaLaTeX. See `DECISIONS.md` for what was found while checking.

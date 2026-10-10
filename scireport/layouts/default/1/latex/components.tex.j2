@@ -172,15 +172,13 @@
 ((* endmacro *))
 
 ((* macro metadata(entries) *))
-{\fontsize{8.5}{13}\selectfont
+{\fontsize{8.5}{13}\selectfont\setlength{\parskip}{0pt}
 \begin{adjustwidth}{0pt}{-\scoverhang}
-\vspace{12pt}\noindent
-\begin{tabular}[t]{@{}>{\color{sc-ink-soft}\sctrackon\raggedright\arraybackslash}p{\dimexpr0.32\linewidth-12pt\relax}@{\hspace{12pt}}>{\ttfamily\raggedright\arraybackslash}p{\dimexpr0.68\linewidth-12pt\relax}@{}}
+\vspace{12pt}
 ((* for label, value in entries *))
-\MakeUppercase{(((label)))} & (((value))) \\[2pt]
-\scmetarule
+\noindent\parbox[t]{\dimexpr0.32\linewidth-12pt\relax}{\color{sc-ink-soft}\sctrackon\raggedright\MakeUppercase{(((label)))}}\hspace{12pt}\parbox[t]{0.68\linewidth}{\ttfamily\raggedright (((value)))}\par\vspace{2pt}\scrule{sc-gray-100}{0.5pt}\vspace{2pt}
 ((* endfor *))
-\end{tabular}\par\vspace{12pt}
+\vspace{12pt}
 \end{adjustwidth}}
 
 ((* endmacro *))

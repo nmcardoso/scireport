@@ -6,6 +6,24 @@ specification (ADR-0008).
 
 ## [Unreleased]
 
+### Added (phase S3)
+
+- Layouts `default@1` (the MOSAICS look: navy cover with a grid and a circle, chapter opener, table of contents with `target-counter` page numbers, running header and footer, every component) and `modern@1` ("Signal": vermilion cover band, giant chapter numerals, heavy rules, rule-only tables), each with Markdown, HTML and LaTeX components, a `palette.yaml` and a matplotlib style. `default@1` is now the default layout.
+- PDF output: `scireport render -f pdf` with the `weasyprint` engine (lazy import; WeasyPrint prints the self-contained HTML) or the `latex` engine (`latexmk` with LuaLaTeX, XeLaTeX or pdfLaTeX; fontspec with the vendored fonts; pdfLaTeX falls back to TeX fonts with `W901`). Options `--pdf-engine` and `--latex-engine`, and `render.pdf_engine` / `render.latex_engine` in the data file. A missing system dependency exits with code 3 (`E901`) and an install hint; LaTeX errors are `E902` with `file:line` from the log. Reproducible dates and ids (`SOURCE_DATE_EPOCH`).
+- Math: the `usetex` renderer (real LaTeX through matplotlib) next to `mathtext`; `W602` when LaTeX rejects an expression.
+- Vendored Inter and IBM Plex Mono subsets with `OFL.txt` (`scireport/styles/fonts/`), inlined in HTML and copied into the LaTeX project.
+- Style API: `scireport.mplstyle()`, `mplstyle_path()`, `palette()`, `figure()`, `scireport.styles.save_figure()` and `figure_bytes()` (PNG, PDF and SVG with no run-varying bytes); a consistency test ties `palette.yaml`, `tokens.css`, the LaTeX colours and the matplotlib style together.
+- Built-in template `kitchen-sink@1` and `scireport.demo.kitchen_sink_bundle()`; three examples under `examples/` and `make examples` (3 examples x 2 layouts x md, html, tex, a WeasyPrint PDF and a PDF from each of three TeX engines), uploaded as artifacts by the `examples` CI job; `examples/gate_s1.py` for the visual gate.
+- Error codes `E901`-`E903`, `W602`, `W901`, `W902`.
+- Documentation pages for layouts, styles and examples; the PDF section of the outputs page.
+- Tests: golden HTML, TeX and Markdown per layout; the spec-1.0 compat corpus gains the renders of both layouts (HTML compared as canonical DOM); PDF integration tests for every engine (text against the Markdown output, reproducibility, frozen text hashes); unit tests for the style API, the log parser and every new error path.
+
+### Changed (phase S3)
+
+- `Report.add_figure` renders matplotlib figures with `scireport.styles.figure_bytes` (PDF with embedded TrueType fonts).
+- `.github/tl_packages`: `siunitx`, `biblatex` and `biber` removed (unused before S5); `changepage`, `enumitem` and `needspace` added.
+- Layout files may list `fonts` (vendored font files) and a `palette` that the loader checks (`E703`).
+
 ### Added (phase S2)
 
 - Template model (`template.yaml`: fields with kinds, table columns and figure renditions, formats, compatible spec range; `report.j2`; optional per-format bodies) and layout model (`layout.yaml`: per-format document, components, CSS and style; typed options with defaults), loaded by `name`, `name@version`, by path, or through the entry-point groups `scireport.templates` and `scireport.layouts`. `pack` pins the resolved versions into the bundle.

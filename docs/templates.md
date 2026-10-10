@@ -73,7 +73,7 @@ options:
 
 Option values come from, in increasing priority, the layout defaults, the bundle's `render.options` and
 `-O name=value` on the command line. An unknown name or a value outside `choices` or `pattern` is `E806`.
-`minimal@1` is the plain reference layout of the engine; the designed layouts arrive in phase S3.
+`minimal@1` is the plain reference layout of the engine; `default@1` and `modern@1` are the designed ones ({doc}`layouts`). With no layout named, `default@1` is used.
 
 ## What a template can use
 
