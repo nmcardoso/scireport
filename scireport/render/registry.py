@@ -20,6 +20,7 @@ from typing import Literal
 
 from scireport.errors import TemplateError
 from scireport.logging_utils import get_logger
+from scireport.render.definition import FORMATS
 from scireport.render.layout import LAYOUT_FILE, Layout, load_layout_dir
 from scireport.render.template import TEMPLATE_FILE, Template, load_template_dir
 from scireport.spec.manifest import Manifest
@@ -343,9 +344,8 @@ def _list(kind: Kind, group: str, filename: str) -> list[Listing]:
 def _listing(loaded: Template | Layout, origin: str, version: int | None = None) -> Listing:
   """Build a listing row from a loaded template or layout."""
   definition = loaded.definition
-  formats = (
-    definition.formats if isinstance(definition.formats, list) else sorted(definition.formats)
-  )
+  # A layout keys its formats in a mapping; list them in the canonical order, like a template.
+  formats = [fmt for fmt in FORMATS if fmt in definition.formats]
   return Listing(
     definition.name,
     version or definition.version,
