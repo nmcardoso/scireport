@@ -82,6 +82,23 @@ class Bundle:
     """Release the file handle of a ZIP bundle; safe to call twice."""
     self._backend.close()
 
+  def with_manifest(self, manifest: Manifest) -> Bundle:
+    """Return a bundle with another manifest over the same files (for example a pinned one).
+
+    The result shares the file handle of this bundle: close only one of them.
+
+    Parameters
+    ----------
+    manifest : Manifest
+        The manifest; it must reference the same assets.
+
+    Returns
+    -------
+    Bundle
+        A bundle with ``manifest`` and this bundle's files.
+    """
+    return Bundle(manifest, self._backend, form=self.form, source=self.source)
+
   @property
   def asset_paths(self) -> list[str]:
     """Paths of the assets the manifest references, sorted, each once."""

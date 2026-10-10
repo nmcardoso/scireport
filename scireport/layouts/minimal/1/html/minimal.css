@@ -1,0 +1,73 @@
+/* minimal@1: plain, readable, no external resources. */
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1a1a1a; background: #fff; }
+main { max-width: 52rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+h1, h2, h3, h4 { line-height: 1.25; margin: 1.6em 0 0.5em; }
+h1.title { font-size: 2rem; margin-top: 0; color: var(--accent); }
+.chapter h1 { font-size: 1.6rem; border-bottom: 2px solid var(--accent); padding-bottom: 0.2em; }
+.number { color: #666; font-variant-numeric: tabular-nums; }
+.cover .subtitle { font-size: 1.15rem; margin: 0; }
+.cover .authors, .cover .facts { margin: 0.3rem 0; color: #444; }
+p { margin: 0.7em 0; }
+a { color: var(--accent); }
+.muted, .caption, figcaption, caption { color: #555; font-size: 0.9rem; }
+.h--run { margin-bottom: 0.2em; }
+.toc { margin: 1.5rem 0; padding: 0.8rem 1rem; background: #f6f7f9; border-radius: 6px; }
+.toc-title { margin: 0 0 0.5rem; font-size: 1.1rem; }
+.toc-row--1 { margin-left: 1.2rem; }
+.toc-row--2 { margin-left: 2.4rem; }
+.toc-row--3 { margin-left: 3.6rem; }
+table { border-collapse: collapse; width: 100%; margin: 0.8rem 0; font-size: 0.92rem; }
+caption { text-align: left; padding-bottom: 0.3rem; }
+th, td { padding: 0.3rem 0.55rem; border-bottom: 1px solid #ddd; vertical-align: top; }
+th { border-bottom: 2px solid #999; text-align: left; }
+.align-right { text-align: right; font-variant-numeric: tabular-nums; }
+.align-center { text-align: center; }
+.align-path { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 0.85em; overflow-wrap: anywhere; }
+.row--pass td { background: #eaf6ec; }
+.row--warn td { background: #fff4e0; }
+.row--fail td { background: #fdeceb; }
+.cell--strong { font-weight: 700; }
+.cell--muted { color: #777; }
+.cell--pass { color: #2e7d32; }
+.cell--warn { color: #b26a00; }
+.cell--fail { color: #b3261e; }
+.unit { color: #666; font-weight: 400; }
+figure { margin: 1.2rem 0; text-align: center; }
+figure img { max-width: 100%; height: auto; }
+.math-inline { vertical-align: middle; }
+.equation { text-align: center; margin: 1rem 0; }
+.equation-number { float: right; color: #555; }
+.math-display { max-width: 100%; }
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.8rem; margin: 1rem 0; }
+.metric { padding: 0.7rem 0.9rem; border: 1px solid #ddd; border-radius: 6px; }
+.metric-label { font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; color: #555; }
+.metric-value { font-size: 1.5rem; font-weight: 700; }
+.metric-detail { font-size: 0.85rem; color: #555; }
+.status, .alert { padding: 0.55rem 0.8rem; margin: 0.8rem 0; border-left: 5px solid #888; background: #f3f3f3; }
+.status--success, .alert--info { border-color: #2e7d32; background: #eaf6ec; }
+.status--warning, .status--partial, .alert--warning { border-color: #b26a00; background: #fff4e0; }
+.status--failed, .alert--error { border-color: #b3261e; background: #fdeceb; }
+.status--running { border-color: var(--accent); background: #eef3f8; }
+.status-headline, .alert-label { font-weight: 700; }
+.flow { list-style: none; padding: 0; counter-reset: stage; }
+.flow-stage { counter-increment: stage; padding: 0.35rem 0.7rem; margin: 0.3rem 0; border-left: 4px solid #999; }
+.flow-stage::before { content: counter(stage, decimal-leading-zero) " "; color: #666; font-variant-numeric: tabular-nums; }
+.flow-stage--done, .flow-stage--reused { border-color: #2e7d32; }
+.flow-stage--failed { border-color: #b3261e; }
+.flow-stage--skipped, .flow-stage--pending { border-color: #bbb; color: #666; }
+.flow-state { font-size: 0.8rem; color: #555; }
+.flow-detail { font-size: 0.88rem; color: #555; }
+.metadata dt { font-weight: 700; float: left; clear: left; margin-right: 0.5rem; }
+.metadata dd { margin: 0 0 0.3rem 0; }
+.code-block pre { margin: 0.5rem 0; padding: 0.7rem 0.9rem; background: #f6f7f9; border-radius: 6px; overflow-x: auto; }
+code { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 0.9em; }
+.code-language { font-size: 0.75rem; color: #666; text-transform: uppercase; }
+details { margin: 0.8rem 0; padding: 0.4rem 0.8rem; border: 1px solid #ddd; border-radius: 6px; }
+summary { cursor: pointer; font-weight: 600; }
+.note { color: #555; font-size: 0.92rem; }
+.fact-label { font-weight: 700; }
+.abstract { margin: 1.2rem 0; font-size: 1.02rem; }
+.footer { text-align: center; color: #666; font-size: 0.85rem; padding: 1rem; }
+.page-break { break-before: page; }
+@media print { main { max-width: none; padding: 0; } }

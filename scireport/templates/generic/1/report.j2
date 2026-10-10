@@ -1,0 +1,22 @@
+{#- generic@1: render the outline. `outline` is the manifest outline, or one built from the keys. -#}
+{% macro label(key) -%}
+{{ (key.split('.')[-1] | replace('-', ' ') | replace('_', ' ')) | capitalize }}
+{%- endmacro %}
+
+{% macro walk(nodes, depth) %}
+{% for node in nodes %}
+{% if node.key %}
+{{ c.value(v(node.key), label=label(node.key)) }}
+
+{% elif depth == 0 %}
+{{ c.chapter(node.title, md_file=node.md_file, page_break=node.page_break, in_contents=node.in_contents) }}
+
+{{ walk(node.children, 1) }}
+{% else %}
+{{ c.heading(node.title, [depth, 3] | min, page_break=node.page_break, in_contents=node.in_contents) }}
+
+{{ walk(node.children, depth + 1) }}
+{% endif %}
+{% endfor %}
+{% endmacro %}
+{{ walk(outline, 0) }}

@@ -1,12 +1,14 @@
 # TeX Live packages for the pdf-latex job (tlmgr names). Keep in step with the LaTeX layouts (phase S3).
+# ulem is in collection-plaingeneric, which none of the collections below pulls in. longtable is not a
+# package of its own (it ships in "tools", part of scheme-basic), so it is not listed.
 scheme-basic
 collection-latexrecommended
 collection-luatex
 collection-xetex
 collection-fontsrecommended
 latexmk
+ulem
 booktabs
-longtable
 siunitx
 tcolorbox
 tikzfill

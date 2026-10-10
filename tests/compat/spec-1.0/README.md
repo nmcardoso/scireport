@@ -12,7 +12,10 @@ Each case holds the bundle in the forms it supports plus `expected/`:
 | `full-kinds` | directory, ZIP | All 16 kinds, every asset type, render and outline blocks. |
 
 `expected/manifest.json` is the canonical manifest a reader must produce; `expected/summary.json` is
-what `scireport inspect --json` reports (without the path and form). Later phases add the expected
-`.md`, canonical `.html`, `.tex` and PDF text hash per case.
+what `scireport inspect --json` reports (without the path and form). `expected/render-generic-1-minimal-1/{md,html,tex}/` holds the files that `generic@1` and `minimal@1` write for the
+case (added in phase S2 by `make_render_1_0.py`; the package version in the file headers is replaced by
+`<version>` and `render-manifest.json` is left out, because it records dependency versions). `generic@1` renders
+what the outline lists, so the values a case's outline leaves out are not in these files; `tests/golden/` renders
+every kind. Later phases add the PDF text hash and the renders of `default@1` and `modern@1`.
 
 `tests/compat/make_spec_1_0.py` created the corpus once and refuses to run again.

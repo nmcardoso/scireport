@@ -13,6 +13,7 @@ from scireport.bundle.summary import inspect_bundle
 from scireport.cli._common import EXIT_VALIDATION, MEGABYTE, echo_json, reporting_errors
 from scireport.errors import BundleError
 from scireport.logging_utils import get_logger, log_kv
+from scireport.render.registry import pin_manifest
 from scireport.spec.manifest import manifest_to_dict
 
 log = get_logger(__name__)
@@ -139,7 +140,13 @@ def _transfer(
         code=errors[0].code,
         issues=errors,
       )
-    written = write_bundle(bundle, dest, overwrite=force, max_bytes=cap)
+    to_write = bundle
+    if verb == 'pack':
+      pinned = pin_manifest(bundle.manifest)
+      if pinned is not bundle.manifest:
+        log.info('pinned template %s and layout %s', pinned.render.template, pinned.render.layout)
+        to_write = bundle.with_manifest(pinned)
+    written = write_bundle(to_write, dest, overwrite=force, max_bytes=cap)
     form = infer_form(written)
     log_kv(
       log,

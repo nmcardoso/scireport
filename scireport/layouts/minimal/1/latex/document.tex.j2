@@ -1,0 +1,20 @@
+% ((( info.generated | safe )))
+\documentclass[11pt,((( 'a4paper' if options.paper == 'a4' else 'letterpaper' )))]{article}
+((* if style *))
+\usepackage{(((style | safe)))}
+((* endif *))
+\definecolor{accent}{HTML}{(((options.accent | replace('#', '') | upper | safe)))}
+\hypersetup{pdftitle={(((meta.title)))},pdfcreator={scireport (((info.scireport_version)))}}
+\begin{document}
+((( c.cover() )))
+((* if meta.abstract *))
+\begin{abstract}
+((( meta.abstract | md )))
+\end{abstract}
+((* endif *))
+((* if options.toc *))
+((( c.contents() )))
+((* endif *))
+
+((( body )))
+\end{document}

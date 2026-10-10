@@ -6,6 +6,25 @@ specification (ADR-0008).
 
 ## [Unreleased]
 
+### Added (phase S2)
+
+- Template model (`template.yaml`: fields with kinds, table columns and figure renditions, formats, compatible spec range; `report.j2`; optional per-format bodies) and layout model (`layout.yaml`: per-format document, components, CSS and style; typed options with defaults), loaded by `name`, `name@version`, by path, or through the entry-point groups `scireport.templates` and `scireport.layouts`. `pack` pins the resolved versions into the bundle.
+- Jinja environments per format: `SandboxedEnvironment`, `StrictUndefined`, escaping for the format, LaTeX-safe delimiters `((* *))`, `((( )))`, `((= =))` for LaTeX files only, and the MOSAICS filters (`fmt_int`, `fmt_float`, `share`, `fmt_bytes`, `duration`, `pct`, `ppm`, `sci`, `compact`, `missing`, `breakable`, `slug`).
+- Component layer (`c.chapter`, `c.table`, `c.figure`, `c.metrics`, `c.details`, ... 24 components) with Markdown, HTML and LaTeX macros in the built-in `minimal@1` layout; the single-pass outline and table of contents; math drawn with matplotlib `mathtext` for HTML.
+- Markup converter interface with the mistletoe backend and a documented Markdown subset (`W701` outside it).
+- Validation engine: aggregated, coded issues with key, JSON pointer, expected and found, template `file:line` and suggestions; `--strict`, `--json`; Jinja AST lint; render-time tracking of values used and left over. Commands `validate`, `render`, `templates`, `layouts`.
+- Writers: Markdown (single file, or `index.md` plus one file per chapter with an `md_file`, `figures/`, alt text, generated-file header), self-contained HTML, standalone LaTeX project (`report.tex`, layout `.sty`, `latexmkrc`, PDF figures preferred, booktabs/longtable tables) and `render-manifest.json`. Same inputs give byte-identical files.
+- LaTeX and Markdown escaping, with hypothesis property tests.
+- Built-in `generic@1` template that renders any bundle from its outline; `minimal@1` layout.
+- Error catalogue extended and documented in `docs/errors.md`, drift-tested; documentation pages for templates and layouts, Markdown limits and outputs.
+- Tests: unit tests for every filter, component and error code; golden Markdown, HTML and LaTeX; byte-identical double renders; sandbox escape attempts; the expected renders of the frozen spec-1.0 corpus; integration tests that compile the golden LaTeX project and a bundle of hostile text with pdfLaTeX, XeLaTeX and LuaLaTeX.
+
+### Fixed (phase S2)
+
+- `md_escape` now escapes a leading `.` or `)` (mistletoe reads it as an empty list item).
+- CI: `ulem` added to the TeX Live package list of the `pdf-latex` job; `longtable`, which is not a TeX Live package, removed.
+- `scireport layouts` lists formats in the canonical order.
+
 ### Added (phase S1)
 
 - Data-file specification 1.0 (`scireport.spec`): pydantic models for the manifest blocks and the 16 kinds

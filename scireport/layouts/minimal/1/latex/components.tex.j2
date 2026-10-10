@@ -1,0 +1,260 @@
+((=- LaTeX components of minimal@1. Delimiters: ((* block *)), ((( variable ))), ((= comment =)).
+     A line that ends with a block tag loses its newline; (((eol))) puts it back. -=))
+((* set lp = '(' *))
+((* set rp = ')' *))
+
+((* macro cap(text) -*))
+((* if options.numbered_captions *))\caption{(((text)))}((* else *))\caption*{(((text)))}((* endif *))
+((*- endmacro *))
+
+((* macro capof(kind, text) -*))
+((* if options.numbered_captions *))\captionof{(((kind | safe)))}{(((text)))}((* else *))\captionof*{(((kind | safe)))}{(((text)))}((* endif *))
+((*- endmacro *))
+
+((* macro chapter(title, entry, page_break) *))
+((* if page_break *))
+\clearpage
+((* endif *))
+\section((* if not entry.number *))*((* endif *)){(((title)))}\label{(((entry.anchor)))}
+
+((* endmacro *))
+
+((* macro heading(text, level, entry, page_break) *))
+((* if page_break *))
+\clearpage
+((* endif *))
+\(((['subsection', 'subsubsection', 'paragraph'][level - 1] | safe)))((* if not entry.number *))*((* endif *)){(((text)))}\label{(((entry.anchor)))}
+
+((* endmacro *))
+
+((* macro contents(entries) *))
+\tableofcontents
+
+((* endmacro *))
+
+((* macro cover(cover) *))
+\title{(((cover.title)))((* if options.cover and cover.subtitle *)) \\[0.4em] \large (((cover.subtitle)))((* endif *))}
+((* if options.cover *))
+\author{((* for a in cover.authors *))(((a)))((* if not loop.last *)) \and ((* endif *))((* endfor *))}
+\date{(((cover.date)))((* if cover.version *)) \\ Version (((cover.version)))((* endif *))((* if cover.pipeline *)) \\ (((cover.pipeline)))((* endif *))}
+((* else *))
+\author{}
+\date{}
+((* endif *))
+\maketitle
+
+((* endmacro *))
+
+((* macro col_spec(col, widths) -*))
+((* if widths -*))
+((* set w = '\\dimexpr ' ~ (col.width | round(4)) ~ '\\linewidth-2\\tabcolsep\\relax' -*))
+((* if col.align == 'right' *))>{\raggedleft\arraybackslash}p{(((w | safe)))}((* elif col.align == 'center' *))>{\centering\arraybackslash}p{(((w | safe)))}((* else *))>{\raggedright\arraybackslash}p{(((w | safe)))}((* endif *))
+((*- else -*))
+((* if col.align == 'right' *))r((* elif col.align == 'center' *))c((* else *))l((* endif *))
+((*- endif -*))
+((*- endmacro *))
+
+((* macro head_row(spec) -*))
+((* for col in spec.columns *))\textbf{(((col.label)))((* if col.unit *)) (((lp)))(((col.unit)))(((rp)))((* endif *))}((* if not loop.last *)) & ((* endif *))((* endfor *))((* if spec.has_verdicts *)) & \textbf{Status}((* endif *))
+((*- endmacro *))
+
+((* macro body_row(spec, row) -*))
+((* if row.verdict *))\rowcolor{(((row.verdict | safe)))!12}((* endif *))((* for cell in row.cells *))((* set style = row.emphasis[loop.index0] *))((* set col = spec.columns[loop.index0] *))((* if style == 'strong' *))\textbf{(((cell)))}((* elif style *))\textcolor{(((style | safe)))}{(((cell)))}((* elif col.align == 'path' *))\texttt{(((cell | breakable)))}((* else *))(((cell)))((* endif *))((* if not loop.last *)) & ((* endif *))((* endfor *))((* if spec.has_verdicts *)) & (((row.verdict or '')))((* endif *))
+((*- endmacro *))
+
+((* macro table(spec) *))
+((* if not spec.rows *))
+\emph{Nothing recorded.}\par
+
+((* else *))
+((* set widths = spec.columns | selectattr('width_given') | list | length > 0 *))
+\begin{center}
+\small
+((* if spec.rows | length > 25 *))
+\begin{longtable}{((* for col in spec.columns *))(((col_spec(col, widths))))((* endfor *))((* if spec.has_verdicts *))l((* endif *))}
+((* if spec.caption *))(((cap(spec.caption))))\\(((eol)))((* endif *))
+\toprule
+(((head_row(spec))))\\
+\midrule
+\endfirsthead
+\toprule
+(((head_row(spec))))\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+((* for row in spec.rows *))
+(((body_row(spec, row))))\\
+((* endfor *))
+\end{longtable}
+((* else *))
+((* if spec.caption *))
+{\par(((capof('table', spec.caption))))}
+((* endif *))
+\begin{tabular}{((* for col in spec.columns *))(((col_spec(col, widths))))((* endfor *))((* if spec.has_verdicts *))l((* endif *))}
+\toprule
+(((head_row(spec))))\\
+\midrule
+((* for row in spec.rows *))
+(((body_row(spec, row))))\\
+((* endfor *))
+\bottomrule
+\end{tabular}
+((* endif *))
+\end{center}
+((* if spec.truncated *))
+{\footnotesize Showing the first (((spec.rows | length | fmt_int))) of (((spec.total | fmt_int))) rows.((* if spec.overflow *)) All rows: \texttt{(((spec.overflow.href | breakable)))}.((* endif *))}\par
+((* endif *))
+
+((* endif *))
+((* endmacro *))
+
+((* macro figure(spec) *))
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=(((spec.width)))\linewidth]{(((spec.src | safe)))}
+((* if spec.caption *))
+(((cap(spec.caption))))
+((* endif *))
+% alt: (((spec.alt | replace('\n', ' '))))
+\end{figure}
+
+((* endmacro *))
+
+((* macro image(spec) *))
+\begin{center}
+\includegraphics[width=(((spec.width)))\linewidth]{(((spec.src | safe)))}
+((* if spec.caption *))
+
+{\small (((spec.caption)))}
+((* endif *))
+% alt: (((spec.alt | replace('\n', ' '))))
+\end{center}
+
+((* endmacro *))
+
+((* macro equation(spec) *))
+((* if spec.number *))
+\begin{equation}
+(((spec.body)))
+\end{equation}
+((* else *))
+\[
+(((spec.body)))
+\]
+((* endif *))
+((* if spec.caption *))
+{\small\itshape (((spec.caption)))}\par
+((* endif *))
+
+((* endmacro *))
+
+((* macro metrics(entries) *))
+((* set with_detail = entries | selectattr('detail') | list | length > 0 *))
+\begin{center}
+\begin{tabular}{lr((* if with_detail *))l((* endif *))}
+\toprule
+\textbf{Metric} & \textbf{Value}((* if with_detail *)) & \textbf{Detail}((* endif *))\\
+\midrule
+((* for m in entries *))
+(((m.label))) & (((m.value)))((* if with_detail *)) & (((m.detail)))((* endif *))\\
+((* endfor *))
+\bottomrule
+\end{tabular}
+\end{center}
+
+((* endmacro *))
+
+((* macro status(level, headline, detail) *))
+((* set colors = {'success': 'pass', 'warning': 'warn', 'partial': 'warn', 'failed': 'fail', 'running': 'accent'} *))
+\begin{quote}
+\textbf{\textcolor{(((colors[level] | safe)))}{(((level | upper)))}}\quad (((headline)))((* if detail *)) \\ (((detail)))((* endif *))(((eol)))
+\end{quote}
+
+((* endmacro *))
+
+((* macro alert(level, text) *))
+((* set colors = {'info': 'accent', 'warning': 'warn', 'error': 'fail'} *))
+\begin{quote}
+\textbf{\textcolor{(((colors[level] | safe)))}{(((level | upper)))}}\quad (((text)))
+\end{quote}
+
+((* endmacro *))
+
+((* macro flow(stages) *))
+\begin{enumerate}
+((* for s in stages *))
+\item \textbf{(((s.label)))} \textit{(((s.state)))}((* for line in s.detail *)) --- (((line)))((* endfor *))(((eol)))
+((* endfor *))
+\end{enumerate}
+
+((* endmacro *))
+
+((* macro metadata(entries) *))
+\begin{description}
+((* for label, value in entries *))
+\item[{(((label)))}] (((value)))
+((* endfor *))
+\end{description}
+
+((* endmacro *))
+
+((* macro bullets(items, ordered) *))
+((* set env = 'enumerate' if ordered else 'itemize' *))
+\begin{(((env | safe)))}
+((* for item in items *))
+\item (((item)))
+((* endfor *))
+\end{(((env | safe)))}
+
+((* endmacro *))
+
+((* macro code(source, language, caption, fence, verbatim) *))
+\begin{verbatim}
+(((verbatim)))
+\end{verbatim}
+((* if caption *))
+{\small\itshape (((caption)))}\par
+((* endif *))
+
+((* endmacro *))
+
+((* macro details(summary, body) *))
+\par\noindent\textbf{(((summary)))}\par
+\begin{quote}
+(((body)))
+\end{quote}
+
+((* endmacro *))
+
+((* macro note(body) *))
+\begin{quote}
+\small\itshape (((body)))
+\end{quote}
+
+((* endmacro *))
+
+((* macro paragraph(body) *))
+(((body)))
+
+((* endmacro *))
+
+((* macro fact(label, value) *))
+\noindent\textbf{(((label))):} (((value)))\par
+
+((* endmacro *))
+
+((* macro attachment(link) *))
+((* if link.href *))\href{(((link.href | safe)))}{\texttt{(((link.filename)))}}((* else *))\texttt{(((link.filename)))}((* endif *))((* if link.description *)) --- (((link.description)))((* endif *))((* if link.size *)) (((lp)))(((link.size)))(((rp)))((* endif *))\par
+
+((* endmacro *))
+
+((* macro spacer(height) *))
+\vspace{(((height)))pt}
+
+((* endmacro *))
+
+((* macro page_break() *))
+\clearpage
+
+((* endmacro *))

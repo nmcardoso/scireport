@@ -9,7 +9,7 @@ from typing import Annotated
 import typer
 
 from scireport._version import __version__
-from scireport.cli import bundle, spec
+from scireport.cli import bundle, render, spec
 from scireport.logging_utils import setup_logging
 
 app = typer.Typer(
@@ -21,6 +21,10 @@ app = typer.Typer(
 app.command('pack')(bundle.pack)
 app.command('unpack')(bundle.unpack)
 app.command('inspect')(bundle.inspect)
+app.command('validate')(render.validate)
+app.command('render')(render.render)
+app.command('templates')(render.templates)
+app.command('layouts')(render.layouts)
 app.add_typer(spec.app, name='spec')
 
 
