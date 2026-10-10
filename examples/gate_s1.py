@@ -111,12 +111,16 @@ def _page_images(pdf: Path, scratch: Path) -> list[Image.Image]:
   chosen: list[Image.Image] = []
   for name, needle, which in PAGES:
     hits = [i for i, text in enumerate(texts) if needle and needle in text]
-    if name == 'cover' or not hits:
-      index = 0
-    else:
-      index = hits[0] if which == 'first' else hits[-1]
+    index = _choose(name, hits, which)
     chosen.append(Image.open(files[index]).convert('RGB'))
   return chosen
+
+
+def _choose(name: str, hits: list[int], which: str) -> int:
+  """Return the page to show: the first, the last or (for the cover, or no match) page 0."""
+  if name == 'cover' or not hits:
+    return 0
+  return hits[0] if which == 'first' else hits[-1]
 
 
 def letters(text: str) -> str:
