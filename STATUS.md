@@ -22,8 +22,10 @@ No gate. **Still open: the HG-S1 layout changes** (see "Questions").
 - **Workflow**: `docs.yml` builds the examples (pango + TeX Live), then `make docs SITE=_site
   DOCS_ARGS=--require-gallery`, and deploys from `main` only (pull requests just build). `ci.yml`'s `docs` job runs
   `make docs` and linkcheck.
-- **CI fix** (found while checking the matrix): `lint`, `test` and `lowest` failed on `main` since S5 because they
-  installed no extras; they now use `--all-extras`.
+- **CI fixes** (found while checking the matrix): `lint`, `test` and `lowest` failed on `main` since S5. Cause 1: they
+  installed no extras (now `--all-extras`). Cause 2, hidden by it: six pre-processor tests failed on a machine without a
+  system font with Greek letters (the vendored Inter subset has none); `snr_magnitude` and `zeropoint_offsets` now use
+  mathtext. Reproduced and fixed in an Ubuntu 24.04 container running the CI commands (1551 passed, 7 skipped).
 
 ## Verification (local, 2026-10-10)
 

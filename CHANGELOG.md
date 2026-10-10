@@ -17,6 +17,7 @@ specification (ADR-0008).
 
 - CI: the `lint`, `test` and `lowest` jobs installed only the `dev` group, so mypy could not import `mcp` and the pre-processor end-to-end test lacked astropy; they now sync `--all-extras`.
 - `minimal@1`: the description of the `accent` option was cut at its `#` (an unquoted YAML comment); it is quoted now. Only the listed description changes, not any output.
+- `astro.snr_magnitude` and `astro.zeropoint_offsets` drew `σ` and `Δ` as Unicode text, which the vendored Inter subset lacks: on a machine without a system font that has them matplotlib warned, and the tests (warnings are errors) failed. They use mathtext (`$5\sigma$`, `$\Delta m$`) now; the default `y_label` of `astro.zeropoint_offsets` changes from `Δm (mag)` to `$\Delta m$ (mag)`.
 - The skill and the docs said YAML anchors are rejected; only aliases (`*a`) are (`E408`).
 
 ### Added (phase S5)
