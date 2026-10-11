@@ -1,7 +1,8 @@
 # STATUS
 
 **Phase:** S7 (freeze and release 1.0.0) is done up to the gate. Branch `s7/release`, pull request
-[#2](https://github.com/nmcardoso/scireport/pull/2), merged into `main`. The package says `1.0.0`; the **tag `v1.0.0` is
+[#2](https://github.com/nmcardoso/scireport/pull/2), **not merged into `main` yet** (the merge was refused by the permission
+system of the session: merge the pull request, all its checks are green). The package says `1.0.0`; the **tag `v1.0.0` is
 not pushed**. **Blocked on gate HG-S2** (release sign-off), written below. Next phase after the tag: S8 (nothing started).
 
 ## Gate HG-S2: release sign-off for scireport 1.0.0
@@ -86,7 +87,7 @@ either list disappears or changes since the latest release tag (`tests/frozen.py
 
 **(1) Push the tag `v1.0.0`?** The default is that nothing is tagged until you say so.
 
-- (a) **Approve as is.** I merge nothing further, update the dates (below) and you or I push `v1.0.0` from `main`. The two
+- (a) **Approve as is.** Merge pull request #2, then the dates are updated (below) and `v1.0.0` is pushed from `main`. The two
   design questions under (2) stay as they are and a change later becomes a new layout version.
 - (b) **Approve after the answers to (2).** Changes asked for in (2) are made first, the corpus folders of the affected layout
   and its lines in the two freeze lists are regenerated (allowed only until the tag), CI is re-run, then the tag.
@@ -137,8 +138,8 @@ edited out of the archived version.
 
 ### Mechanics that you may want to know
 
-- The branch was merged into `main`, so `main` already says `1.0.0` and carries the freeze lists; the tag is the only thing
-  held back. The freeze check in CI is skipped until the first tag exists, so a change requested at this gate is not blocked.
+- Until pull request #2 is merged, `main` still says `0.1.0.dev0` and has no freeze lists; the tag must be created on the
+  merge commit. The freeze check in CI is skipped until the first tag exists, so a change requested at this gate is not blocked.
 - To change a frozen layout before the tag: edit it, regenerate its corpus folders (a one-off script like
   `make_render_layouts_1_0.py`, which refuses to overwrite: remove the folder first), delete and rewrite its lines in
   `FROZEN.sha256` and `FROZEN-builtins.sha256`, and run `make check` and `make test-integration`.
