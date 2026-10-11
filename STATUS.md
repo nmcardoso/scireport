@@ -136,6 +136,8 @@ not archived. It needs the answer to (4).
 ORCID or an affiliation, and without a DOI. Give them (or say "as is") before the tag; a wrong author on a DOI cannot be
 edited out of the archived version.
 
+**Answers:** (1) **(b)**, (2a) **(b)**, (2b) **(a)**, (2c) **(b)**, (2d) **(a)**, (3) **(c)**, (4) **name: N. M. Cardoso; ORCID: 0000-0002-2238-9665**.
+
 ### Mechanics that you may want to know
 
 - Until pull request #2 is merged, `main` still says `0.1.0.dev0` and has no freeze lists; the tag must be created on the
