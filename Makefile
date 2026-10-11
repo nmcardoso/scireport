@@ -1,5 +1,5 @@
 # Thin wrappers around uv; the pipeline also runs without make.
-.PHONY: setup check lint format typecheck test test-integration compat schema skill docs docs-linkcheck examples clean
+.PHONY: setup check lint format typecheck test test-integration compat compat-growth schema skill docs docs-linkcheck examples clean
 
 setup:            ; uv sync --locked --all-extras --group dev --group docs
 check:            lint typecheck test
@@ -10,6 +10,9 @@ test:             ; uv run pytest -m "not integration" --cov=scireport --cov-rep
 test-integration: ; uv run pytest -m integration
 # The frozen compat corpus (ADR-0008); also part of `make test`.
 compat:           ; uv run pytest tests/compat
+# The freeze lists may only grow since BASE (the corpus and the built-in layouts, templates and schemas).
+BASE ?= origin/main
+compat-growth:    ; uv run python tests/frozen.py $(BASE)
 # Regenerates the schema of the CURRENT spec version. Never for a released version: its file is frozen.
 schema:           ; uv run scireport spec schema -o scireport/spec/schemas/data-$$(uv run scireport spec version).schema.json
 # Rewrites the generated tables of the packaged skill and of the docs pages from the code (a test fails when they are stale).
