@@ -33,7 +33,9 @@ Core: jinja2, pydantic 2, pyyaml, typer, numpy, pyarrow, matplotlib, mistletoe. 
 
 The Inter and IBM Plex Mono subsets are copied from datex together with `OFL.txt`. IBM Plex Serif (OFL) and TeX Gyre
 Pagella, Heros and Cursor (GUST Font Licence, `GFL.txt`) were subset from the upstream releases with `pyftsubset` to the
-same character range plus the Greek letters and `≤ ≥ ≈ ≠ √`.
+same character range plus the Greek letters and `≤ ≥ ≈ ≠ √`. The GUST Font Licence asks that a modified font be
+renamed, so the TeX Gyre subsets carry the suffix `Subset` in their family, PostScript and file names, and
+`MANIFEST-TeXGyreSubset.txt` lists them; keep both next to the fonts.
 
 ## Continuous integration
 

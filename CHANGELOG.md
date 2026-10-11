@@ -6,6 +6,56 @@ specification (ADR-0008).
 
 ## [Unreleased]
 
+## [1.0.0] - unreleased
+
+The first release, prepared in phase S7 and pending sign-off (gate HG-S2); the date is set when the tag is pushed.
+It freezes data-file specification 1.0, the built-in templates (`generic@1`, `kitchen-sink@1`) and layouts
+(`minimal@1`, `default@1`, `modern@1`), the 17 value kinds, the error codes and the public Python API
+(`scireport.__all__`, 37 names). Everything below, grouped by development phase, is part of this release.
+
+### Changed (answers to gate HG-S2, before the tag)
+
+- **TeX Gyre subsets renamed.** The GUST Font Licence asks that a modified font and its files get new names and be listed in
+  a manifest. The eight faces of `modern@1` are now `TeXGyrePagellaSubset`, `TeXGyreHerosSubset` and
+  `TeXGyreCursorSubset` (family and PostScript names inside the files, file names, `@font-face` families, the `.sty`,
+  the palette and the matplotlib style); `MANIFEST-TeXGyreSubset.txt` lists them and is copied with `GFL.txt` into LaTeX
+  projects. The HTML and matplotlib font stacks keep the full TeX Gyre family and then the system fonts as fallbacks.
+- **`default@1` HTML tables**: rows with a verdict now have a solid 3 pt strip on the left for all three verdicts (it was
+  solid, dashed and double), the same strip the LaTeX table draws.
+- Author metadata: `CITATION.cff` and `pyproject.toml` name N. M. Cardoso; `CITATION.cff` gives the ORCID.
+- The compat renders of `default@1` and `modern@1` (HTML, and the LaTeX font folder of `modern@1`), the golden files and
+  both freeze lists were regenerated for these changes. The PDF-text hashes and every `minimal@1` render came out unchanged.
+
+### Added (phase S7: the 1.0 freeze)
+
+- **The compat corpus `tests/compat/spec-1.0/` is complete** (ADR-0008): every one of the 17 kinds, both designed
+  layouts (and `minimal@1`), Markdown, HTML and LaTeX, the text of the WeasyPrint and LuaLaTeX PDFs, and both markup
+  engines. New case `every-kind` (the values of `full-kinds` plus a bibliography, with an outline that lists all 17
+  kinds: the `generic@1` renders of `full-kinds` show only the four values its outline lists); the `-pandoc` render
+  folders of every case and layout; the `bibliography` case rendered with `default@1` and `modern@1`; PDF text hashes
+  for each of these. `pandoc-version.txt` records the pandoc that wrote the `-pandoc` files, and their tests compare
+  only against it (skip locally, fail in CI with another version). Created by `make_every_kind_1_0.py` and
+  `make_render_complete_1_0.py`, which only add files.
+- **The built-ins are frozen by hash**: `tests/compat/FROZEN-builtins.sha256` lists every file of every
+  `layouts/<name>/<n>/` and `templates/<name>/<n>/` directory, the vendored fonts, the `.mplstyle` files and the frozen JSON
+  Schema; a test compares it with the files (`make_frozen_builtins.py` only appends lines for new versions).
+- **Freeze lists only grow**: `tests/frozen.py BASE_REF` (`make compat-growth`) fails when a line of either freeze
+  list disappeared or changed since a revision, so a fixture cannot be regenerated together with its hash. The new CI job
+  `compat` runs `make compat` with pandoc and checks growth against the latest release tag (until the first tag exists,
+  nothing is released and nothing is checked).
+- `release.yml` can be started by hand against any ref (`workflow_dispatch`) for the sign-off; its build job runs
+  `.github/check_dist.py` (the wheel and the sdist hold every frozen built-in file with its recorded hash, and the wheel
+  holds the agent skill) and its clean-room job runs `.github/clean_room.sh`: a fresh virtual environment outside the
+  checkout, `scireport[pdf,astro]` installed from the git URL, the kitchen sink rendered to Markdown, HTML, LaTeX and PDF
+  with both designed layouts.
+- `CITATION.cff`.
+
+### Changed (phase S7)
+
+- The package version is `1.0.0`. The README has a quickstart, the install lines for a consuming project and the system
+  dependencies per feature; the support statement is Linux with Python 3.12 to 3.14 (3.15 stays experimental).
+- The `pdf-weasyprint` CI job installs the `pandoc` extra: the frozen PDF text hashes include the pandoc renders.
+
 ### Changed (HG-S1 answer: the designs of `default@1` and `modern@1`; neither is released, so no new version)
 
 - `default@1`: the WeasyPrint header rule spans the whole frame and the content starts 8 mm below it (LuaLaTeX: `headsep` 22 pt); the text is no longer capped at 68 characters (LaTeX: no right margin for the 52 mm overhang) and is set in **IBM Plex Serif** at 11 pt, while headings, tables and the dashboard components stay in Inter; the table of contents and every chapter opener are followed by a page break; the left border of the status and alert boxes is always solid (the level is told by its colour and its printed headline), the flow has no dots (the rail takes the colour of the state); LuaLaTeX: the rule under a heading follows it closely (the rule was a whole line high), the contents rows are tight and their page numbers flush right, the metric value sits further below its title, the unit of a table column is on its own line under the name, and a heading is no longer left alone at the foot of a page or followed by a ghost table header (`\Needspace` instead of `\needspace` after a longtable).

@@ -80,7 +80,7 @@ jobs:
           enable-cache: true
       - name: Install pango
         run: sudo apt-get update && sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0
-      - run: uv sync --group dev --extra pdf
+      - run: uv sync --group dev --extra pdf --extra pandoc
       - run: uv run pytest -m pdf_weasyprint
 
   pdf-latex:
@@ -117,6 +117,28 @@ jobs:
           enable-cache: true
       - run: uv sync --group dev --extra pandoc
       - run: uv run pytest -m pandoc
+
+  # The frozen compat corpus (ADR-0008): every fixture and expected output still has its recorded
+  # hash, the pandoc renders are checked with the pandoc version that made them, and the freeze
+  # lists only grew since the latest release tag (no tag yet: nothing is released, nothing to keep).
+  compat:
+    runs-on: ubuntu-latest
+    env:
+      SCIREPORT_REQUIRE_TOOLCHAIN: "1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --group dev --extra pandoc
+      - run: make compat
+      - name: The freeze lists only grow since the latest release
+        run: |
+          tag=$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || true)
+          if [ -n "$tag" ]; then uv run python tests/frozen.py "$tag"; else echo "no release tag yet"; fi
 
   mcp:
     runs-on: ubuntu-latest

@@ -48,11 +48,11 @@ pdf_engines: [weasyprint, latex]
 mplstyle: modern
 palette: palette.yaml
 fonts:
-  - TeXGyrePagella-Regular.otf
-  - TeXGyrePagella-Italic.otf
-  - TeXGyrePagella-Bold.otf
-  - TeXGyrePagella-BoldItalic.otf
-  - TeXGyreHeros-Regular.otf
-  - TeXGyreHeros-Italic.otf
-  - TeXGyreHeros-Bold.otf
-  - TeXGyreCursor-Regular.otf
+  - TeXGyrePagellaSubset-Regular.otf
+  - TeXGyrePagellaSubset-Italic.otf
+  - TeXGyrePagellaSubset-Bold.otf
+  - TeXGyrePagellaSubset-BoldItalic.otf
+  - TeXGyreHerosSubset-Regular.otf
+  - TeXGyreHerosSubset-Italic.otf
+  - TeXGyreHerosSubset-Bold.otf
+  - TeXGyreCursorSubset-Regular.otf

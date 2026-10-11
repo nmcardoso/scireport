@@ -134,16 +134,18 @@ def normalised(files: Mapping[str, bytes]) -> dict[str, bytes]:
   Returns
   -------
   dict
-      The files without ``render-manifest.json``, with the version replaced by ``<version>`` and
-      every SVG data URI of an HTML file replaced by ``<math-svg>``.
+      The files without ``render-manifest.json``, with ``scireport <version number>`` (the generator
+      header and the PDF creator) replaced by ``scireport <version>`` and every SVG data URI of an
+      HTML file replaced by ``<math-svg>``. A bare version number is left alone: a report's own
+      ``version`` metadata may be the same string.
   """
-  version = __version__.encode()
+  generator = f'scireport {__version__}'.encode()
   out = {}
   for name, data in files.items():
     if name == MANIFEST_NAME:
       continue
     if name.endswith(TEXT_SUFFIXES):
-      data = data.replace(version, b'<version>')
+      data = data.replace(generator, b'scireport <version>')
     if name.endswith('.html'):
       data = SVG_PAYLOAD.sub(b'data:image/svg+xml;base64,<math-svg>', data)
     out[name] = data

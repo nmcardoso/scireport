@@ -18,6 +18,7 @@ CASES = {
   'text-only': ['source', 'single.json', 'bundle.scireport.zip'],
   'full-kinds': ['bundle.scireport', 'bundle.scireport.zip'],
   'bibliography': ['bundle.scireport', 'bundle.scireport.zip'],
+  'every-kind': ['bundle.scireport', 'bundle.scireport.zip'],
 }
 UNFROZEN = {'FROZEN.sha256', 'README.md'}
 

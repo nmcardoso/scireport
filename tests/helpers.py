@@ -44,3 +44,31 @@ def require_extra(module: str) -> None:
   if os.environ.get('SCIREPORT_REQUIRE_TOOLCHAIN') == '1':
     pytest.fail(message)
   pytest.skip(message)
+
+
+def need_the_frozen_pandoc() -> None:
+  """Skip unless the installed pandoc is the one that made the frozen compat files.
+
+  What pandoc writes depends on its version, so ``tests/compat/spec-1.0/pandoc-version.txt``
+  records the version of the frozen files. With another version the caller skips, and fails with
+  ``SCIREPORT_REQUIRE_TOOLCHAIN=1``: a pandoc upgrade is a decision, and the frozen files are never
+  edited to follow it.
+  """
+  import os
+  from pathlib import Path
+
+  import pytest
+
+  require_extra('pypandoc')
+  from scireport.render.pandoc import pandoc_version
+
+  frozen = (Path(__file__).parent / 'compat' / 'spec-1.0' / 'pandoc-version.txt').read_text(
+    encoding='utf-8'
+  )
+  found = pandoc_version()
+  if found == frozen.strip():
+    return
+  message = f'pandoc {found} is installed, the frozen files were made with pandoc {frozen.strip()}'
+  if os.environ.get('SCIREPORT_REQUIRE_TOOLCHAIN') == '1':
+    pytest.fail(message)
+  pytest.skip(message)

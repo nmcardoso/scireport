@@ -20,6 +20,7 @@ SOURCES = {
   'minimal': ['bundle.scireport', 'bundle.scireport.zip'],
   'text-only': ['source', 'single.json', 'bundle.scireport.zip'],
   'full-kinds': ['bundle.scireport', 'bundle.scireport.zip'],
+  'every-kind': ['bundle.scireport', 'bundle.scireport.zip'],
 }
 
 
@@ -52,3 +53,14 @@ def test_every_form_renders_to_the_frozen_bytes(
     assert report == frozen, diff(frozen, report)[:3000]
     return
   assert actual == expected
+
+
+@pytest.mark.parametrize('layout', ['default', 'modern'])
+@pytest.mark.parametrize('form', ['bundle.scireport', 'bundle.scireport.zip'])
+def test_the_bibliography_case_renders_to_the_frozen_latex(form: str, layout: str) -> None:
+  """Citations in LaTeX need no pandoc; the Markdown and HTML renders are in the pandoc folders."""
+  with open_bundle(CORPUS / 'bibliography' / form) as bundle:
+    result = render_bundle(
+      bundle, template='generic@1', layout=f'{layout}@1', formats=['tex'], flat=True
+    )
+  assert normalised(result.files) == expected_files('bibliography', layout, 'tex')

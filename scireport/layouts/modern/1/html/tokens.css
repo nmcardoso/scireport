@@ -46,9 +46,9 @@
 
   /* Type stack: the vendored family first, then the system stack, in case a page is opened
      without @font-face applying. */
-  --font-sans: 'TeX Gyre Heros', 'Helvetica Neue', Arial, sans-serif;
-  --font-serif: 'TeX Gyre Pagella', 'Palatino Linotype', Palatino, Georgia, serif;
-  --font-mono: 'TeX Gyre Cursor', 'Courier New', Courier, monospace;
+  --font-sans: 'TeX Gyre Heros Subset', 'TeX Gyre Heros', 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'TeX Gyre Pagella Subset', 'TeX Gyre Pagella', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-mono: 'TeX Gyre Cursor Subset', 'TeX Gyre Cursor', 'Courier New', Courier, monospace;
 
   /* Type scale, points (palette.yaml: type_scale). */
   --text-title: 22pt;
