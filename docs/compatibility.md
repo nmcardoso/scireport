@@ -7,11 +7,10 @@ decisions behind it are ADR-0008 (backward compatibility) and ADR-0005 (stable e
 in [The data-file specification](spec.md).
 
 ```{note}
-**Pre-release caveat.** The promises on this page take full effect with the final `1.0.0` release. Until then
-(`1.0.0rc1` and development versions) spec 1.0 and the built-in layouts are not yet frozen: additions to the spec can
-still happen (the `bibliography` kind was added after the first draft), and a visual change to `default@1` or
-`modern@1` can still be made in place. After the final release the same change needs `default@2`. The changelog
-([changelog](changelog.md)) lists every change either way. Do not rely on byte identity across pre-releases.
+**Since 1.0.0** spec 1.0, the built-in templates (`generic@1`, `kitchen-sink@1`) and layouts (`minimal@1`, `default@1`,
+`modern@1`) are frozen. Before the release, additions to the spec and visual changes were still made in place (the
+`bibliography` kind arrived after the first draft; the designs of `default@1` and `modern@1` were redone at gate HG-S1);
+the changelog ([changelog](changelog.md)) lists them. From 1.0.0 on, the same change is a new version.
 ```
 
 ## What is promised
@@ -109,18 +108,21 @@ A promise that is not tested is a wish. These are the mechanisms.
 | Promise | Test | What fails |
 |---|---|---|
 | Old bundles load the same way | `tests/compat/test_spec_1_0.py` | Every form of every case loads to the expected canonical manifest and the expected `inspect` summary. |
-| Old bundles render the same way | `tests/compat/test_render_1_0.py`, `tests/compat/test_render_layouts_1_0.py` | Markdown, LaTeX and HTML of every case, with `generic@1` and each built-in layout, equal the committed files. HTML is compared as a canonical DOM for the designed layouts. |
-| PDF text is the same | `tests/integration/test_pdf.py` | The letters of the PDF made by each engine hash to the committed value. Needs the toolchains. |
+| Old bundles render the same way | `tests/compat/test_render_1_0.py`, `tests/compat/test_render_layouts_1_0.py`, `tests/compat/test_render_pandoc_1_0.py` | Markdown, LaTeX and HTML of every case, with `generic@1`, each built-in layout and each markup engine, equal the committed files. HTML is compared as a canonical DOM. The pandoc files are compared only with the pandoc version that wrote them. |
+| PDF text is the same | `tests/integration/test_pdf.py` | The letters of the PDF made by WeasyPrint and by LuaLaTeX hash to the committed value, for both markup engines. Needs the toolchains. |
 | Fixtures were not touched | `test_fixtures_are_frozen` | A fixture was added, removed or changed. |
+| The freeze lists only grow | `tests/frozen.py BASE_REF` (the CI `compat` job, `make compat-growth`) | A line of `FROZEN.sha256` or `FROZEN-builtins.sha256` disappeared or changed since the base of the change or since the latest release tag: a fixture cannot be regenerated together with its hash. |
+| Built-in layouts and templates are untouched | `tests/compat/test_frozen_builtins.py` | A file of `layouts/NAME/N/` or `templates/NAME/N/`, a vendored font, a matplotlib style or a frozen JSON Schema changed or was added without being listed in `FROZEN-builtins.sha256`. |
+| The release holds the frozen files | `.github/check_dist.py` (the release workflow) | The wheel or the sdist drops or rewrites a frozen built-in file. |
 | The schema is frozen | `tests/unit/spec/test_schema.py` | The models no longer generate `data-1.0.schema.json`. |
 | Bare JSON canonicalises stably | `tests/property/` | Key grammar, idempotent canonicalisation and manifest round trips, with generated inputs. |
 | Built-in output is stable | `tests/golden/` | Markdown, HTML and LaTeX of `kitchen-sink` (every kind) and of each layout differ byte for byte. A second render is also compared with the first. |
 | The Python API is stable | `tests/unit/test_public_api.py` against `tests/unit/public_api.txt` | A public name, signature or method changed. |
 | Codes are documented and tested | `tests/unit/test_error_docs.py` | A code in the source is missing from the catalogue, the docs page is stale, or no test names a code. |
 
-Two limits are worth knowing. The stability of an error code's *meaning* is kept by review: no test stores the old
-titles, so reusing a retired code would not be caught by a test. And the built-in templates and layouts are held in place
-by their outputs (golden and compat tests), not by hashing their directories.
+One limit is worth knowing: the stability of an error code's *meaning* is kept by review. `tests/compat/error-codes.json`
+freezes the title of every released code, so a removed or retitled code fails a test, but a reused code with the same title
+and another cause would not.
 
 ### The compat corpus
 
@@ -139,13 +141,24 @@ tests/compat/spec-1.0/
       render-generic-1-default-1/...               # generic@1 with default@1, plus pdf-text-*.sha256
       render-generic-1-modern-1/...
   text-only/                     # a hand-authored YAML directory, a single JSON file and a ZIP
-  full-kinds/                    # every kind of the first draft, every asset type
-  bibliography/                  # the bibliography kind and its LaTeX render
+  full-kinds/                    # 16 kinds of the first draft, every asset type (its outline lists four values)
+  bibliography/                  # the bibliography kind, citations, and the LaTeX renders
+  every-kind/                    # all 17 kinds in the outline, so every kind reaches every frozen render
+  pandoc-version.txt             # the pandoc that wrote the render-*-pandoc folders
 ```
+
+The folders `render-generic-1-<layout>-1/` hold the files written with the default markup engine (`mistletoe`),
+`render-generic-1-<layout>-1-pandoc/` those written with `--markup-engine pandoc`; the layouts are `minimal`, `default` and
+`modern`, the formats `md`, `html` and `tex`, and the designed layouts add the PDF text hashes of WeasyPrint and LuaLaTeX.
+What pandoc writes depends on its version, so the pandoc tests compare only with `pandoc-version.txt` (they skip locally
+with another version and fail in CI); a pandoc upgrade adds folders for the new version, it never edits these.
 
 `FROZEN.sha256` lists a SHA-256 and a path per line. The test compares the list with the files on disk: a new file, a
 missing file or a changed file fails it. The `make_*.py` scripts that created the corpus refuse to run again once their
-output exists.
+output exists. A second check guards the list itself: CI runs `python tests/frozen.py BASE_REF` (`make compat-growth`), which
+fails when a line disappeared or changed since the base of the change or since the latest release tag, so only new lines can
+be added. `tests/compat/FROZEN-builtins.sha256` does the same for the built-in layouts, templates, fonts, matplotlib styles
+and JSON Schemas.
 
 **What a failure means.** A compat test that fails means the behaviour of spec 1.0 changed: either a bundle no longer
 loads to the same manifest, or it no longer renders to the same output. It is almost never the fixture that is wrong.
@@ -160,7 +173,7 @@ loads to the same manifest, or it no longer renders to the same output. It is al
    hashes to `FROZEN.sha256` (`tests/compat/make_bibliography_1_0.py` is the model). Appending is allowed; changing an
    existing line is not.
 
-Check the corpus any time with `make compat`; it is also part of `make test`.
+Check the corpus any time with `make compat` (the pandoc files need the `pandoc` extra); without the integration tests it is also part of `make test`.
 
 ## What counts as breaking
 
@@ -194,7 +207,8 @@ the ADRs in [Architecture decision records](adr/index.md) first: a change that c
 2. Add golden tests for the new version, and add its renders to the compat corpus as new files with a new script that
    appends to `FROZEN.sha256` (see `tests/compat/make_render_layouts_1_0.py`).
 3. Leave version N as it is. A bundle that names `NAME@N` keeps rendering with it; a bare `NAME` now means `N+1`.
-4. Update [Built-in layouts](layouts.md) or [Writing a template](templates.md) and the changelog.
+4. Append the new directory to the freeze list: `uv run python tests/compat/make_frozen_builtins.py` (it adds lines and refuses to change one).
+5. Update [Built-in layouts](layouts.md) or [Writing a template](templates.md) and the changelog.
 
 **A new spec minor.**
 

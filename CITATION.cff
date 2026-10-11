@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "scireport: a data-centric scientific report engine"
+abstract: >-
+  scireport turns one data file (a report bundle with a manifest, tables, figures and text),
+  one template (structure) and one layout (look) into Markdown, HTML, LaTeX and PDF, and with
+  pandoc into Word, OpenDocument and EPUB. The data file is the contract: it carries its
+  specification version, the built-in templates and layouts are frozen per version, and the same
+  inputs give byte-identical Markdown, HTML and LaTeX.
+type: software
+authors:
+  - family-names: Cardoso
+    given-names: N.
+version: 1.0.0
+license: GPL-3.0-only
+repository-code: "https://github.com/nmcardoso/scireport"
+url: "https://nmcardoso.github.io/scireport/"
+keywords:
+  - scientific reports
+  - reproducibility
+  - report generation
+  - LaTeX
+  - astronomy

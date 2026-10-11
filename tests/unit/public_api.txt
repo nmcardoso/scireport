@@ -109,7 +109,7 @@ class ValidationReport
   def to_dict(self)
   def raise_for_errors(self)
   def __init__(self, issues, strict=False)
-const __version__ = '0.1.0.dev0'
+const __version__ = '1.0.0'
 def check_bundle(bundle, *, template=None, layout=None, formats=None, options=None, markup_engine=None, math_renderer=None, pdf_engine=None, latex_engine=None, md_split=None, strict=False, render=True, preprocess=True, allow_import=False, cache_dir=None, office_source=None, reference_doc=None)
 def export_tex(bundle, keys=None, *, prefix='', bare=False, graphics_prefix='', max_rows=None)
 def figure(width=1.0, height=3.6, nrows=1, ncols=1, *, layout='default', paper='a4', subplot_kw=None, constrained=True)

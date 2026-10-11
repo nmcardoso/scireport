@@ -2,36 +2,57 @@ name: release
 on:
   push:
     tags: ["v*"]
+  # Runs the clean-room check (and the build check) against any ref without tagging, for the
+  # sign-off before a release: Actions > release > Run workflow, ref = the branch or commit.
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag or commit to build and install"
+        required: true
+        default: main
 
 permissions:
-  contents: write
+  contents: read
+
+env:
+  REF: ${{ inputs.ref || github.ref_name }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.REF }}
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           python-version: "3.12"
       - run: uv build
+      # The wheel and the sdist hold every frozen built-in file with its recorded hash.
+      - run: uv run --no-project python .github/check_dist.py dist
       - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/*
       - uses: softprops/action-gh-release@v3
+        if: github.ref_type == 'tag'
         with:
           files: dist/*
           generate_release_notes: true
 
   clean-room:
-    needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.REF }}
       - uses: astral-sh/setup-uv@v10.2.0
         with:
           python-version: "3.12"
-      # Installs from the public git URL, exactly as a consuming project does.
-      - run: uv venv
-      - run: uv pip install "scireport @ git+https://github.com/nmcardoso/scireport@${{ github.ref_name }}"
-      - run: uv run --no-project scireport --version
+      - name: Install pango
+        run: sudo apt-get update && sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0
+      # Installs from the public git URL, exactly as a consuming project does, in a fresh
+      # environment outside the checkout, and renders the kitchen sink to md, html, tex and pdf.
+      - run: .github/clean_room.sh "$REF"

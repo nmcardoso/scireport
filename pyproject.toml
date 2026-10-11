@@ -1,6 +1,6 @@
 [project]
 name = "scireport"
-version = "0.1.0.dev0"
+version = "1.0.0"
 description = "Data-centric scientific report engine: one data file, a template and a layout in; Markdown, HTML, LaTeX and PDF out"
 readme = "README.md"
 license = "GPL-3.0-only"
