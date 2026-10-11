@@ -1,0 +1,289 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{scireport-modern}[2026/10/11 scireport modern layout (Publication), version 1]
+%
+% Works with LuaLaTeX (default), XeLaTeX and pdfLaTeX. TeX Gyre Pagella (text), Heros (headings)
+% and Cursor (code) are loaded from the fonts/ folder of the project through fontspec; pdfLaTeX
+% loads the same families from the TeX Gyre packages of TeX Live.
+%
+% Geometry: A4 with 22 mm sides and 25 mm top and bottom. The text spans the whole frame.
+% \scoverhang (0 pt) and \scfullwidth are kept for the components that reach into the margin.
+\RequirePackage{iftex}
+\RequirePackage{etoolbox}
+
+\DeclareOption{a4}{\def\sc@paper{a4paper}}
+\DeclareOption{letter}{\def\sc@paper{letterpaper}}
+\ExecuteOptions{a4}
+\ProcessOptions\relax
+
+% ---- fonts -------------------------------------------------------------------------------------
+\ifPDFTeX
+  \RequirePackage[T1]{fontenc}
+  \RequirePackage[utf8]{inputenc}
+  \RequirePackage{textcomp}
+  \RequirePackage{tgpagella}
+  \RequirePackage[scale=1]{tgheros}
+  \RequirePackage[scale=0.95]{tgcursor}
+\else
+  \RequirePackage{fontspec}
+  \setmainfont{TeXGyrePagella}[Path=./fonts/, Extension=.otf, Ligatures=TeX,
+    UprightFont=*-Regular, ItalicFont=*-Italic, BoldFont=*-Bold, BoldItalicFont=*-BoldItalic]
+  \setsansfont{TeXGyreHeros}[Path=./fonts/, Extension=.otf, Ligatures=TeX,
+    UprightFont=*-Regular, ItalicFont=*-Italic, BoldFont=*-Bold, BoldItalicFont=*-Bold]
+  \setmonofont{TeXGyreCursor}[Path=./fonts/, Extension=.otf, Scale=0.95,
+    UprightFont=*-Regular, ItalicFont=*-Regular, BoldFont=*-Regular, BoldItalicFont=*-Regular]
+\fi
+% The page is set in sans (Heros); \scbody switches to the justified Pagella of running prose.
+\RequirePackage{ragged2e}
+\renewcommand{\familydefault}{\sfdefault}
+\newcommand{\scbody}{\rmfamily\fontsize{11}{14.5}\selectfont\justifying}
+
+\RequirePackage[\sc@paper, left=22mm, right=22mm, top=25mm, bottom=25mm,
+  headheight=14pt, headsep=18pt, footskip=12mm]{geometry}
+\RequirePackage{amsmath,amssymb}
+\RequirePackage{graphicx}
+\RequirePackage{array}
+\RequirePackage{booktabs}
+\RequirePackage{longtable}
+\RequirePackage[table]{xcolor}
+\RequirePackage{colortbl}
+\RequirePackage{changepage}
+\RequirePackage{enumitem}
+\RequirePackage{needspace}
+\RequirePackage{fancyhdr}
+\RequirePackage{caption}
+\RequirePackage[normalem]{ulem}
+\RequirePackage{tikz}
+\usetikzlibrary{calc}
+\RequirePackage[skins,breakable]{tcolorbox}
+\RequirePackage[hidelinks, bookmarksnumbered=false]{hyperref}
+
+% ---- palette: the hex values repeat palette.yaml; tests/unit/styles/test_consistency.py checks them
+\definecolor{sc-ink}{HTML}{111111}
+\definecolor{sc-ink-soft}{HTML}{444B52}
+\definecolor{sc-navy}{HTML}{1F4E79}
+\definecolor{sc-navy-deep}{HTML}{163A5A}
+\definecolor{sc-blue}{HTML}{1F4E79}
+\definecolor{sc-blue-light}{HTML}{E8EFF6}
+\definecolor{sc-cyan}{HTML}{00897B}
+\definecolor{sc-cyan-light}{HTML}{DFF1EF}
+\definecolor{sc-accent}{HTML}{C8961E}
+\definecolor{sc-accent-light}{HTML}{FAF3E3}
+\definecolor{sc-accent-ink}{HTML}{8D6A12}
+\definecolor{sc-green}{HTML}{2E8B57}
+\definecolor{sc-green-light}{HTML}{E4F2EA}
+\definecolor{sc-red}{HTML}{C0392B}
+\definecolor{sc-red-light}{HTML}{F8E4E1}
+\definecolor{sc-paper}{HTML}{FFFFFF}
+\definecolor{sc-paper-warm}{HTML}{F4F6F8}
+\definecolor{sc-gray-50}{HTML}{F4F6F8}
+\definecolor{sc-gray-100}{HTML}{E9EDF0}
+\definecolor{sc-gray-200}{HTML}{D5DBE0}
+\definecolor{sc-gray-300}{HTML}{B7C0C8}
+\definecolor{sc-gray-500}{HTML}{6B7782}
+\definecolor{sc-gray-700}{HTML}{444F58}
+\definecolor{sc-data-blue}{HTML}{1F77B4}
+\definecolor{sc-data-green}{HTML}{2E8B57}
+\definecolor{sc-data-purple}{HTML}{6A3D9A}
+\definecolor{sc-data-orange}{HTML}{D35400}
+
+% ---- type scale: 11 pt text on a 14.5 pt line ----------------------------------------------------
+\renewcommand{\normalsize}{%
+  \@setfontsize\normalsize{11}{14.5}%
+  \abovedisplayskip 10\p@ \@plus 2\p@ \@minus 2\p@
+  \abovedisplayshortskip 4\p@ \@plus 2\p@
+  \belowdisplayskip \abovedisplayskip
+  \belowdisplayshortskip \abovedisplayshortskip
+  \let\@listi\@listI}
+\renewcommand{\small}{\@setfontsize\small{9.5}{12}\let\@listi\@listI}
+\renewcommand{\footnotesize}{\@setfontsize\footnotesize{9}{11.5}\let\@listi\@listI}
+\renewcommand{\scriptsize}{\@setfontsize\scriptsize{8}{10}}
+
+\color{sc-ink}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\setlength{\emergencystretch}{3em}
+\setcounter{secnumdepth}{-1}
+\setcounter{tocdepth}{3}
+\widowpenalty=10000
+\clubpenalty=10000
+\raggedright
+
+\newlength{\scoverhang}
+\setlength{\scoverhang}{0pt}
+\newlength{\scfullwidth}
+\newlength{\sctablew}
+\AtBeginDocument{\setlength{\scfullwidth}{\dimexpr\textwidth+\scoverhang\relax}}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{-\scoverhang}
+\setlength{\LTpre}{8pt}
+\setlength{\LTpost}{4pt}
+
+\captionsetup{font=small, labelfont={bf,sf}, labelsep=period, justification=raggedright,
+  singlelinecheck=false, skip=6pt}
+\setlist{itemsep=1pt, topsep=3pt, parsep=0pt, partopsep=0pt, leftmargin=*}
+
+% ---- spacing helpers ---------------------------------------------------------------------------
+% A rule over the whole frame, as a box of the rule's own height placed straight into the vertical
+% list: a paragraph would make it a whole line high. \hbox to 0pt keeps TeX from reporting an
+% overfull box.
+\newcommand{\scrule}[2]{\par\nopagebreak\nointerlineskip
+  \hbox to 0pt{\textcolor{#1}{\rule{\scfullwidth}{#2}}\hss}\nointerlineskip}
+
+% ---- running header and footer ---------------------------------------------------------------
+\newcommand{\sc@running@pipeline}{}
+\newcommand{\sc@running@date}{}
+\newcommand{\sc@running@footer}{}
+\newcommand{\scsetrunning}[3]{%
+  \renewcommand{\sc@running@pipeline}{#1}%
+  \renewcommand{\sc@running@date}{#2}%
+  \renewcommand{\sc@running@footer}{#3}}
+\fancypagestyle{scdefault}{%
+  \fancyhf{}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+  \renewcommand{\headrule}{\color{sc-navy}\hrule width\headwidth height\headrulewidth}%
+  \fancyhead[L]{\color{sc-navy}\fontsize{9}{11}\selectfont\sc@running@pipeline}%
+  \fancyhead[R]{\color{sc-navy}\fontsize{9}{11}\selectfont\sc@running@date}%
+  \fancyfoot[C]{\fontsize{9}{11}\selectfont\thepage}}
+\pagestyle{scdefault}
+
+% ---- boxes: a thin coloured frame, a pale tint and, when there is a headline, a title bar ----------
+\tcbset{
+  scbox/.style={enhanced, breakable, boxrule=0.7pt, arc=2pt, left=8pt, right=8pt, top=4pt,
+    bottom=4pt, coltext=sc-ink, coltitle=sc-paper, fonttitle=\sffamily\bfseries\small,
+    toptitle=1.5pt, bottomtitle=1.5pt, before skip=10pt, after skip=12pt},
+  scstatus-success/.style={colback=sc-green-light, colframe=sc-green},
+  scstatus-warning/.style={colback=sc-accent-light, colframe=sc-accent-ink},
+  scstatus-partial/.style={colback=sc-accent-light, colframe=sc-accent-ink},
+  scstatus-failed/.style={colback=sc-red-light, colframe=sc-red},
+  scstatus-running/.style={colback=sc-cyan-light, colframe=sc-cyan},
+  scalert-info/.style={colback=sc-blue-light, colframe=sc-blue},
+  scalert-warning/.style={colback=sc-accent-light, colframe=sc-accent-ink},
+  scalert-error/.style={colback=sc-red-light, colframe=sc-red},
+}
+% \scstatusbox{level}{headline}: success, warning, partial, failed or running
+\newtcolorbox{scstatusbox}[2]{scbox, scstatus-#1, title={\MakeUppercase{#2}}}
+% \scalertbox{level}: info, warning or error; the level word leads the text.
+\newtcolorbox{scalertbox}[1]{scbox, scalert-#1, boxrule=0.6pt, before skip=3pt, after skip=3pt,
+  top=2pt, bottom=2pt, fontupper=\small}
+\newtcolorbox{scnotebox}{enhanced, breakable, boxrule=0pt, arc=0pt, frame hidden,
+  colback=sc-accent-light, borderline west={2.5pt}{0pt}{sc-accent}, coltext=sc-ink, left=10pt,
+  right=8pt, top=3pt, bottom=3pt, before skip=10pt, after skip=10pt}
+\newtcolorbox{scdetailsbox}[1]{scbox, colback=sc-blue-light, colframe=sc-navy, title={#1}}
+\newtcolorbox{scabstractbox}{scbox, colback=sc-blue-light, colframe=sc-navy, title={Abstract},
+  fontupper=\scbody}
+\newtcolorbox{sccodebox}{enhanced, breakable, boxrule=0pt, arc=0pt, frame hidden,
+  colback=sc-gray-50, coltext=sc-ink, borderline west={2pt}{0pt}{sc-navy}, left=10pt, right=10pt,
+  top=6pt, bottom=6pt, before skip=0pt, after skip=10pt}
+% One stage of a flow; #1 is the colour of its rail.
+\newtcolorbox{scflowstage}[1]{enhanced, boxrule=0pt, arc=0pt, frame hidden, colback=white,
+  coltext=sc-ink, borderline west={2.5pt}{0pt}{#1}, left=12pt, right=0pt, top=3pt, bottom=3pt,
+  before skip=1pt, after skip=0pt}
+% The small outlined tag with the state word of a flow stage; #1 is the colour, #2 the word.
+\newcommand{\scflowtag}[2]{{\setlength{\fboxsep}{1pt}\setlength{\fboxrule}{0.6pt}%
+  \fcolorbox{#1}{sc-paper}{\hspace{2.5pt}\textcolor{#1}{\fontsize{7}{9}\selectfont\bfseries
+  \MakeUppercase{#2}}\hspace{2.5pt}}}}
+
+% ---- cover: a steel-blue band with a gold stripe, then the title in blue ------------------------
+% #1 label, #2 title, #3 subtitle, #4 abstract, #5 facts (rows of label & value)
+\newcommand{\sccover}[5]{%
+  \thispagestyle{empty}%
+  \noindent\begin{tikzpicture}[remember picture, overlay]
+    \fill[sc-navy] (current page.north west) rectangle ($(current page.north east)+(0,-62mm)$);
+    \fill[sc-accent] ($(current page.north west)+(0,-62mm)$) rectangle
+      ($(current page.north east)+(0,-64.5mm)$);
+    \ifstrempty{#1}{}{\node[anchor=north west, inner sep=0pt, text=white]
+      at ($(current page.north west)+(22mm,-18mm)$)
+      {\parbox{166mm}{\raggedright\sffamily\bfseries\fontsize{30}{34}\selectfont #1}};}
+  \end{tikzpicture}\par
+  \vspace*{54mm}%
+  {\raggedright\sffamily\bfseries\fontsize{22}{27.5}\selectfont\color{sc-navy}#2\par}%
+  \ifstrempty{#3}{}{\vspace{8pt}{\raggedright\sffamily\fontsize{14}{18}\selectfont
+    \color{sc-navy-deep}#3\par}}%
+  \ifstrempty{#4}{}{\vspace{16pt}\begin{scabstractbox}#4\end{scabstractbox}}%
+  \vfill
+  {\sffamily\fontsize{10}{13}\selectfont\setlength{\tabcolsep}{0pt}%
+    \begin{tabular}{@{}>{\bfseries}p{28mm}@{}>{\rmfamily\fontsize{11}{14}\selectfont}p{138mm}@{}}
+      #5
+    \end{tabular}}%
+  \clearpage}
+
+% A plain title block, for `cover: false`.
+\newcommand{\sctitleblock}[2]{%
+  {\raggedright\sffamily\bfseries\fontsize{22}{27.5}\selectfont\color{sc-navy}#1\par}%
+  \ifstrempty{#2}{}{\vspace{8pt}{\raggedright\sffamily\fontsize{14}{18}\selectfont
+    \color{sc-navy-deep}#2\par}}%
+  \vspace{16pt}}
+
+% ---- headings -------------------------------------------------------------------------------------
+% \scanchor{anchor}{pdf text}{pdf level}: a target for the table of contents and the PDF outline.
+\newcommand{\scanchor}[3]{%
+  \phantomsection\label{#1}%
+  \ifstrempty{#3}{}{\pdfbookmark[#3]{#2}{#1}}}
+
+% A heading: the number in a box of 2.4 em, the title hanging beside it. #1 size, #2 leading,
+% #3 colour, #4 anchor code, #5 number, #6 title. The anchor is set inside the title's paragraph:
+% a whatsit in the vertical list would allow a page break before the heading's glue.
+\newcommand{\sc@headline}[6]{%
+  {\raggedright\sffamily\bfseries\fontsize{#1}{#2}\selectfont\color{#3}%
+   \hangindent=2.4em \hangafter=1 \noindent#4%
+   \ifstrempty{#5}{}{\makebox[2.4em][l]{#5}}#6\par}}
+
+% \scchapter{number}{title}{anchor}{pdf text}{flow}: number is "1" or empty; flow is 0 or 1.
+\newcommand{\scchapter}[5]{%
+  \ifnumequal{#5}{0}{\clearpage}{\par\vspace{16pt}\Needspace{8\baselineskip}}%
+  \ifstrempty{#1}{\def\sc@anchor{\scanchor{#3}{#4}{}}}{\def\sc@anchor{\scanchor{#3}{#4}{0}}}%
+  \sc@headline{17.28}{21}{sc-navy}{\sc@anchor}{#1}{#2}\nobreak\vspace{8pt}\nobreak}
+
+% \scheading{level}{title}{anchor}{pdf text}{listed}{break}{number}. \Needspace (not \needspace,
+% which after a longtable leaves the repeated table header, a "ghost" header, alone at the top of
+% the next page) and \nobreak keep a heading with what follows it.
+\newcommand{\scheading}[7]{%
+  \ifnumequal{#6}{1}{\clearpage}{\ifnumcomp{#1}{=}{1}{\Needspace{6\baselineskip}}{\Needspace{4\baselineskip}}}%
+  \ifnumequal{#5}{1}{\def\sc@anchor{\scanchor{#3}{#4}{#1}}}{\def\sc@anchor{\scanchor{#3}{#4}{}}}%
+  \ifnumcomp{#1}{=}{1}{%
+    \par\vspace{12pt}\sc@headline{14.4}{18}{sc-navy}{\sc@anchor}{#7}{#2}\nobreak\vspace{4pt}\nobreak}{%
+  \ifnumcomp{#1}{=}{2}{%
+    \par\vspace{10pt}\sc@headline{12}{15}{sc-navy}{\sc@anchor}{#7}{#2}\nobreak\vspace{3pt}\nobreak}{%
+    \par\vspace{8pt}\sc@headline{11}{14}{sc-accent-ink}{\sc@anchor}{#7}{#2}\nobreak\vspace{2pt}\nobreak}}}
+
+% ---- table of contents --------------------------------------------------------------------------
+% \sctocrow{level}{number}{title}{anchor}: after the standard dotted entry of LaTeX: the entry
+% hangs inside \leftskip, the page number sits in a box at the right margin and, below level 0, dot
+% leaders join the two.
+\newlength{\sc@tocindent}
+\newcommand{\sctocrow}[4]{%
+  \par\vspace{\ifnumequal{#1}{0}{8pt}{1pt}}\nopagebreak
+  {\setlength{\parskip}{0pt}\sffamily
+   \setlength{\sc@tocindent}{\ifcase#1 0pt\or 2.4em\or 5em\else 7.5em\fi}%
+   \leftskip=\sc@tocindent \advance\leftskip by 2.4em \rightskip=2em
+   \parfillskip=-\rightskip \parindent=\sc@tocindent \interlinepenalty=10000
+   \ifnumequal{#1}{0}{\bfseries}{}\ifnumcomp{#1}{>}{1}{\fontsize{9}{12}\selectfont}{\fontsize{10}{13}\selectfont}%
+   \color{sc-navy}\leavevmode\null\nobreak\hskip-\leftskip
+   \hyperref[#4]{\ifstrempty{#2}{\hspace{2.4em}}{\makebox[2.4em][l]{#2}}#3}\nobreak
+   \ifnumequal{#1}{0}{\hfill}{{\color{sc-ink}\leaders\hbox{.\kern 5pt}\hfill}}\nobreak
+   \hbox to 2em{\hfill\color{sc-ink}\pageref{#4}}\par}}
+
+% ---- tables: booktabs rules, no rule between rows ----------------------------------------------
+\newcommand{\sctoprule}{\noalign{\global\arrayrulewidth=0.9pt}\arrayrulecolor{sc-ink}\hline}
+\newcommand{\scheadrule}{\noalign{\global\arrayrulewidth=0.45pt}\arrayrulecolor{sc-ink}\hline}
+\newcommand{\scbottomrule}{\noalign{\global\arrayrulewidth=0.9pt}\arrayrulecolor{sc-ink}\hline}
+
+% A value wider than its column is shrunk to fit it.
+\newsavebox{\sc@valuebox}
+\newcommand{\scmetricvalue}[3]{%
+  \begin{tcolorbox}[enhanced, frame hidden, colback=white, boxsep=0pt, arc=0pt, left=8pt, right=0pt,
+    top=0pt, bottom=0pt, before skip=0pt, after skip=0pt,
+    borderline west={2.5pt}{0pt}{sc-accent}]
+  {\color{sc-gray-500}\fontsize{8}{10}\selectfont\bfseries\MakeUppercase{#1}}\par\vspace{3pt}%
+  \savebox{\sc@valuebox}{\fontsize{22}{24}\selectfont\bfseries\color{sc-navy}#2}%
+  \ifdim\wd\sc@valuebox>\linewidth
+    \resizebox{\linewidth}{!}{\usebox{\sc@valuebox}}%
+  \else
+    \usebox{\sc@valuebox}%
+  \fi\par
+  \ifstrempty{#3}{}{\vspace{2pt}{\fontsize{9}{12}\selectfont\color{sc-ink-soft}\rmfamily #3}\par}%
+  \end{tcolorbox}}
+
+\hypersetup{pdfborder={0 0 0}}
+\endinput

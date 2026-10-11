@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from helpers import need_the_frozen_pandoc
 from pdf_text import letters, missing_words, pages, pdf_text
 
 from scireport import Bundle, open_bundle
@@ -37,6 +38,10 @@ EXAMPLES = {
   'text-report': (text_report.build, None),
 }
 CORPUS = Path(__file__).resolve().parents[1] / 'compat' / 'spec-1.0'
+CASES = ['minimal', 'text-only', 'full-kinds', 'bibliography', 'every-kind']
+# (case, markup engine) of the frozen text hashes. WeasyPrint prints the HTML, and citations in the
+# HTML of the bibliography case need pandoc, so that case has no mistletoe hash for it.
+MARKUPS = [(case, markup) for markup in ('mistletoe', 'pandoc') for case in CASES]
 NO_PAGE_NUMBERS = {'toc': 'false', 'header': 'false'}
 """Options that remove the text which depends on pagination (contents rows, page counters)."""
 
@@ -131,10 +136,12 @@ def test_weasyprint_pdf_is_tagged_and_titled(layout: str, tmp_path: Path) -> Non
 
 @pytest.mark.pdf_weasyprint
 @pytest.mark.parametrize('layout', LAYOUTS)
-@pytest.mark.parametrize('case', ['minimal', 'text-only', 'full-kinds'])
-def test_weasyprint_text_hash_of_the_compat_cases(case: str, layout: str) -> None:
+@pytest.mark.parametrize(
+  ('case', 'markup'), [pair for pair in MARKUPS if pair != ('bibliography', 'mistletoe')]
+)
+def test_weasyprint_text_hash_of_the_compat_cases(case: str, markup: str, layout: str) -> None:
   _need_weasyprint()
-  expected = _recorded(case, layout, 'weasyprint')
+  expected = _recorded(case, layout, 'weasyprint', markup)
   with open_bundle(_source(case)) as bundle:
     pdf = render_bundle(
       bundle,
@@ -142,6 +149,7 @@ def test_weasyprint_text_hash_of_the_compat_cases(case: str, layout: str) -> Non
       layout=f'{layout}@1',
       formats=['pdf'],
       options=NO_PAGE_NUMBERS,
+      markup_engine=markup,
       flat=True,
     ).files['report.pdf']
   assert _digest(pdf) == expected
@@ -193,10 +201,10 @@ def test_latex_pdf_is_reproducible(engine: str, tmp_path: Path) -> None:
 
 @pytest.mark.pdf_latex
 @pytest.mark.parametrize('layout', LAYOUTS)
-@pytest.mark.parametrize('case', ['minimal', 'text-only', 'full-kinds'])
-def test_lualatex_text_hash_of_the_compat_cases(case: str, layout: str) -> None:
+@pytest.mark.parametrize(('case', 'markup'), MARKUPS)
+def test_lualatex_text_hash_of_the_compat_cases(case: str, markup: str, layout: str) -> None:
   _need('latexmk', 'lualatex')
-  expected = _recorded(case, layout, 'lualatex')
+  expected = _recorded(case, layout, 'lualatex', markup)
   with open_bundle(_source(case)) as bundle:
     pdf = render_bundle(
       bundle,
@@ -206,6 +214,7 @@ def test_lualatex_text_hash_of_the_compat_cases(case: str, layout: str) -> None:
       pdf_engine='latex',
       latex_engine='lualatex',
       options=NO_PAGE_NUMBERS,
+      markup_engine=markup,
       flat=True,
     ).files['report.pdf']
   assert _digest(pdf) == expected
@@ -242,16 +251,18 @@ def test_a_missing_tex_package_is_exit_3(tmp_path: Path) -> None:
 
 
 def _source(case: str) -> Path:
-  names = {'minimal': 'bundle.scireport', 'text-only': 'source', 'full-kinds': 'bundle.scireport'}
-  return CORPUS / case / names[case]
+  return CORPUS / case / ('source' if case == 'text-only' else 'bundle.scireport')
 
 
 def _digest(pdf: bytes) -> str:
   return hashlib.sha256(letters(pdf_text(pdf)).encode('utf-8')).hexdigest()
 
 
-def _recorded(case: str, layout: str, engine: str) -> str:
-  path = CORPUS / case / 'expected' / f'render-generic-1-{layout}-1' / f'pdf-text-{engine}.sha256'
+def _recorded(case: str, layout: str, engine: str, markup: str) -> str:
+  if markup == 'pandoc':
+    need_the_frozen_pandoc()
+  folder = f'render-generic-1-{layout}-1' + ('-pandoc' if markup == 'pandoc' else '')
+  path = CORPUS / case / 'expected' / folder / f'pdf-text-{engine}.sha256'
   return path.read_text(encoding='utf-8').strip()
 
 
