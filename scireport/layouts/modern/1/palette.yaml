@@ -52,9 +52,9 @@ cmap:
   sequential: cividis
   diverging: RdBu_r
 fonts:
-  sans: [TeXGyreHeros, TeX Gyre Heros, Helvetica Neue, Arial, sans-serif]
-  mono: [TeXGyreCursor, TeX Gyre Cursor, Courier New, Courier, monospace]
-  serif: [TeX Gyre Pagella, Palatino Linotype, Palatino, Georgia, serif]
+  sans: [TeXGyreHerosSubset, TeXGyreHeros, TeX Gyre Heros, Helvetica Neue, Arial, sans-serif]
+  mono: [TeXGyreCursorSubset, TeXGyreCursor, TeX Gyre Cursor, Courier New, Courier, monospace]
+  serif: [TeX Gyre Pagella Subset, TeX Gyre Pagella, Palatino Linotype, Palatino, Georgia, serif]
 spacing: [4, 8, 12, 16, 24, 32, 48, 64]
 type_scale:
   title: 22.0

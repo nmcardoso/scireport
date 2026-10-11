@@ -642,17 +642,17 @@ a {
 }
 
 /* A tinted background alone would repeat the mistake of colour-only coding, so each verdict also
-   gets a left border of its own style. */
+   gets a solid strip of its own colour on the left, the same 3pt strip the LaTeX table draws. */
 .table-block tr.row--pass td:first-child {
-  border-left: 2pt solid var(--green);
+  border-left: 3pt solid var(--green);
 }
 
 .table-block tr.row--warn td:first-child {
-  border-left: 2pt dashed var(--accent);
+  border-left: 3pt solid var(--accent);
 }
 
 .table-block tr.row--fail td:first-child {
-  border-left: 4pt double var(--red);
+  border-left: 3pt solid var(--red);
 }
 
 /* Figure */

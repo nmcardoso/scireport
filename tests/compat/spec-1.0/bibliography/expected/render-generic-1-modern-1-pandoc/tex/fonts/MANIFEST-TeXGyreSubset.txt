@@ -1,0 +1,29 @@
+Manifest of the TeX Gyre subsets shipped with scireport
+=======================================================
+
+The GUST Font Licence (GFL.txt) asks that derived works be distributed under new font names,
+that the files of the work be given new names, and that the new names be listed in a manifest.
+This is that manifest.
+
+Original work: TeX Gyre Pagella, TeX Gyre Heros and TeX Gyre Cursor, version 2.004, by
+B. Jackowski and J.M. Nowacki (on behalf of TeX users groups), released under the GUST Font
+License. Home: http://www.gust.org.pl/projects/e-foundry/tex-gyre
+
+Derived work: subsets of those fonts that keep only the glyphs scireport needs (Basic Latin,
+Latin-1, general punctuation, Greek, and a few mathematical symbols). Outlines and metrics of
+the glyphs that remain are unchanged. The family name and the PostScript name inside each file
+carry the suffix "Subset"; the file names carry it too.
+
+Font name                  File                                  Derived from
+-------------------------  ------------------------------------  --------------------------
+TeXGyrePagellaSubset       TeXGyrePagellaSubset-Regular.otf      texgyrepagella-regular.otf
+TeXGyrePagellaSubset       TeXGyrePagellaSubset-Italic.otf       texgyrepagella-italic.otf
+TeXGyrePagellaSubset       TeXGyrePagellaSubset-Bold.otf         texgyrepagella-bold.otf
+TeXGyrePagellaSubset       TeXGyrePagellaSubset-BoldItalic.otf   texgyrepagella-bolditalic.otf
+TeXGyreHerosSubset         TeXGyreHerosSubset-Regular.otf        texgyreheros-regular.otf
+TeXGyreHerosSubset         TeXGyreHerosSubset-Italic.otf         texgyreheros-italic.otf
+TeXGyreHerosSubset         TeXGyreHerosSubset-Bold.otf           texgyreheros-bold.otf
+TeXGyreCursorSubset        TeXGyreCursorSubset-Regular.otf       texgyrecursor-regular.otf
+
+Exceptions to the request: none. No file of the original work is distributed under its
+original name.

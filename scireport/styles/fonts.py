@@ -8,7 +8,9 @@ and :func:`probe` checks, at run time, that the specific families resolved to a 
 name.
 
 Inter, IBM Plex Mono and IBM Plex Serif (licence ``fonts/OFL.txt``) serve ``default@1``; TeX Gyre
-Pagella, Heros and Cursor (GUST Font Licence, ``fonts/GFL.txt``) serve ``modern@1``. The Inter and
+Pagella, Heros and Cursor (GUST Font Licence, ``fonts/GFL.txt``) serve ``modern@1``. The TeX Gyre
+files are subsets, so they are renamed as the licence asks (``TeXGyrePagellaSubset``, ...) and
+listed in ``fonts/MANIFEST-TeXGyreSubset.txt``. The Inter and
 IBM Plex Mono subsets cover Basic Latin, Latin-1 and a few symbols (dashes, ``×``, ``·``, ``→``,
 ``−``, ``∞``). Greek letters and ``≤ ≥ ≈ √`` are not in them: the LaTeX writer maps those to math
 macros and HTML falls back to the next family of the stack. The IBM Plex Serif and TeX Gyre subsets
@@ -37,14 +39,14 @@ FACES: dict[str, str] = {
   'IBM Plex Serif Regular': 'IBMPlexSerif-Regular.otf',
   'IBM Plex Serif Italic': 'IBMPlexSerif-Italic.otf',
   'IBM Plex Serif SemiBold': 'IBMPlexSerif-SemiBold.otf',
-  'TeX Gyre Pagella Regular': 'TeXGyrePagella-Regular.otf',
-  'TeX Gyre Pagella Italic': 'TeXGyrePagella-Italic.otf',
-  'TeX Gyre Pagella Bold': 'TeXGyrePagella-Bold.otf',
-  'TeX Gyre Pagella Bold Italic': 'TeXGyrePagella-BoldItalic.otf',
-  'TeX Gyre Heros Regular': 'TeXGyreHeros-Regular.otf',
-  'TeX Gyre Heros Italic': 'TeXGyreHeros-Italic.otf',
-  'TeX Gyre Heros Bold': 'TeXGyreHeros-Bold.otf',
-  'TeX Gyre Cursor Regular': 'TeXGyreCursor-Regular.otf',
+  'TeX Gyre Pagella Subset Regular': 'TeXGyrePagellaSubset-Regular.otf',
+  'TeX Gyre Pagella Subset Italic': 'TeXGyrePagellaSubset-Italic.otf',
+  'TeX Gyre Pagella Subset Bold': 'TeXGyrePagellaSubset-Bold.otf',
+  'TeX Gyre Pagella Subset Bold Italic': 'TeXGyrePagellaSubset-BoldItalic.otf',
+  'TeX Gyre Heros Subset Regular': 'TeXGyreHerosSubset-Regular.otf',
+  'TeX Gyre Heros Subset Italic': 'TeXGyreHerosSubset-Italic.otf',
+  'TeX Gyre Heros Subset Bold': 'TeXGyreHerosSubset-Bold.otf',
+  'TeX Gyre Cursor Subset Regular': 'TeXGyreCursorSubset-Regular.otf',
 }
 """Face label to file name inside :data:`FONTS_DIR`. The label is documentation only."""
 
@@ -58,14 +60,14 @@ CSS_FACES: tuple[tuple[str, str, int, str], ...] = (
   ('IBM Plex Serif', 'IBMPlexSerif-Regular.otf', 400, 'normal'),
   ('IBM Plex Serif', 'IBMPlexSerif-Italic.otf', 400, 'italic'),
   ('IBM Plex Serif', 'IBMPlexSerif-SemiBold.otf', 600, 'normal'),
-  ('TeX Gyre Pagella', 'TeXGyrePagella-Regular.otf', 400, 'normal'),
-  ('TeX Gyre Pagella', 'TeXGyrePagella-Italic.otf', 400, 'italic'),
-  ('TeX Gyre Pagella', 'TeXGyrePagella-Bold.otf', 700, 'normal'),
-  ('TeX Gyre Pagella', 'TeXGyrePagella-BoldItalic.otf', 700, 'italic'),
-  ('TeX Gyre Heros', 'TeXGyreHeros-Regular.otf', 400, 'normal'),
-  ('TeX Gyre Heros', 'TeXGyreHeros-Italic.otf', 400, 'italic'),
-  ('TeX Gyre Heros', 'TeXGyreHeros-Bold.otf', 700, 'normal'),
-  ('TeX Gyre Cursor', 'TeXGyreCursor-Regular.otf', 400, 'normal'),
+  ('TeX Gyre Pagella Subset', 'TeXGyrePagellaSubset-Regular.otf', 400, 'normal'),
+  ('TeX Gyre Pagella Subset', 'TeXGyrePagellaSubset-Italic.otf', 400, 'italic'),
+  ('TeX Gyre Pagella Subset', 'TeXGyrePagellaSubset-Bold.otf', 700, 'normal'),
+  ('TeX Gyre Pagella Subset', 'TeXGyrePagellaSubset-BoldItalic.otf', 700, 'italic'),
+  ('TeX Gyre Heros Subset', 'TeXGyreHerosSubset-Regular.otf', 400, 'normal'),
+  ('TeX Gyre Heros Subset', 'TeXGyreHerosSubset-Italic.otf', 400, 'italic'),
+  ('TeX Gyre Heros Subset', 'TeXGyreHerosSubset-Bold.otf', 700, 'normal'),
+  ('TeX Gyre Cursor Subset', 'TeXGyreCursorSubset-Regular.otf', 400, 'normal'),
 )
 """``@font-face`` rows: family, file, weight and style."""
 
@@ -75,9 +77,9 @@ _PROBED_FAMILIES = (
   'Inter',
   'IBM Plex Mono',
   'IBM Plex Serif',
-  'TeX Gyre Pagella',
-  'TeXGyreHeros',
-  'TeXGyreCursor',
+  'TeXGyrePagellaSubset',
+  'TeXGyreHerosSubset',
+  'TeXGyreCursorSubset',
 )
 _state = {'registered': False}
 
@@ -117,12 +119,16 @@ def licence_files(files: list[str]) -> list[str]:
   Returns
   -------
   list of str
-      ``'GFL.txt'`` when a TeX Gyre face is listed and ``'OFL.txt'`` when any other face is, in
-      that order of the alphabet; empty when ``files`` is empty.
+      ``'GFL.txt'`` and ``'MANIFEST-TeXGyreSubset.txt'`` (the manifest the GUST Font Licence asks
+      for) when a TeX Gyre face is listed, ``'OFL.txt'`` when any other face is, in alphabetical
+      order; empty when ``files`` is empty.
   """
-  names = set()
+  names: set[str] = set()
   for name in files:
-    names.add('GFL.txt' if name.startswith('TeXGyre') else 'OFL.txt')
+    if name.startswith('TeXGyre'):
+      names.update(('GFL.txt', 'MANIFEST-TeXGyreSubset.txt'))
+    else:
+      names.add('OFL.txt')
   return sorted(names)
 
 
