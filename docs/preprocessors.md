@@ -188,12 +188,12 @@ Hybrid density colour-colour diagram.
 
 | Parameter | Type | Default | Meaning |
 |---|---|---|---|
-| `color_x_column` | `str` | required |  |
-| `color_y_column` | `str` | required |  |
-| `gridsize` | `int` | `60` |  |
-| `threshold` | `int` | `3` |  |
-| `x_label` | `str \| None` | `None` |  |
-| `y_label` | `str \| None` | `None` |  |
+| `color_x_column` | `str` | required | Columns with the two colours (magnitude differences such as g - r and r - i). |
+| `color_y_column` | `str` | required | Columns with the two colours (magnitude differences such as g - r and r - i). |
+| `gridsize` | `int` | `60` | Hexagons across the x range. |
+| `threshold` | `int` | `3` | A hexagon with this many points or fewer is drawn as individual points. |
+| `x_label` | `str \| None` | `None` | Axis labels; the column names when None. |
+| `y_label` | `str \| None` | `None` | Axis labels; the column names when None. |
 
 ### `astro.color_magnitude`
 
@@ -210,8 +210,8 @@ Hybrid density colour-magnitude diagram.
 | `magnitude_column` | `str` | required | Column with a single-band magnitude, on the inverted y axis. |
 | `gridsize` | `int` | `60` | Hexagons across the colour range. |
 | `threshold` | `int` | `3` | A hexagon with this many points or fewer is drawn as individual points. |
-| `x_label` | `str \| None` | `None` |  |
-| `y_label` | `str \| None` | `None` |  |
+| `x_label` | `str \| None` | `None` | Axis labels; the column names when None. |
+| `y_label` | `str \| None` | `None` | Axis labels; the column names when None. |
 
 ### `astro.footprint`
 
@@ -225,13 +225,13 @@ Coverage footprint of one or several catalogues on a Mollweide sky map. Needs `s
 | Parameter | Type | Default | Meaning |
 |---|---|---|---|
 | `order` | `int` | `5` | HEALPix level of the coverage mask, nested ordering; 0 to 10. |
-| `ra_column` | `str` | `'ra'` |  |
-| `dec_column` | `str` | `'dec'` |  |
-| `ipix_column` | `str \| None` | `None` |  |
-| `counts_column` | `str \| None` | `None` |  |
-| `group_column` | `str \| None` | `None` |  |
-| `min_count` | `float` | `1.0` |  |
-| `height` | `float` | `3.2` |  |
+| `ra_column` | `str` | `'ra'` | Right ascension and declination in degrees; ignored when ``ipix_column`` is given. |
+| `dec_column` | `str` | `'dec'` | Right ascension and declination in degrees; ignored when ``ipix_column`` is given. |
+| `ipix_column` | `str \| None` | `None` | Column of nested pixel indices at ``order``; makes the table a tally. |
+| `counts_column` | `str \| None` | `None` | Column with the count (weight) of each row; one per row when None. |
+| `group_column` | `str \| None` | `None` | One colour and legend entry per distinct value (at most 12). |
+| `min_count` | `float` | `1.0` | A pixel is covered when it holds at least this many objects. |
+| `height` | `float` | `3.2` | Figure height in inches. |
 
 ### `astro.magnitude_residual`
 
@@ -248,9 +248,9 @@ Draw a magnitude residual against magnitude as a hexagon density.
 | `residual_column` | `str` | required | Residual column (y axis); the sign and meaning are the caller's. |
 | `gridsize` | `int` | `60` | Hexagons across the magnitude range. |
 | `threshold` | `int` | `3` | A hexagon with this many points or fewer is drawn as individual points. |
-| `x_label` | `str` | `'Published magnitude'` |  |
-| `y_label` | `str` | `'Recovered - published (mag)'` |  |
-| `height` | `float` | `3.4` |  |
+| `x_label` | `str` | `'Published magnitude'` | Axis labels. |
+| `y_label` | `str` | `'Recovered - published (mag)'` | Axis labels. |
+| `height` | `float` | `3.4` | Figure height in inches. |
 
 ### `astro.number_counts`
 
@@ -282,14 +282,14 @@ Mollweide sky map of source density on a HEALPix grid. Needs `scireport[astro]`.
 | Parameter | Type | Default | Meaning |
 |---|---|---|---|
 | `order` | `int` | `7` | HEALPix level of the bins, or of the indices of a tally; 0 to 10. The sky has ``12 * 4**order`` pixels, nested ordering. |
-| `ra_column` | `str` | `'ra'` |  |
-| `dec_column` | `str` | `'dec'` |  |
-| `ipix_column` | `str \| None` | `None` |  |
-| `counts_column` | `str \| None` | `None` |  |
-| `log` | `bool` | `True` |  |
-| `per_area` | `bool` | `True` |  |
-| `colorbar_label` | `str \| None` | `None` |  |
-| `min_count` | `float` | `1.0` |  |
+| `ra_column` | `str` | `'ra'` | Right ascension and declination in degrees; ignored when ``ipix_column`` is given. |
+| `dec_column` | `str` | `'dec'` | Right ascension and declination in degrees; ignored when ``ipix_column`` is given. |
+| `ipix_column` | `str \| None` | `None` | Column of nested pixel indices at ``order``; makes the table a tally. |
+| `counts_column` | `str \| None` | `None` | Column with the count (weight) of each row; one per row when None. |
+| `log` | `bool` | `True` | Logarithmic colour scale. |
+| `per_area` | `bool` | `True` | Colour by objects per square degree instead of objects per pixel. |
+| `colorbar_label` | `str \| None` | `None` | Colour bar label; the unit when None. |
+| `min_count` | `float` | `1.0` | Pixels with fewer objects stay blank. |
 
 ### `astro.sky_grid`
 
@@ -305,15 +305,15 @@ Small multiples: one Mollweide sky-density panel per group, on one shared colour
 | `group_column` | `str` | required | Column whose distinct values become panels (at most 30), in sorted order. |
 | `order` | `int` | `5` | HEALPix level of the bins, or of the indices of a tally; 0 to 10; nested ordering. |
 | `ncols` | `int` | `3` | Panels per row; at least 1. |
-| `ra_column` | `str` | `'ra'` |  |
-| `dec_column` | `str` | `'dec'` |  |
-| `ipix_column` | `str \| None` | `None` |  |
-| `counts_column` | `str \| None` | `None` |  |
-| `log` | `bool` | `True` |  |
-| `per_area` | `bool` | `True` |  |
-| `colorbar_label` | `str \| None` | `None` |  |
-| `min_count` | `float` | `1.0` |  |
-| `height` | `float \| None` | `None` |  |
+| `ra_column` | `str` | `'ra'` | Right ascension and declination in degrees; ignored when ``ipix_column`` is given. |
+| `dec_column` | `str` | `'dec'` | Right ascension and declination in degrees; ignored when ``ipix_column`` is given. |
+| `ipix_column` | `str \| None` | `None` | Column of nested pixel indices at ``order``; makes the table a tally. |
+| `counts_column` | `str \| None` | `None` | Column with the count (weight) of each row; one per row when None. |
+| `log` | `bool` | `True` | Logarithmic shared colour scale. |
+| `per_area` | `bool` | `True` | Colour by objects per square degree instead of objects per pixel. |
+| `colorbar_label` | `str \| None` | `None` | Colour bar label; the unit when None. |
+| `min_count` | `float` | `1.0` | Pixels with fewer objects stay blank. |
+| `height` | `float \| None` | `None` | Figure height in inches; made from the number of rows when None. |
 
 ### `astro.snr_magnitude`
 
@@ -332,9 +332,9 @@ Signal-to-noise against magnitude, with the 5-sigma depth marked.
 | `estimate_depth` | `bool` | `True` | When ``depth`` is None, estimate it from the running median S/N; if that never crosses 5 no depth is drawn. |
 | `gridsize` | `int` | `60` | Hexagons across the magnitude range. |
 | `threshold` | `int` | `3` | A hexagon with this many points or fewer is drawn as individual points. |
-| `x_label` | `str` | `'Magnitude'` |  |
-| `y_label` | `str` | `'$\\log_{10}$ S/N'` |  |
-| `height` | `float` | `3.4` |  |
+| `x_label` | `str` | `'Magnitude'` | Axis labels. |
+| `y_label` | `str` | `'$\\log_{10}$ S/N'` | Axis labels. |
+| `height` | `float` | `3.4` | Figure height in inches. |
 
 ### `astro.zeropoint_offsets`
 
@@ -352,9 +352,9 @@ One band's cross-survey magnitude offset against colour, as a hexagon density.
 | `fit` | `bool` | `True` | Draw a least-squares line over the colour range; its slope is the colour term. |
 | `gridsize` | `int` | `60` | Hexagons across the colour range. |
 | `threshold` | `int` | `3` | A hexagon with this many points or fewer is drawn as individual points. |
-| `x_label` | `str` | `'Colour (mag)'` |  |
-| `y_label` | `str` | `'$\\Delta m$ (mag)'` |  |
-| `height` | `float` | `3.4` |  |
+| `x_label` | `str` | `'Colour (mag)'` | Axis labels. |
+| `y_label` | `str` | `'$\\Delta m$ (mag)'` | Axis labels. |
+| `height` | `float` | `3.4` | Figure height in inches. |
 
 ### `core.achieved_vs_target`
 
@@ -421,12 +421,12 @@ Scatter of two columns: hexagons where it is crowded, individual points where it
 
 | Parameter | Type | Default | Meaning |
 |---|---|---|---|
-| `x_column` | `str` | required |  |
-| `y_column` | `str` | required |  |
-| `gridsize` | `int` | `50` |  |
-| `threshold` | `int` | `3` |  |
-| `x_label` | `str \| None` | `None` |  |
-| `y_label` | `str \| None` | `None` |  |
+| `x_column` | `str` | required | Numeric columns for the two axes. |
+| `y_column` | `str` | required | Numeric columns for the two axes. |
+| `gridsize` | `int` | `50` | Number of hexagons across the x range. |
+| `threshold` | `int` | `3` | A hexagon with this many points or fewer is drawn as individual points. |
+| `x_label` | `str \| None` | `None` | Axis labels; the column names when None. |
+| `y_label` | `str \| None` | `None` | Axis labels; the column names when None. |
 
 ### `core.distribution`
 
@@ -489,23 +489,23 @@ Heatmap of a matrix given as a long table (one row per cell).
 
 | Parameter | Type | Default | Meaning |
 |---|---|---|---|
-| `row_column` | `str` | required |  |
-| `column_column` | `str` | required |  |
-| `value_column` | `str` | required |  |
-| `row_order` | `list[str] \| None` | `None` |  |
-| `column_order` | `list[str] \| None` | `None` |  |
-| `cmap` | `'sequential' \| 'diverging'` | `'sequential'` |  |
-| `vmin` | `float \| None` | `None` |  |
-| `vmax` | `float \| None` | `None` |  |
-| `symmetric` | `bool` | `False` |  |
-| `log` | `bool` | `False` |  |
-| `annotate` | `bool \| 'auto'` | `'auto'` |  |
-| `value_format` | `str` | `'.2g'` |  |
-| `colorbar_label` | `str` | `''` |  |
-| `row_label` | `str` | `''` |  |
-| `column_label` | `str` | `''` |  |
-| `square` | `bool` | `False` |  |
-| `height` | `float \| None` | `None` |  |
+| `row_column` | `str` | required | Columns naming the row and the column of each cell. |
+| `column_column` | `str` | required | Columns naming the row and the column of each cell. |
+| `value_column` | `str` | required | Numeric column with the cell's value; null cells are drawn blank. |
+| `row_order` | `list[str] \| None` | `None` | Labels in drawing order (first appearance when None); may list labels the data lacks, and leaving one out drops its cells. |
+| `column_order` | `list[str] \| None` | `None` | Labels in drawing order (first appearance when None); may list labels the data lacks, and leaving one out drops its cells. |
+| `cmap` | `'sequential' \| 'diverging'` | `'sequential'` | Which colour map of the layout to use. |
+| `vmin` | `float \| None` | `None` | Colour limits; the range of the values when None. |
+| `vmax` | `float \| None` | `None` | Colour limits; the range of the values when None. |
+| `symmetric` | `bool` | `False` | Colour limits ``-m`` to ``m``, centring a diverging scale on 0. |
+| `log` | `bool` | `False` | Logarithmic colour scale (cells that are not positive are blank). |
+| `annotate` | `bool \| 'auto'` | `'auto'` | Write each value in its cell; ``'auto'`` does so for at most 400 cells. |
+| `value_format` | `str` | `'.2g'` | Python format specification of the cell text. |
+| `colorbar_label` | `str` | `''` | Label of the colour bar. |
+| `row_label` | `str` | `''` | Axis labels (rows on the left, columns on top). |
+| `column_label` | `str` | `''` | Axis labels (rows on the left, columns on top). |
+| `square` | `bool` | `False` | Square cells. |
+| `height` | `float \| None` | `None` | Figure height in inches; from the number of rows when None. |
 
 ### `core.histogram`
 
@@ -538,13 +538,13 @@ Compare a per-object metric of the left dataset with the right one, against ``y 
 
 | Parameter | Type | Default | Meaning |
 |---|---|---|---|
-| `x_column` | `str` | required |  |
-| `y_column` | `str` | required |  |
-| `x_label` | `str` | `'left'` |  |
-| `y_label` | `str` | `'right'` |  |
-| `title` | `str` | `'Metric comparison'` |  |
-| `gridsize` | `int` | `50` |  |
-| `threshold` | `int` | `3` |  |
+| `x_column` | `str` | required | Numeric columns: the left metric (x axis) and the right metric (y axis). |
+| `y_column` | `str` | required | Numeric columns: the left metric (x axis) and the right metric (y axis). |
+| `x_label` | `str` | `'left'` | Axis labels. |
+| `y_label` | `str` | `'right'` | Axis labels. |
+| `title` | `str` | `'Metric comparison'` | Title; nothing when empty. |
+| `gridsize` | `int` | `50` | Number of hexagons across the x range. |
+| `threshold` | `int` | `3` | A hexagon with this many points or fewer is drawn as individual points. |
 
 ### `core.pp`
 
@@ -560,9 +560,9 @@ P-P plot of a sample against a normal distribution or a second sample.
 | `column` | `str` | required | The sample, drawn on the y axis. |
 | `reference_column` | `str \| None` | `None` | A second sample for the x axis; without it the standard normal distribution, against which the standardised sample is drawn. |
 | `max_points` | `int` | `2000` | The most points drawn (a deterministic grid, not every row). |
-| `x_label` | `str \| None` | `None` |  |
-| `y_label` | `str \| None` | `None` |  |
-| `height` | `float` | `3.4` |  |
+| `x_label` | `str \| None` | `None` | Axis labels; made from the column names when None. |
+| `y_label` | `str \| None` | `None` | Axis labels; made from the column names when None. |
+| `height` | `float` | `3.4` | Figure height in inches. |
 
 ### `core.pvalue_strip`
 
@@ -594,9 +594,9 @@ Q-Q plot of a sample against a normal distribution or a second sample.
 | `column` | `str` | required | The sample, drawn on the y axis. |
 | `reference_column` | `str \| None` | `None` | A second sample for the x axis; without it the standard normal distribution, against which the standardised sample is drawn. |
 | `max_points` | `int` | `2000` | The most points drawn (a deterministic quantile grid, not every row). |
-| `x_label` | `str \| None` | `None` |  |
-| `y_label` | `str \| None` | `None` |  |
-| `height` | `float` | `3.4` |  |
+| `x_label` | `str \| None` | `None` | Axis labels; made from the column names when None. |
+| `y_label` | `str \| None` | `None` | Axis labels; made from the column names when None. |
+| `height` | `float` | `3.4` | Figure height in inches. |
 
 ### `core.separation_histogram`
 

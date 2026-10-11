@@ -13,7 +13,7 @@ html, body {
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-serif);
   font-size: var(--text-body);
   line-height: 1.55;
   color: var(--ink);
@@ -23,11 +23,14 @@ body {
 
 /* A4 portrait (the document skeleton sets the size from the `paper` option), 18 mm top and
    bottom and 9 mm left and right, a minimal running header and a footer with page counters. The
-   anonymous @page rule matches every page including @page cover, so the cover cancels it. */
+   page padding keeps the content 8 mm below the header rule. The anonymous @page rule matches
+   every page including @page cover, so the cover cancels it. */
 @page {
   margin: 18mm 9mm;
+  padding-top: 8mm;
 
   @top-left {
+    width: 50%;
     content: string(pipeline-name);
     font-family: var(--font-sans);
     font-size: 7.5pt;
@@ -40,6 +43,7 @@ body {
   }
 
   @top-right {
+    width: 50%;
     content: string(doc-author);
     font-family: var(--font-sans);
     font-size: 7.5pt;
@@ -68,6 +72,7 @@ body {
    @page :first, which breaks silently the day the cover runs to two pages. */
 @page cover {
   margin: 0;
+  padding: 0;
 
   @top-left { content: none; }
   @top-right { content: none; }
@@ -126,7 +131,6 @@ h4.h--minor {
 
 p {
   margin: 0 0 var(--space-3);
-  max-width: 68ch;
 }
 
 /* There is no 700 face: bold text uses the 600 one instead of whatever bold the machine has. */
@@ -140,6 +144,14 @@ code, kbd, pre, samp {
 
 code {
   font-size: 0.92em;
+}
+
+/* The body text is serif; everything that is not running prose (headings, tables, captions and
+   the dashboard components) stays in the sans family. */
+table, .toc, .cover, .title-block, .metric-grid, .status, .alert, .metadata, .flow, .figure,
+.equation, .table-block, .attachment, .fact-label, .details-summary, .code-language,
+p.p--caption {
+  font-family: var(--font-sans);
 }
 
 /* Prose from Markdown: tables and quotes outside the components. */

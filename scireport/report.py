@@ -591,9 +591,10 @@ class Report:
     key : str
         The value's key.
     figure : Any
-        A matplotlib ``Figure`` (rendered to ``formats`` with metadata stripped, so the bytes do
-        not depend on the clock), a mapping of format to ``bytes`` or ``Path``, or one ``Path``
-        whose suffix gives the format.
+        A matplotlib ``Figure`` (rendered to ``formats`` exactly as
+        :func:`scireport.styles.save_figure` does: cropped to its content, with metadata
+        stripped, so the bytes do not depend on the clock), a mapping of format to ``bytes`` or
+        ``Path``, or one ``Path`` whose suffix gives the format.
     alt : str
         Alternative text; required and not blank.
     caption : str or None
@@ -1169,7 +1170,7 @@ def _read(content: bytes | Path | str) -> bytes:
 
 
 def _render_figure(figure: Any, fmt: str, dpi: float) -> bytes:
-  """Render a matplotlib figure with the metadata that would make the bytes vary removed."""
+  """Render a matplotlib figure like ``save_figure`` does, without metadata that would vary."""
   from scireport.styles.figures import figure_bytes
 
-  return figure_bytes(figure, fmt, dpi=round(dpi), tight=False)  # type: ignore[arg-type]
+  return figure_bytes(figure, fmt, dpi=round(dpi))  # type: ignore[arg-type]

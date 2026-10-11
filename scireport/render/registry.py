@@ -174,8 +174,9 @@ def pin_manifest(manifest: Manifest) -> Manifest:
   ``name`` becomes ``name@version`` with the newest version available here, so that a later
   render of the packed bundle is identical even after newer versions exist. ``name@version``
   is kept as written, and a name that cannot be resolved here (a plugin that is not installed)
-  is left alone with a warning. Nothing is pinned for a field the bundle leaves unset: the
-  defaults are frozen per version too (``generic@1``).
+  is left alone with a warning. A field the bundle leaves unset is pinned to the default that
+  a render would use (``generic@1`` and ``default@1``, frozen per version), so that the packed
+  bundle names what it was rendered with.
 
   Parameters
   ----------
@@ -190,7 +191,10 @@ def pin_manifest(manifest: Manifest) -> Manifest:
   changes: dict[str, str] = {}
   for kind in ('template', 'layout'):
     ref = getattr(manifest.render, kind)
-    if ref is None or '@' in ref:
+    if ref is None:
+      changes[kind] = DEFAULT_TEMPLATE if kind == 'template' else DEFAULT_LAYOUT
+      continue
+    if '@' in ref:
       continue
     try:
       changes[kind] = pin(kind, ref)

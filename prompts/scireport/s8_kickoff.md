@@ -27,6 +27,6 @@ determinism test, sidecar-data test) and the ADR-0006 interface. This is a minor
 references, and run the clean-room install with the new extra. Do NOT push the tag: the human decides (gate HG-S3, release
 sign-off, written like HG-S2).
 
-Use cheaper models for subagents performing simple tasks (haiku: copying, docstring passes, fixture regeneration, parity summaries, link checks; sonnet: porting individual plot functions, CSS-to-LaTeX components, reference pages, later gzms section builders). Every subagent prompt names the files and the acceptance tests.
+Use cheaper models for subagents performing simple tasks. Every subagent prompt names the files and the acceptance tests.
 
 Merge the branch into main when done.

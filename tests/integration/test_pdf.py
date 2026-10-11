@@ -167,7 +167,8 @@ def test_latex_pdf_has_the_text_of_the_markdown(
     )
     _check_text(result.files['report.pdf'], _markdown(bundle, layout, template))
   codes = [issue.code for issue in result.issues]
-  assert codes == (['W901'] if engine == 'pdflatex' else [])
+  # modern@1 loads its TeX Gyre families from TeX Live under pdfLaTeX; default@1 cannot.
+  assert codes == (['W901'] if engine == 'pdflatex' and layout == 'default' else [])
 
 
 @pytest.mark.pdf_latex

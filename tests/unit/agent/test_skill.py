@@ -127,6 +127,33 @@ def test_numpy_params_and_summary() -> None:
   assert skillgen.numpy_params(None) == {} and skillgen.numpy_params('no sections') == {}
 
 
+def test_numpy_params_gives_each_grouped_name_the_text() -> None:
+  doc = """Do a thing.
+
+  Parameters
+  ----------
+  width, height : float
+      Size in inches.
+  n : int
+      Count.
+  """
+  assert skillgen.numpy_params(doc) == {
+    'width': ('float', 'Size in inches.'),
+    'height': ('float', 'Size in inches.'),
+    'n': ('int', 'Count.'),
+  }
+
+
+def test_the_palette_table_spells_out_nested_models() -> None:
+  table = skillgen.gen_palette()
+  for bare in ('`Cmaps`', '`Fonts`', '`Page`'):
+    assert bare not in table
+  assert '| `cmap.sequential` | `str` |' in table
+  assert '| `fonts.sans` | `list[str]` |' in table
+  assert '| `page.width_mm` | `float` | Paper size. Default 210.0. |' in table
+  assert '| `body_line_height` | `float` | Line heights' in table
+
+
 def test_the_tables_escape_pipes() -> None:
   assert skillgen.table(['A'], [['x|y\nz']]) == '| A |\n|---|\n| x\\|y z |'
 

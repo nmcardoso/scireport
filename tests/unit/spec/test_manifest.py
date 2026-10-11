@@ -271,6 +271,12 @@ def test_issue_formatting() -> None:
   assert Issue('W402', 'stray').severity == 'warning'
 
 
+def test_issue_formatting_leaves_out_what_is_not_set() -> None:
+  assert Issue('E706', 'no tex', found='tex').describe() == 'no tex (found tex)'
+  assert Issue('E105', 'needs x', expected='number').describe() == 'needs x (expected number)'
+  assert 'None' not in Issue('E706', 'no tex', found='tex').format()
+
+
 def test_error_classes_carry_codes() -> None:
   error = ScireportError('boom', code='E410', hint='retry')
   assert str(error) == 'E410: boom. retry'

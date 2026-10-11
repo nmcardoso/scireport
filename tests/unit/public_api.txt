@@ -112,7 +112,7 @@ class ValidationReport
 const __version__ = '0.1.0.dev0'
 def check_bundle(bundle, *, template=None, layout=None, formats=None, options=None, markup_engine=None, math_renderer=None, pdf_engine=None, latex_engine=None, md_split=None, strict=False, render=True, preprocess=True, allow_import=False, cache_dir=None, office_source=None, reference_doc=None)
 def export_tex(bundle, keys=None, *, prefix='', bare=False, graphics_prefix='', max_rows=None)
-def figure(width=1.0, height=3.6, nrows=1, ncols=1, *, layout='default', paper='a4', subplot_kw=None)
+def figure(width=1.0, height=3.6, nrows=1, ncols=1, *, layout='default', paper='a4', subplot_kw=None, constrained=True)
 def list_layouts()
 def list_templates()
 def mplstyle(layout='default', *, rc=None)

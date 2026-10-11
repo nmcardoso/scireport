@@ -507,7 +507,7 @@ problem at once (see [Error codes](errors.md)), each with a stable code, the key
 $ scireport validate bad -t ./tpl -l minimal@1
 E106 report.j2:4: /values: the template reads key 'stats.n_sources', which the bundle does not have. Did you mean 'stats.n_pairs'?
 E106 report.j2:5: /values: the template reads key 'stats.n_sources', which the bundle does not have. Did you mean 'stats.n_pairs'?
-E105 template.yaml fields[1]: /values: the template needs a number value at 'stats.n_sources' (Number of sources in the input catalogue.) (expected number at stats.n_sources, found None). Did you mean 'stats.n_pairs'?
+E105 template.yaml fields[1]: /values: the template needs a number value at 'stats.n_sources' (Number of sources in the input catalogue.) (expected number at stats.n_sources). Did you mean 'stats.n_pairs'?
 E303 template.yaml fields[3]: /values/tables.by_survey: table 'tables.by_survey' lacks the column 'n' (expected n, found survey, count)
 invalid: 4 error(s), 0 warning(s)
 ```

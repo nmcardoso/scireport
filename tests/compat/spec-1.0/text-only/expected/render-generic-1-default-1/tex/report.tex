@@ -12,11 +12,12 @@ pdflang={en},%
 \clearpage
 \scanchor{sc-toc}{Contents}{}%
 {\fontsize{20}{24}\selectfont\bfseries\color{sc-navy}Contents\par}%
-\vspace{2pt}\scrule{sc-gray-200}{1pt}\vspace{4pt}
+\vspace{4pt}\scrule{sc-gray-200}{1pt}\vspace{4pt}
 \sctocrow{0}{01}{Results}{a1}
 \sctocrow{0}{02}{Notes}{a2}
+\clearpage
 
-This report has no assets, so it is a single manifest file.
+{\scbody This report has no assets, so it is a single manifest file.\par}
 
 \scchapter{01}{Results}{a1}{Results}{0}
 
@@ -34,7 +35,8 @@ This report has no assets, so it is a single manifest file.
 \begin{adjustwidth}{0pt}{-\scoverhang}
 \vspace{12pt}
 \noindent\parbox[t]{\dimexpr0.32\linewidth-12pt\relax}{\color{sc-ink-soft}\sctrackon\raggedright\MakeUppercase{a}}\hspace{12pt}\parbox[t]{0.68\linewidth}{\ttfamily\raggedright 1}\par\vspace{2pt}\scrule{sc-gray-100}{0.5pt}\vspace{2pt}
-\noindent\parbox[t]{\dimexpr0.32\linewidth-12pt\relax}{\color{sc-ink-soft}\sctrackon\raggedright\MakeUppercase{b}}\hspace{12pt}\parbox[t]{0.68\linewidth}{\ttfamily\raggedright \begin{itemize}
+\noindent\parbox[t]{\dimexpr0.32\linewidth-12pt\relax}{\color{sc-ink-soft}\sctrackon\raggedright\MakeUppercase{b}}\hspace{12pt}\parbox[t]{0.68\linewidth}{\ttfamily\raggedright {\scbody
+\begin{itemize}
 \item 1
 \item 2
 \item {\fontsize{8.5}{13}\selectfont\setlength{\parskip}{0pt}
@@ -44,7 +46,7 @@ This report has no assets, so it is a single manifest file.
 \vspace{12pt}
 \end{adjustwidth}}
 
-\end{itemize}
+\end{itemize}}
 
 }\par\vspace{2pt}\scrule{sc-gray-100}{0.5pt}\vspace{2pt}
 \vspace{12pt}
@@ -56,16 +58,18 @@ This report has no assets, so it is a single manifest file.
 
 \scchapter{02}{Notes}{a2}{Notes}{0}
 
+{\scbody
 \begin{itemize}
 \item alpha
 \item 2
 \item false
-\item \begin{itemize}
+\item {\scbody
+\begin{itemize}
 \item nested
 \item list
-\end{itemize}
+\end{itemize}}
 
-\end{itemize}
+\end{itemize}}
 
 \begin{equation}
 E = mc^2
@@ -91,17 +95,17 @@ SELECT COUNT(*) FROM pairs;
 
 \vspace{16pt}
 \begin{adjustwidth}{0pt}{-\scoverhang}
-\begin{scflowstage}{sc-green}{sc-green}
+\begin{scflowstage}{sc-green}
 \noindent\begin{tabular}[t]{@{}p{26pt}@{}p{\dimexpr\linewidth-26pt\relax}@{}}
 {\color{sc-gray-500}\fontsize{9}{12}\ttfamily\selectfont 01} & {\fontsize{9}{12}\selectfont\bfseries\sctrack{\MakeUppercase{INGEST}}}\par{\fontsize{8.5}{13}\selectfont\color{sc-ink-soft}12,483,921 objects} \\
 \end{tabular}%
 \end{scflowstage}\par
-\begin{scflowstage}{sc-blue}{sc-blue}
+\begin{scflowstage}{sc-blue}
 \noindent\begin{tabular}[t]{@{}p{26pt}@{}p{\dimexpr\linewidth-26pt\relax}@{}}
 {\color{sc-gray-500}\fontsize{9}{12}\ttfamily\selectfont 02} & {\fontsize{9}{12}\selectfont\bfseries\sctrack{\MakeUppercase{CROSS-MATCH}}} \\
 \end{tabular}%
 \end{scflowstage}\par
-\begin{scflowstage}{sc-paper}{sc-gray-500}
+\begin{scflowstage}{sc-gray-200}
 \noindent\begin{tabular}[t]{@{}p{26pt}@{}p{\dimexpr\linewidth-26pt\relax}@{}}
 {\color{sc-gray-500}\fontsize{9}{12}\ttfamily\selectfont 03} & {\fontsize{9}{12}\selectfont\bfseries\sctrack{\MakeUppercase{PUBLISH}}} \\
 \end{tabular}%

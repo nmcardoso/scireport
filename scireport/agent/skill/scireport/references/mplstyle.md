@@ -36,7 +36,7 @@ report.add_figure('crossmatch.separations', fig, alt='Histogram of separations',
 | `scireport.mplstyle(layout='default', *, rc=None)` | context manager: registers the vendored fonts, applies the layout's style, restores matplotlib's parameters on exit. `rc={...}` adds one-off overrides. Draw **everything** (axes, labels, legends) inside it |
 | `scireport.mplstyle_path(layout='default')` | the `.mplstyle` file (`pathlib.Path`), for `plt.style.use(path)` |
 | `scireport.palette(layout='default')` | the layout's colours, chart roles, status colours, colour cycle, colour maps, fonts and page geometry (fields below) |
-| `scireport.figure(width=1.0, height=3.6, nrows=1, ncols=1, *, layout='default', paper='a4', subplot_kw=None)` | `(Figure, axes)` at the **final physical size**: `width` is a fraction (at most 1) of the usable page width, `height` is in inches (clamped to the frame). One `Axes` for a 1x1 grid, an array otherwise. `paper='letter'` for US letter |
+| `scireport.figure(width=1.0, height=3.6, nrows=1, ncols=1, *, layout='default', paper='a4', subplot_kw=None, constrained=True)` | `(Figure, axes)` at the **final physical size**, with the constrained layout engine (`constrained=False` opts out): `width` is a fraction (at most 1) of the usable page width, `height` is in inches (clamped to the frame). One `Axes` for a 1x1 grid, an array otherwise. `paper='letter'` for US letter |
 | `scireport.styles.save_figure(fig, path, *, dpi=200, tight=True, close=False)` | writes PNG, PDF or SVG chosen by the suffix |
 | `scireport.styles.figure_bytes(fig, 'png'\|'pdf'\|'svg', *, dpi=200, tight=True)` | the same file as bytes |
 
@@ -93,13 +93,22 @@ The palette fields:
 | `role` | `dict[str, str]` | Colour with a fixed meaning in a chart (``failed``, ``success`` ...) to a colour token. |
 | `status` | `dict[str, str]` | Level of the status component to a colour token. |
 | `cycle` | `list[str]` | Colour tokens that tell series apart, in order. |
-| `cmap` | `Cmaps` | Sequential and diverging colour maps. |
-| `fonts` | `Fonts` | Font stacks. |
+| `cmap` | `object` | Sequential and diverging colour maps. |
+| `cmap.sequential` | `str` | matplotlib colour map names. |
+| `cmap.diverging` | `str` | matplotlib colour map names. |
+| `fonts` | `object` | Font stacks. |
+| `fonts.sans` | `list[str]` | Family names in order of preference. |
+| `fonts.mono` | `list[str]` | Family names in order of preference. |
+| `fonts.serif` | `list[str]` | The same for the body text of a layout that sets it in a serif face; empty when the layout sets its body text in sans. Default PydanticUndefined. |
 | `spacing` | `list[int]` | The spacing scale in points. |
 | `type_scale` | `dict[str, float]` | Point size per typographic rung. |
-| `body_line_height` | `float` |  |
-| `heading_line_height` | `float` |  |
-| `page` | `Page` |  |
+| `body_line_height` | `float` | Line heights as multiples of the font size. |
+| `heading_line_height` | `float` | Line heights as multiples of the font size. |
+| `page` | `object` | Page geometry, A4 unless the file says otherwise. |
+| `page.width_mm` | `float` | Paper size. Default 210.0. |
+| `page.height_mm` | `float` | Paper size. Default 297.0. |
+| `page.margin_x_mm` | `float` | Left and right, top and bottom margins; the frame is what remains. Default 9.0. |
+| `page.margin_y_mm` | `float` | Left and right, top and bottom margins; the frame is what remains. Default 18.0. |
 <!-- /generated -->
 
 ## Fonts

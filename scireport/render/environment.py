@@ -26,7 +26,7 @@ from markupsafe import Markup
 from scireport.render.data import MissingValue
 from scireport.render.escape import md_escape, tex_escape
 from scireport.render.filters import FILTERS, Scientific
-from scireport.render.numbers import typeset_scientific
+from scireport.render.numbers import TIE_MARK, typeset_scientific
 from scireport.render.safe import Safe
 
 EnvKind = Literal['neutral', 'md', 'html', 'tex']
@@ -132,7 +132,7 @@ def _scientific(value: Scientific, kind: EnvKind) -> Any:
   return Safe(text) if kind in ('html', 'tex') else text
 
 
-_PDF_DROP_RE = re.compile(r'[\\{}%#$&^_~\x00-\x1f]')
+_PDF_DROP_RE = re.compile(rf'[\\{{}}%#$&^_~{TIE_MARK}\x00-\x1f]')
 
 
 def _tex_pdfstring(text: Any) -> Safe:

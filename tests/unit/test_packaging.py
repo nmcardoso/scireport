@@ -20,6 +20,7 @@ STYLE_FILES = [
   'scireport/styles/fonts/Inter-Regular.otf',
   'scireport/styles/fonts/IBMPlexMono-Regular.otf',
   'scireport/styles/fonts/OFL.txt',
+  'scireport/styles/fonts/GFL.txt',
   'scireport/templates/kitchen-sink/1/report.j2',
 ]
 

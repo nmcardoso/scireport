@@ -1,11 +1,11 @@
-# modern@1 "Signal": a swiss / data-journalism look. Black, white and one vermilion accent; thick
-# rules and large numerals instead of boxes; every state is told by a rule style, a shape and a
-# printed word, so it survives grey-scale printing and colour-blindness. Frozen (ADR-0008).
+# modern@1 "Publication": the look of a journal-style report (the TUPAN publication plan): a steel-blue
+# cover band with a gold stripe, Palatino-like text, blue Helvetica-like headings, booktabs tables and
+# boxes with a coloured title bar. Every state carries a printed word as well as a colour. Frozen (ADR-0008).
 spec: ">=1.0,<2.0"
 name: modern
 version: 1
-title: Modern (Signal)
-description: A white page with a vermilion cover band, giant chapter numerals, heavy rules and rule-only tables. Inter and IBM Plex Mono.
+title: Modern (Publication)
+description: A journal-style report. Steel-blue cover band with a gold stripe, numbered blue headings, justified Palatino-like text, booktabs tables and boxes with a coloured title bar. TeX Gyre Pagella, Heros and Cursor.
 formats:
   md:
     document: md/document.md.j2
@@ -34,8 +34,8 @@ options:
     description: Paper size of the PDF and of the LaTeX project.
   - name: chapter_breaks
     type: bool
-    default: true
-    description: Start every chapter on a new page.
+    default: false
+    description: Start every chapter on a new page (by default chapters follow each other).
   - name: numbered_captions
     type: bool
     default: true
@@ -48,9 +48,11 @@ pdf_engines: [weasyprint, latex]
 mplstyle: modern
 palette: palette.yaml
 fonts:
-  - Inter-Regular.otf
-  - Inter-Medium.otf
-  - Inter-SemiBold.otf
-  - Inter-Italic.otf
-  - IBMPlexMono-Regular.otf
-  - IBMPlexMono-Medium.otf
+  - TeXGyrePagella-Regular.otf
+  - TeXGyrePagella-Italic.otf
+  - TeXGyrePagella-Bold.otf
+  - TeXGyrePagella-BoldItalic.otf
+  - TeXGyreHeros-Regular.otf
+  - TeXGyreHeros-Italic.otf
+  - TeXGyreHeros-Bold.otf
+  - TeXGyreCursor-Regular.otf

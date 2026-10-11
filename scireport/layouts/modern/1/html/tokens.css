@@ -1,60 +1,62 @@
 /*
- * Design tokens of modern@1 ("Signal"). Hand-written, not generated:
- * tests/unit/styles/test_consistency.py parses every `--token: #hex;` line below and fails when
- * one differs from ../palette.yaml, which is the source of truth. Black, white and one saturated
- * vermilion: the semantic tokens (green, blue, cyan) are mapped onto ink so that nothing depends on
- * hue; the --data-* tokens exist for charts only.
+ * Design tokens of modern@1 ("Publication"). Hand-written, not generated:
+ * tests/unit/styles/test_consistency.py parses every `--token: #hex;` line below and fails when one
+ * differs from ../palette.yaml, which is the source of truth. The look follows the TUPAN
+ * publication-plan report: steel blue and gold, a Palatino-like text face, Helvetica-like headings.
  */
 
 :root {
-  --ink: #0a0a0a;
-  --ink-soft: #3a3a3a;
+  --ink: #111111;
+  --ink-soft: #444b52;
 
-  --navy: #0a0a0a;
-  --navy-deep: #0a0a0a;
+  --navy: #1f4e79;
+  --navy-deep: #163a5a;
 
-  --blue: #0a0a0a;
-  --blue-light: #ebebeb;
+  --blue: #1f4e79;
+  --blue-light: #e8eff6;
 
-  --cyan: #3a3a3a;
-  --cyan-light: #ebebeb;
+  --cyan: #00897b;
+  --cyan-light: #dff1ef;
 
-  --accent: #f04e23;
-  --accent-light: #fde8e0;
-  --accent-ink: #b3340f;
+  --accent: #c8961e;
+  --accent-light: #faf3e3;
+  --accent-ink: #8d6a12;
 
-  --green: #0a0a0a;
-  --green-light: #f0f0f0;
+  --green: #2e8b57;
+  --green-light: #e4f2ea;
 
-  --red: #b3340f;
-  --red-light: #fbd9cd;
+  --red: #c0392b;
+  --red-light: #f8e4e1;
 
   --paper: #ffffff;
-  --paper-warm: #f4f4f2;
+  --paper-warm: #f4f6f8;
 
-  --gray-50: #f5f5f5;
-  --gray-100: #ebebeb;
-  --gray-200: #d9d9d9;
-  --gray-300: #b5b5b5;
-  --gray-500: #5c5c5c;
-  --gray-700: #333333;
+  --gray-50: #f4f6f8;
+  --gray-100: #e9edf0;
+  --gray-200: #d5dbe0;
+  --gray-300: #b7c0c8;
+  --gray-500: #6b7782;
+  --gray-700: #444f58;
 
-  /* Chart series only (colour-blind safe, after Okabe and Ito). */
-  --data-blue: #0072b2;
-  --data-green: #009e73;
-  --data-purple: #cc79a7;
-  --data-sky: #56b4e9;
+  /* Chart series only. */
+  --data-blue: #1f77b4;
+  --data-green: #2e8b57;
+  --data-purple: #6a3d9a;
+  --data-orange: #d35400;
 
-  --font-sans: 'Inter', 'Source Sans 3', 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'Inter', 'JetBrains Mono', 'DejaVu Sans Mono', monospace;
+  /* Type stack: the vendored family first, then the system stack, in case a page is opened
+     without @font-face applying. */
+  --font-sans: 'TeX Gyre Heros', 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'TeX Gyre Pagella', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-mono: 'TeX Gyre Cursor', 'Courier New', Courier, monospace;
 
   /* Type scale, points (palette.yaml: type_scale). */
-  --text-title: 48pt;
-  --text-section: 21pt;
-  --text-subsection: 12.5pt;
-  --text-body: 10pt;
-  --text-metadata: 8.5pt;
-  --text-table: 8pt;
+  --text-title: 22pt;
+  --text-section: 17.3pt;
+  --text-subsection: 14.4pt;
+  --text-body: 11pt;
+  --text-metadata: 9pt;
+  --text-table: 8.5pt;
 
   /* Spacing scale, points (palette.yaml: spacing). */
   --space-1: 4pt;

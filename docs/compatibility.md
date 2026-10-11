@@ -198,8 +198,10 @@ the ADRs in [Architecture decision records](adr/index.md) first: a change that c
 
 **A new spec minor.**
 
-1. Make only additive changes to the models in `scireport/spec/`. Prove that nothing old changed: `make compat` and the
-   schema test pass with no fixture edited.
+1. Make only additive changes to the models in `scireport/spec/`, and mark each new field (or model) with
+   `json_schema_extra={'since': '1.N'}`: the schema of an older minor is generated from the newer models by leaving
+   those out. Prove that nothing old changed: `make compat` and the schema test, which regenerates every frozen
+   `data-<version>.schema.json` byte for byte, pass with no fixture edited.
 2. Raise `SPEC_VERSION` in `scireport/spec/version.py`. Check the `spec:` range of every template and layout.
 3. Write the new schema file with `make schema` (it writes `data-<version>.schema.json`). Never run it for a released
    version: that file is frozen.

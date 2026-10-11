@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any
 
 from scireport.render.data import DataNamespace, MissingValue
 from scireport.render.filters import fmt_bytes
-from scireport.render.numbers import Target, escape_text, format_number_value
+from scireport.render.numbers import Target, escape_text, format_number_value, mark_ties
 from scireport.render.safe import EMPTY, Safe
 from scireport.render.specs import (
   CoverSpec,
@@ -554,7 +554,7 @@ class Components:
     value = self._value(ref, 'number', method='number')
     if not isinstance(value, NumberValue):
       return EMPTY
-    return format_number_value(value, self._target)
+    return self._typeset_number(value)
 
   def attachment(self, ref: Any) -> Safe:
     """Offer an ``attachment`` value as a link.
@@ -741,11 +741,16 @@ class Components:
     value: Envelope = ref
     return value
 
+  def _typeset_number(self, value: NumberValue) -> Safe:
+    """Typeset a number; in LaTeX its ties survive the ``md`` filter (see ``mark_ties``)."""
+    text = format_number_value(value, self._target)
+    return mark_ties(text) if self._target == 'tex' else text
+
   def _inline(self, value: Envelope) -> str:
     """Typeset a value for use inside a line, a list item or a metric tile."""
     target = self._target
     if isinstance(value, NumberValue):
-      return format_number_value(value, target)
+      return self._typeset_number(value)
     if isinstance(value, BoolValue):
       return 'true' if value.value else 'false'
     if isinstance(value, DateValue):

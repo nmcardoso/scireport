@@ -219,13 +219,22 @@ stylesheet and of the LaTeX style (`margin: 25mm`, `margin=2.5cm` below). The fi
 | `role` | `dict[str, str]` | Colour with a fixed meaning in a chart (``failed``, ``success`` ...) to a colour token. |
 | `status` | `dict[str, str]` | Level of the status component to a colour token. |
 | `cycle` | `list[str]` | Colour tokens that tell series apart, in order. |
-| `cmap` | `Cmaps` | Sequential and diverging colour maps. |
-| `fonts` | `Fonts` | Font stacks. |
+| `cmap` | `object` | Sequential and diverging colour maps. |
+| `cmap.sequential` | `str` | matplotlib colour map names. |
+| `cmap.diverging` | `str` | matplotlib colour map names. |
+| `fonts` | `object` | Font stacks. |
+| `fonts.sans` | `list[str]` | Family names in order of preference. |
+| `fonts.mono` | `list[str]` | Family names in order of preference. |
+| `fonts.serif` | `list[str]` | The same for the body text of a layout that sets it in a serif face; empty when the layout sets its body text in sans. Default PydanticUndefined. |
 | `spacing` | `list[int]` | The spacing scale in points. |
 | `type_scale` | `dict[str, float]` | Point size per typographic rung. |
-| `body_line_height` | `float` |  |
-| `heading_line_height` | `float` |  |
-| `page` | `Page` |  |
+| `body_line_height` | `float` | Line heights as multiples of the font size. |
+| `heading_line_height` | `float` | Line heights as multiples of the font size. |
+| `page` | `object` | Page geometry, A4 unless the file says otherwise. |
+| `page.width_mm` | `float` | Paper size. Default 210.0. |
+| `page.height_mm` | `float` | Paper size. Default 297.0. |
+| `page.margin_x_mm` | `float` | Left and right, top and bottom margins; the frame is what remains. Default 9.0. |
+| `page.margin_y_mm` | `float` | Left and right, top and bottom margins; the frame is what remains. Default 18.0. |
 <!-- /generated -->
 
 ### 4. The HTML stylesheets
@@ -580,8 +589,8 @@ rendered after the body, so that the table of contents knows every heading. It s
 The `components` file defines one macro for each of the components below, **with exactly these parameter names**:
 the engine calls every macro with keyword arguments. A missing macro is `E707` (and `scireport validate` finds it
 without rendering); a macro with other parameter names fails when it is first used with `E804`
-(`TypeError: macro 'status' takes no keyword argument 'level'`), and the location it reports is the template line
-that drew the component, not the layout file. The file may define helper macros too (`caption_text` in `minimal@1`).
+(`TypeError: macro 'status' takes no keyword argument 'level'`), and the location it reports is the macro in the
+layout's components file (`file:line`, relative to the layout directory). The file may define helper macros too (`caption_text` in `minimal@1`).
 
 | Macro | Parameters | What it draws |
 |---|---|---|
@@ -693,17 +702,17 @@ A changed colour is a changed look, so for a published layout it is a new versio
 
 ## Fonts
 
-Layouts use the vendored fonts: **Inter** and **IBM Plex Mono**, six OpenType faces in the package (`Inter-Regular.otf`,
-`Inter-Medium.otf`, `Inter-SemiBold.otf`, `Inter-Italic.otf`, `IBMPlexMono-Regular.otf`, `IBMPlexMono-Medium.otf`),
-licensed under the SIL Open Font License; the licence text, `OFL.txt`, sits next to them and is copied next to any LaTeX
-project that ships them. Listing a face under `fonts:` has three effects: the HTML inlines it as a `data:` font
+Layouts use the vendored fonts: **Inter**, **IBM Plex Serif** and **IBM Plex Mono** (SIL Open Font License,
+`OFL.txt`) and **TeX Gyre Pagella**, **Heros** and **Cursor** (GUST Font Licence, `GFL.txt`), seventeen OpenType faces in
+the package (`Inter-Regular.otf`, `IBMPlexSerif-Regular.otf`, `TeXGyrePagella-Regular.otf` and so on; the E703 message below
+lists them all). The licence texts sit next to them and are copied next to any LaTeX project that ships the faces they cover. Listing a face under `fonts:` has three effects: the HTML inlines it as a `data:` font
 (`fonts_css`), and the LaTeX project gets a `fonts/` folder with the face and `OFL.txt` (the `.sty` loads it through
 `fontspec` with `Path=./fonts/`). The names must be vendored files: any other name is `E703`,
 and the message lists the faces there are:
 
 ```console
 $ scireport validate bundle -t ./tpl -l ./lf -f md
-E703 layout lab-notes@1 lists the font 'Fira-Regular.otf', which the package does not ship. The vendored faces are in fonts/: IBMPlexMono-Medium.otf, IBMPlexMono-Regular.otf, Inter-Italic.otf, Inter-Medium.otf, Inter-Regular.otf, Inter-SemiBold.otf.
+E703 layout lab-notes@1 lists the font 'Fira-Regular.otf', which the package does not ship. The vendored faces are in fonts/: IBMPlexMono-Medium.otf, IBMPlexMono-Regular.otf, IBMPlexSerif-Italic.otf, IBMPlexSerif-Regular.otf, IBMPlexSerif-SemiBold.otf, Inter-Italic.otf, Inter-Medium.otf, Inter-Regular.otf, Inter-SemiBold.otf, TeXGyreCursor-Regular.otf, TeXGyreHeros-Bold.otf, TeXGyreHeros-Italic.otf, TeXGyreHeros-Regular.otf, TeXGyrePagella-Bold.otf, TeXGyrePagella-BoldItalic.otf, TeXGyrePagella-Italic.otf, TeXGyrePagella-Regular.otf.
 ```
 
 A layout therefore cannot ship a font of its own through `fonts:`. To use another family, name it in the CSS stack and
@@ -711,8 +720,8 @@ in the style file and rely on it being installed, which makes the output depend 
 into the LaTeX project only. If a font you add is open-licensed, keep its `OFL.txt` (or the licence it came with) next
 to it.
 
-The vendored subsets cover Basic Latin, Latin-1 and a few symbols (dashes, `×`, `·`, `→`, `−`, `∞`, `°`, `±`). They
-have no Greek letters and no `≤ ≥ ≈ √`: the LaTeX writer maps those to math macros, and HTML falls back to the next
+The Inter and IBM Plex Mono subsets cover Basic Latin, Latin-1 and a few symbols (dashes, `×`, `·`, `→`, `−`, `∞`, `°`,
+`±`). They have no Greek letters and no `≤ ≥ ≈ √` (the IBM Plex Serif and TeX Gyre subsets have them): the LaTeX writer maps those to math macros, and HTML falls back to the next
 family of the stack, so end every stack with a generic keyword (`sans-serif`, `monospace`).
 
 ## PDF engines and their pitfalls
@@ -745,7 +754,7 @@ For the **LaTeX** engine:
 
 - The project is standalone: everything the document needs is in the `.sty`, the fonts folder and `assets`.
 - Use `fontspec` only when the engine is LuaLaTeX or XeLaTeX (`\ifPDFTeX ... \else ... \fi` with `iftex`). pdfLaTeX
-  cannot load OpenType fonts: the built-in designed layouts warn `W901` and fall back to Latin Modern.
+  cannot load OpenType fonts: `default@1` warns `W901` and falls back to Latin Modern (`modern@1` loads the TeX Gyre packages instead).
 - The `latexmkrc` and the engine are chosen by `--latex-engine` (default `lualatex`; `xelatex` and `pdflatex` also
   work, and `lab-notes@1` compiles with all three).
 - Characters the font lacks are reported as `W902`.

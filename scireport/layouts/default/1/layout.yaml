@@ -4,7 +4,7 @@ spec: ">=1.0,<2.0"
 name: default
 version: 1
 title: Default (MOSAICS look)
-description: Navy cover, chapter openers, a table of contents with page numbers, a running header and footer. Inter and IBM Plex Mono.
+description: Navy cover, chapter openers, a table of contents with page numbers, a running header and footer. Inter, IBM Plex Serif and IBM Plex Mono.
 formats:
   md:
     document: md/document.md.j2
@@ -53,3 +53,6 @@ fonts:
   - Inter-Italic.otf
   - IBMPlexMono-Regular.otf
   - IBMPlexMono-Medium.otf
+  - IBMPlexSerif-Regular.otf
+  - IBMPlexSerif-Italic.otf
+  - IBMPlexSerif-SemiBold.otf

@@ -245,6 +245,21 @@ def test_matplotlib_figures_are_deterministic_and_clean(tmp_path: Path) -> None:
     assert bundle.read_asset('assets/figures/f.data.parquet')
 
 
+def test_add_figure_renders_like_save_figure(tmp_path: Path) -> None:
+  from scireport.styles import save_figure
+
+  def drawn() -> object:
+    fig = figure()
+    fig.gca().set_ylabel('a label that is longer than the axes are tall')
+    return fig
+
+  report = Report('R').add_figure('f', drawn(), alt='A line', formats=('png', 'pdf', 'svg'))
+  saved = {fmt: save_figure(drawn(), tmp_path / f'f.{fmt}') for fmt in ('png', 'pdf', 'svg')}  # type: ignore[arg-type]
+  bundle = report.build()
+  for fmt, path in saved.items():
+    assert bundle.read_asset(f'assets/figures/f.{fmt}') == path.read_bytes()
+
+
 def test_figures_from_files_and_bytes(tmp_path: Path, png_bytes: bytes) -> None:
   png = tmp_path / 'fig.png'
   png.write_bytes(png_bytes)

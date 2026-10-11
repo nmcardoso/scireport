@@ -47,6 +47,9 @@ NUMBER_FORMATS: dict[str, Callable[[Any], Scientific | str]] = {
 }
 """Format names accepted in ``NumberValue.format`` and ``Column.format``."""
 
+TIE_MARK = '\ue000'
+"""Stands for the LaTeX tie ``~`` of a number while a template may still pass it to ``md``."""
+
 _SUPERSCRIPT = str.maketrans('0123456789-+', '⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺')
 _UNIT_POWER_RE = re.compile(r'\^(-?\d+)')
 
@@ -218,6 +221,43 @@ def format_number_value(value: NumberValue, target: Target) -> Safe:
     gap = '&nbsp;' if target == 'html' else ('~' if target == 'tex' else ' ')
     text += f'{gap}{typeset_unit(value.unit, target)}'
   return Safe(text)
+
+
+def mark_ties(text: str) -> Safe:
+  r"""Replace the bare LaTeX ties ``~`` of typeset LaTeX by :data:`TIE_MARK`.
+
+  A number such as ``3.5~mag`` can be printed inside ``{% filter md %}``, where the Markdown
+  converter would escape the ``~`` as a literal tilde. The mark is an ordinary character for the
+  converter; :func:`restore_ties` turns it into ``~`` in the finished document. Typeset text has
+  no other bare ``~``: a literal tilde is escaped as ``\textasciitilde{}``.
+
+  Parameters
+  ----------
+  text : str
+      LaTeX source made by :func:`format_number_value` for the ``tex`` target.
+
+  Returns
+  -------
+  Safe
+      The text with each ``~`` replaced.
+  """
+  return Safe(text.replace('~', TIE_MARK))
+
+
+def restore_ties(text: str) -> str:
+  """Turn every :data:`TIE_MARK` of a finished LaTeX document back into ``~``.
+
+  Parameters
+  ----------
+  text : str
+      The document or body.
+
+  Returns
+  -------
+  str
+      The text with LaTeX ties.
+  """
+  return text.replace(TIE_MARK, '~')
 
 
 def format_cell(value: Any, spec: str | None, target: Target) -> str:

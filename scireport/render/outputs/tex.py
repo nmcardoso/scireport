@@ -11,7 +11,7 @@ from pathlib import PurePosixPath
 from typing import TYPE_CHECKING, Any
 
 from scireport.render.outputs import tidy
-from scireport.styles.fonts import FONTS_DIR, face_path
+from scireport.styles.fonts import FONTS_DIR, face_path, licence_files
 
 if TYPE_CHECKING:
   from scireport.render.session import RenderSession
@@ -54,8 +54,8 @@ def assemble(session: RenderSession, document: str, parts: dict[str, str]) -> di
   fonts = session.layout.definition.fonts
   for name in fonts:
     out[f'fonts/{name}'] = face_path(name).read_bytes()
-  if fonts:
-    out['fonts/OFL.txt'] = (FONTS_DIR / 'OFL.txt').read_bytes()
+  for name in licence_files(fonts):
+    out[f'fonts/{name}'] = (FONTS_DIR / name).read_bytes()
   return out
 
 

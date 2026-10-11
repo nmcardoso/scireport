@@ -1,16 +1,18 @@
 """The vendored faces: where they live, and a probe that catches a silent fallback.
 
-Six static OpenType faces (Inter and IBM Plex Mono subsets, licence ``fonts/OFL.txt``) ship inside
-the package. The HTML writer inlines them, the LaTeX project gets a copy for ``fontspec`` and
-matplotlib registers them for the figure styles. Fontconfig will silently hand back an unrelated
-font for a family it does not know (``fc-match 'IBM Plex Mono'`` can return a proportional sans
-face), so every stack the layouts write ends in a generic keyword and :func:`probe` checks, at run
-time, that the specific families resolved to a face of the same name.
+Static OpenType faces ship inside the package. The HTML writer inlines them, the LaTeX project gets
+a copy for ``fontspec`` and matplotlib registers them for the figure styles. Fontconfig will
+silently hand back an unrelated font for a family it does not know (``fc-match 'IBM Plex Mono'``
+can return a proportional sans face), so every stack the layouts write ends in a generic keyword
+and :func:`probe` checks, at run time, that the specific families resolved to a face of the same
+name.
 
-The subsets cover Basic Latin, Latin-1 and a few symbols (dashes, ``×``, ``·``, ``→``, ``−``,
-``∞``).
-Greek letters and ``≤ ≥ ≈ √`` are not in them: the LaTeX writer maps those to math macros and
-HTML falls back to the next family of the stack.
+Inter, IBM Plex Mono and IBM Plex Serif (licence ``fonts/OFL.txt``) serve ``default@1``; TeX Gyre
+Pagella, Heros and Cursor (GUST Font Licence, ``fonts/GFL.txt``) serve ``modern@1``. The Inter and
+IBM Plex Mono subsets cover Basic Latin, Latin-1 and a few symbols (dashes, ``×``, ``·``, ``→``,
+``−``, ``∞``). Greek letters and ``≤ ≥ ≈ √`` are not in them: the LaTeX writer maps those to math
+macros and HTML falls back to the next family of the stack. The IBM Plex Serif and TeX Gyre subsets
+also hold the Greek letters and ``≤ ≥ ≈ ≠ √``.
 """
 
 from __future__ import annotations
@@ -23,7 +25,7 @@ from scireport.logging_utils import get_logger
 log = get_logger(__name__)
 
 FONTS_DIR = Path(__file__).resolve().parent / 'fonts'
-"""Where the six vendored faces and ``OFL.txt`` are."""
+"""Where the vendored faces and their licences (``OFL.txt``, ``GFL.txt``) are."""
 
 FACES: dict[str, str] = {
   'Inter Regular': 'Inter-Regular.otf',
@@ -32,6 +34,17 @@ FACES: dict[str, str] = {
   'Inter Italic': 'Inter-Italic.otf',
   'IBM Plex Mono Regular': 'IBMPlexMono-Regular.otf',
   'IBM Plex Mono Medium': 'IBMPlexMono-Medium.otf',
+  'IBM Plex Serif Regular': 'IBMPlexSerif-Regular.otf',
+  'IBM Plex Serif Italic': 'IBMPlexSerif-Italic.otf',
+  'IBM Plex Serif SemiBold': 'IBMPlexSerif-SemiBold.otf',
+  'TeX Gyre Pagella Regular': 'TeXGyrePagella-Regular.otf',
+  'TeX Gyre Pagella Italic': 'TeXGyrePagella-Italic.otf',
+  'TeX Gyre Pagella Bold': 'TeXGyrePagella-Bold.otf',
+  'TeX Gyre Pagella Bold Italic': 'TeXGyrePagella-BoldItalic.otf',
+  'TeX Gyre Heros Regular': 'TeXGyreHeros-Regular.otf',
+  'TeX Gyre Heros Italic': 'TeXGyreHeros-Italic.otf',
+  'TeX Gyre Heros Bold': 'TeXGyreHeros-Bold.otf',
+  'TeX Gyre Cursor Regular': 'TeXGyreCursor-Regular.otf',
 }
 """Face label to file name inside :data:`FONTS_DIR`. The label is documentation only."""
 
@@ -42,10 +55,28 @@ CSS_FACES: tuple[tuple[str, str, int, str], ...] = (
   ('Inter', 'Inter-Italic.otf', 400, 'italic'),
   ('IBM Plex Mono', 'IBMPlexMono-Regular.otf', 400, 'normal'),
   ('IBM Plex Mono', 'IBMPlexMono-Medium.otf', 500, 'normal'),
+  ('IBM Plex Serif', 'IBMPlexSerif-Regular.otf', 400, 'normal'),
+  ('IBM Plex Serif', 'IBMPlexSerif-Italic.otf', 400, 'italic'),
+  ('IBM Plex Serif', 'IBMPlexSerif-SemiBold.otf', 600, 'normal'),
+  ('TeX Gyre Pagella', 'TeXGyrePagella-Regular.otf', 400, 'normal'),
+  ('TeX Gyre Pagella', 'TeXGyrePagella-Italic.otf', 400, 'italic'),
+  ('TeX Gyre Pagella', 'TeXGyrePagella-Bold.otf', 700, 'normal'),
+  ('TeX Gyre Pagella', 'TeXGyrePagella-BoldItalic.otf', 700, 'italic'),
+  ('TeX Gyre Heros', 'TeXGyreHeros-Regular.otf', 400, 'normal'),
+  ('TeX Gyre Heros', 'TeXGyreHeros-Italic.otf', 400, 'italic'),
+  ('TeX Gyre Heros', 'TeXGyreHeros-Bold.otf', 700, 'normal'),
+  ('TeX Gyre Cursor', 'TeXGyreCursor-Regular.otf', 400, 'normal'),
 )
 """``@font-face`` rows: family, file, weight and style."""
 
-_PROBED_FAMILIES = ('Inter', 'IBM Plex Mono')
+_PROBED_FAMILIES = (
+  'Inter',
+  'IBM Plex Mono',
+  'IBM Plex Serif',
+  'TeX Gyre Pagella',
+  'TeX Gyre Heros',
+  'TeX Gyre Cursor',
+)
 _state = {'registered': False}
 
 
@@ -71,6 +102,26 @@ def face_path(name: str) -> Path:
   if not path.is_file():
     raise FileNotFoundError(f'the package does not ship the font {name!r}')
   return path
+
+
+def licence_files(files: list[str]) -> list[str]:
+  """Return the licence files that must travel with the listed faces.
+
+  Parameters
+  ----------
+  files : list of str
+      File names of vendored faces.
+
+  Returns
+  -------
+  list of str
+      ``'GFL.txt'`` when a TeX Gyre face is listed and ``'OFL.txt'`` when any other face is, in
+      that order of the alphabet; empty when ``files`` is empty.
+  """
+  names = set()
+  for name in files:
+    names.add('GFL.txt' if name.startswith('TeXGyre') else 'OFL.txt')
+  return sorted(names)
 
 
 def font_face_css(files: list[str]) -> str:

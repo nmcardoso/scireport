@@ -8,8 +8,10 @@
 
 /* Chapter */
 
+/* A chapter opener is a page of its own: the title, then a page break. */
 .chapter {
   break-before: page;
+  break-after: page;
   break-inside: avoid;
   padding-top: 85mm;
 }
@@ -21,6 +23,7 @@
 /* `chapter_breaks: false` lets a chapter start where the text is. */
 .chapter--flow {
   break-before: auto;
+  break-after: auto;
   padding-top: var(--space-5);
 }
 
@@ -40,19 +43,23 @@
 
 .toc {
   break-before: page;
+  break-after: page;
 }
 
 .toc-row a {
   display: block;
+  position: relative;
   text-decoration: none;
   color: var(--ink);
-  padding: 5pt 0;
+  padding: 5pt 3em 5pt 0;
   border-bottom: 0.5pt solid var(--gray-100);
 }
 
 .toc-row a::after {
   content: target-counter(attr(href url), page);
-  float: right;
+  position: absolute;
+  right: 0;
+  top: 5pt;
   font-family: var(--font-mono);
   color: var(--gray-500);
 }
@@ -493,14 +500,10 @@
   margin-top: var(--space-2);
   color: var(--ink-soft);
   font-size: var(--text-body);
-  max-width: 68ch;
 }
 
-/* The dot never uses a dashed or dotted border: at 9 pt there is room for maybe four dashes,
-   which reads as a chunky blob rather than a circle. Grey-scale distinguishability comes from the
-   left border's style instead, which is long enough for dashed, dotted and double to read; the
-   dot is a solid fill or, for the one state that most needs "not yet resolved" to read as a shape
-   rather than a colour, a solid-bordered hollow ring. */
+/* The left border is always solid; the level is told by its colour, the dot (a solid fill or, for
+   "partial", a hollow ring) and the printed headline. */
 .status--success {
   border-left-color: var(--green);
 }
@@ -511,7 +514,6 @@
 
 .status--warning {
   border-left-color: var(--accent);
-  border-left-style: dashed;
 }
 
 .status--warning .status-dot {
@@ -520,8 +522,6 @@
 
 .status--partial {
   border-left-color: var(--accent);
-  border-left-style: dotted;
-  border-left-width: 4pt;
 }
 
 .status--partial .status-dot {
@@ -531,8 +531,6 @@
 
 .status--failed {
   border-left-color: var(--red);
-  border-left-style: double;
-  border-left-width: 5pt;
 }
 
 .status--failed .status-dot {
@@ -541,7 +539,6 @@
 
 .status--running {
   border-left-color: var(--cyan);
-  border-left-style: dotted;
 }
 
 .status--running .status-dot {
@@ -655,45 +652,31 @@
   margin-top: 1pt;
 }
 
-.flow-stage::before {
-  content: '';
-  position: absolute;
-  left: -4.5pt;
-  top: var(--space-2);
-  width: 7pt;
-  height: 7pt;
-  border-radius: 50%;
-  background: var(--gray-300);
+/* The six states of a flow, told by the colour of the rail. 'done' and 'reused' are both successful
+   completions, told apart because a reader cares whether a stage did work or found it already
+   there. */
+.flow-stage--done {
+  border-left-color: var(--green);
 }
 
-/* The six states of a flow. 'done' and 'reused' are both successful completions, told apart
-   because a reader cares whether a stage did work or found it already there. Solid fills or
-   solid-bordered rings only, never dashed or dotted: a 7 pt dot has room for a handful of dashes,
-   which reads as a blob. */
-.flow-stage--done::before {
-  background: var(--green);
+.flow-stage--reused {
+  border-left-color: var(--blue);
 }
 
-.flow-stage--reused::before {
-  background: var(--blue);
+.flow-stage--running {
+  border-left-color: var(--cyan);
 }
 
-.flow-stage--running::before {
-  background: var(--cyan);
+.flow-stage--failed {
+  border-left-color: var(--red);
 }
 
-.flow-stage--failed::before {
-  background: var(--red);
+.flow-stage--skipped {
+  border-left-color: var(--gray-200);
 }
 
-.flow-stage--skipped::before {
-  background: var(--paper);
-  border: 1.5pt solid var(--gray-500);
-}
-
-.flow-stage--pending::before {
-  background: var(--paper);
-  border: 1.5pt solid var(--cyan);
+.flow-stage--pending {
+  border-left-color: var(--cyan-light);
 }
 
 .flow-index {

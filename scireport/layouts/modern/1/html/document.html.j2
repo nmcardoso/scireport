@@ -20,7 +20,7 @@
 :root { --page-h: {{ '297mm' if options.paper == 'a4' else '279.4mm' }}; }
 @page { size: {{ 'A4' if options.paper == 'a4' else 'Letter' }}; }
 {% if not options.header %}
-@page { @top-left { content: none; border: 0; } @top-center { content: none; border: 0; } @top-right { content: none; border: 0; } @bottom-left { content: none; } @bottom-right { content: none; } }
+@page { @top-left { content: none; border: 0; } @top-right { content: none; border: 0; } @bottom-left { content: none; } @bottom-right { content: none; } }
 @page cover { margin: 0; }
 {% endif %}
 </style>
@@ -28,11 +28,12 @@
 <body class="running-strings"
       data-pipeline="{{ meta.pipeline or meta.title }}"
       data-author="{{ meta.authors[0].name ~ (' et al.' if meta.authors | length > 1 else '') if meta.authors else '' }}"
+      data-date="{{ meta.date or '' }}"
       data-footer="{{ meta.footer or ([meta.title, meta.version, meta.date] | select | join(' · ')) }}">
 <!-- {{ info.generated }} -->
 <main>
 {{ c.cover() }}
-{% if meta.abstract %}
+{% if meta.abstract and not options.cover %}
 <section class="abstract">
 <h2 class="abstract-title h--unlisted">Abstract</h2>
 {{ meta.abstract | md }}

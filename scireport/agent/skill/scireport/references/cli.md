@@ -597,8 +597,10 @@ Unpack a bundle into a directory (manifest plus assets), checking every hash on 
 
 Check a bundle against a template and a layout; nothing is written.
 
-Reports every problem at once, each with a stable code, the key, the template line and a
-suggestion. Exit code 0: valid; 2: errors (with --strict also warnings).
+Reports every problem it can find at once, each with a stable code, the key, the template line
+and a suggestion. A problem in the data file itself (the spec stage) stops the template checks
+that need its values, so they appear after it is fixed. Both stages print on stdout in the same
+form. Exit code 0: valid; 2: errors (with --strict also warnings).
 
 | Option | Type | Default | Meaning |
 |---|---|---|---|

@@ -317,9 +317,10 @@ HELP: dict[str, str] = {
     "bundle's values, and `scireport templates NAME` shows the contract."
   ),
   'E804': (
-    'Rendering raised an unexpected error inside a template or component. Look at'
-    ' the file:line and the exception type in the message, and fix the template '
-    'call (often a value of the wrong type or a missing field).'
+    'Rendering raised an unexpected error inside a template, layout or component. '
+    'Look at the file:line and the exception type in the message, and fix the '
+    'call (often a value of the wrong type). In a layout file, a macro has other '
+    'parameter names than the component table.'
   ),
   'E805': (
     'A render setting has a value this version does not support: the PDF engine '

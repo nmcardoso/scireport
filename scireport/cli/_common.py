@@ -5,12 +5,15 @@ from __future__ import annotations
 import json
 from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import typer
 
 from scireport.errors import ScireportError
 from scireport.logging_utils import get_logger
+
+if TYPE_CHECKING:
+  from scireport.validate import ValidationReport
 
 log = get_logger(__name__)
 
@@ -37,13 +40,38 @@ def echo_json(payload: Any) -> None:
   typer.echo(json.dumps(payload, indent=2, ensure_ascii=False))
 
 
+def echo_validation(report: ValidationReport, *, as_json: bool = False) -> None:
+  """Print a validation report on stdout, the result of ``validate``.
+
+  Whatever stage found the problems (the data file or the template), they print the same way:
+  one line per issue, then ``valid:`` or ``invalid:`` with the counts; with ``as_json`` the
+  output of :meth:`~scireport.validate.ValidationReport.to_dict`.
+
+  Parameters
+  ----------
+  report : ValidationReport
+      The problems found, possibly none.
+  as_json : bool, default=False
+      Print JSON instead of text.
+  """
+  if as_json:
+    echo_json(report.to_dict())
+    return
+  for issue in report.issues:
+    typer.echo(issue.format())
+  counts = report.to_dict()['counts']
+  verdict = 'valid' if report.ok else 'invalid'
+  typer.echo(f'{verdict}: {counts["errors"]} error(s), {counts["warnings"]} warning(s)')
+
+
 @contextmanager
 def reporting_errors(*, as_json: bool = False) -> Iterator[None]:
   """Turn the exceptions of a command into logged errors and an exit code.
 
   A :class:`~scireport.errors.ScireportError` logs each of its issues (or, with ``as_json``,
   prints ``{"ok": false, "issues": [...]}`` on stdout) and exits with its ``exit_code``; an
-  ``OSError`` logs and exits 1.
+  ``OSError`` logs and exits 1. A ``BrokenPipeError`` (the reader of a pipe, such as ``head``,
+  closed early) is not a failure of the command and passes through to the entry point.
 
   Parameters
   ----------
@@ -64,6 +92,8 @@ def reporting_errors(*, as_json: bool = False) -> Iterator[None]:
       for issue in exc.issues:
         (log.warning if issue.severity == 'warning' else log.error)('%s', issue.format())
     raise typer.Exit(exc.exit_code) from exc
+  except BrokenPipeError:
+    raise
   except OSError as exc:
     if as_json:
       echo_json(

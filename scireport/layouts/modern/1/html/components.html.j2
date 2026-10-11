@@ -1,4 +1,4 @@
-{#- HTML components of default@1: the MOSAICS look. Autoescaping is on: plain strings are escaped, Safe ones are not.
+{#- HTML components of modern@1: the journal-style look. Autoescaping is on: plain strings are escaped, Safe ones are not.
     WeasyPrint workarounds kept from MOSAICS: no flex container inside another, a named cover page,
     no break-inside on tables. -#}
 {% macro caption_text(label, number, text) -%}
@@ -8,24 +8,21 @@
 {% macro chapter(title, entry, page_break) %}
 {% set flow = (not page_break) if page_break is not none else (not options.chapter_breaks) %}
 <section class="chapter{{ ' chapter--listed' if entry.number else '' }}{{ ' chapter--flow' if flow else '' }}" id="{{ entry.anchor }}">
-{% if entry.number %}
-<div class="chapter-index chapter-index--total mono">{{ '%02d' % (entry.number | int) }}</div>
-{% endif %}
-<h1 class="h--chapter">{{ title }}</h1>
+<h1 class="h--chapter">{% if entry.number %}<span class="h-number">{{ entry.number }}</span>{% endif %}{{ title }}</h1>
 </section>
 {% endmacro %}
 
 {% macro heading(text, level, entry, page_break) %}
 {% set tag = ['h2', 'h3', 'h4'][level - 1] %}
 {% set style = ['h--section', 'h--subsection', 'h--minor'][level - 1] %}
-<{{ tag }} id="{{ entry.anchor }}" class="{{ style }}{{ ' h--break' if page_break else '' }}{{ ' h--unlisted' if not entry.number else '' }}">{{ text }}</{{ tag }}>
+<{{ tag }} id="{{ entry.anchor }}" class="{{ style }}{{ ' h--break' if page_break else '' }}{{ ' h--unlisted' if not entry.number else '' }}">{% if entry.number %}<span class="h-number">{{ entry.number }}</span>{% endif %}{{ text }}</{{ tag }}>
 {% endmacro %}
 
 {% macro contents(entries) %}
 <section class="toc">
 <h2 class="h--section h--unlisted" id="toc">Contents</h2>
 {% for e in entries %}
-<div class="toc-row toc-row--{{ e.level }}"><a href="#{{ e.anchor }}">{% if e.level == 0 and e.number %}<span class="toc-number">{{ '%02d' % (e.number | int) }}</span>{% endif %}{{ e.text }}</a></div>
+<div class="toc-row toc-row--{{ e.level }}"><a href="#{{ e.anchor }}">{% if e.number %}<span class="toc-number">{{ e.number }}</span>{% endif %}{{ e.text }}</a></div>
 {% endfor %}
 </section>
 {% endmacro %}
@@ -33,23 +30,25 @@
 {% macro cover(cover) %}
 {% if options.cover %}
 <section class="cover">
-<div class="cover-field"></div>
-<div class="cover-content">
+<div class="cover-band">
 {% if cover.pipeline %}
-<div class="cover-label mono">{{ cover.pipeline }}</div>
+<div class="cover-label">{{ cover.pipeline }}</div>
 {% endif %}
+</div>
+<div class="cover-content">
 <h1 class="cover-title">{{ cover.title }}</h1>
 {% if cover.subtitle %}
-<p class="cover-subtitle mono">{{ cover.subtitle }}</p>
+<p class="cover-subtitle">{{ cover.subtitle }}</p>
 {% endif %}
-{% if cover.authors %}
-<div class="cover-authors">
-{% for author in cover.authors %}
-<p class="cover-author">{{ author }}</p>
-{% endfor %}
+{% if meta.abstract %}
+<div class="cover-abstract">
+<div class="cover-abstract-title">Abstract</div>
+<div class="cover-abstract-body">{{ meta.abstract | md }}</div>
 </div>
 {% endif %}
+</div>
 {% set facts = [] %}
+{% if cover.authors %}{% do facts.append(('Authors', cover.authors | join('; '))) %}{% endif %}
 {% if cover.date %}{% do facts.append(('Date', cover.date)) %}{% endif %}
 {% if cover.version %}{% do facts.append(('Version', cover.version)) %}{% endif %}
 {% if meta.keywords %}{% do facts.append(('Keywords', meta.keywords | join(', '))) %}{% endif %}
@@ -57,13 +56,12 @@
 <div class="cover-meta">
 {% for label, value in facts %}
 <div class="cover-meta-row">
-<span class="cover-meta-label mono">{{ label }}</span>
-<span class="cover-meta-value mono">{{ value }}</span>
+<span class="cover-meta-label">{{ label }}</span>
+<span class="cover-meta-value">{{ value }}</span>
 </div>
 {% endfor %}
 </div>
 {% endif %}
-</div>
 </section>
 {% else %}
 <header class="title-block">
@@ -80,6 +78,9 @@
 <p class="p--muted">Nothing recorded.</p>
 {% else %}
 <div class="table-block">
+{% if spec.caption %}
+<p class="p--caption p--caption-top">{{ caption_text('Table', spec.number, spec.caption) }}</p>
+{% endif %}
 <table>
 <colgroup>
 {% for col in spec.columns %}
@@ -110,9 +111,6 @@
 </table>
 {% if spec.truncated %}
 <p class="p--caption">Showing the first {{ spec.rows | length | fmt_int }} of {{ spec.total | fmt_int }} rows.{% if spec.overflow and spec.overflow.href %} <a href="{{ spec.overflow.href }}" download="{{ spec.overflow.filename }}">All rows ({{ spec.overflow.filename }})</a>.{% endif %}</p>
-{% endif %}
-{% if spec.caption %}
-<p class="p--caption">{{ caption_text('Table', spec.number, spec.caption) }}</p>
 {% endif %}
 </div>
 {% endif %}
@@ -164,8 +162,7 @@
 
 {% macro status(level, headline, detail) %}
 <div class="status status--{{ level }}">
-<span class="status-dot"></span>
-<span class="status-headline">{{ headline }}</span>
+<div class="status-headline">{{ headline }}</div>
 {% if detail %}
 <div class="status-detail">{{ detail }}</div>
 {% endif %}

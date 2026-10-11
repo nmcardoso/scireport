@@ -26,8 +26,9 @@ Extras: `pdf` (WeasyPrint; needs pango on the system), `pandoc` (bundled pandoc 
 ## The workflow
 
 1. **Write the data file.** From Python: `Report(...)` and its `add_*` methods, then
-   `report.write('x.scireport.zip')`. By hand: a directory with `scireport.yaml`
-   (`scireport new my-report` writes a starter that already validates).
+   `report.write('x.scireport.zip', overwrite=True)` (without `overwrite=True` a second run is `E410`).
+   By hand: a directory with `scireport.yaml` (`scireport new my-report` writes a starter that already
+   validates).
 2. **Validate.** `scireport validate x.scireport.zip --json` reports *every* problem at once, each
    with a stable code, the key, a JSON pointer, expected and found values and a hint. Fix, repeat.
 3. **Render.** `scireport render x.scireport.zip -o out -f md -f html -f pdf`. Nothing is written

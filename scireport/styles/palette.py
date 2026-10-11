@@ -57,10 +57,14 @@ class Fonts(Model):
   ----------
   sans, mono : list of str
       Family names in order of preference.
+  serif : list of str
+      The same for the body text of a layout that sets it in a serif face; empty when the layout
+      sets its body text in sans.
   """
 
   sans: Annotated[list[str], Field(min_length=1)]
   mono: Annotated[list[str], Field(min_length=1)]
+  serif: Annotated[list[str], Field(default_factory=list)]
 
 
 class Cmaps(Model):

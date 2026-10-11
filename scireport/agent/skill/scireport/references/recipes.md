@@ -420,7 +420,7 @@ uv run scireport render crossmatch.scireport.zip -o out -f md -f html
 - `add_table` takes a pandas DataFrame (the index is dropped), a pyarrow Table, a polars frame, a dict of columns
   or a list of row dicts; `columns` sets labels, units and number formats. NaN in `add_number` is stored as a
   missing number; infinity is an error.
-- `report.write('x.scireport.zip')` writes one ZIP; any other name writes a directory bundle; `*.json` a single
+- `report.write('x.scireport.zip', overwrite=True)` writes one ZIP (an existing file is `E410` without `overwrite=True`); any other name writes a directory bundle; `*.json` a single
   file. `data-file.md` lists every `add_*` method and value kind; `python-api.md` the signatures.
 
 ## A custom pre-processor in the consuming project

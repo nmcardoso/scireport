@@ -3,7 +3,7 @@
      A line that ends with a block tag loses its newline; (((eol))) puts it back. -=))
 ((* set lp = '(' *))
 ((* set rp = ')' *))
-((* set fills = {'done': ['sc-green', 'sc-green'], 'reused': ['sc-blue', 'sc-blue'], 'running': ['sc-cyan', 'sc-cyan'], 'failed': ['sc-red', 'sc-red'], 'skipped': ['sc-paper', 'sc-gray-500'], 'pending': ['sc-paper', 'sc-cyan']} *))
+((* set rails = {'done': 'sc-green', 'reused': 'sc-blue', 'running': 'sc-cyan', 'failed': 'sc-red', 'skipped': 'sc-gray-200', 'pending': 'sc-cyan-light'} *))
 
 ((* macro chapter(title, entry, page_break) *))
 ((* set flow = (0 if page_break else 1) if page_break is not none else (0 if options.chapter_breaks else 1) *))
@@ -20,10 +20,11 @@
 \clearpage
 \scanchor{sc-toc}{Contents}{}%
 {\fontsize{20}{24}\selectfont\bfseries\color{sc-navy}Contents\par}%
-\vspace{2pt}\scrule{sc-gray-200}{1pt}\vspace{4pt}
+\vspace{4pt}\scrule{sc-gray-200}{1pt}\vspace{4pt}
 ((* for e in entries *))
 \sctocrow{(((e.level)))}{(((('%02d' % (e.number | int)) if (e.level == 0 and e.number) else '')))}{(((e.text)))}{(((e.anchor)))}
 ((* endfor *))
+\clearpage
 
 ((* endmacro *))
 
@@ -47,7 +48,7 @@
 ((*- endmacro *))
 
 ((* macro head_row(spec) -*))
-\rowcolor{sc-gray-50}((* if spec.has_verdicts *)) & ((* endif *))((* for col in spec.columns *)){\bfseries\color{sc-ink-soft}(((col.label)))((* if col.unit *)) {\mdseries\color{sc-gray-500}(((lp)))(((col.unit)))(((rp)))}((* endif *))}((* if not loop.last *)) & ((* endif *))((* endfor *))
+\rowcolor{sc-gray-50}((* if spec.has_verdicts *)) & ((* endif *))((* for col in spec.columns *)){\bfseries\color{sc-ink-soft}(((col.label)))((* if col.unit *))\par{\mdseries\color{sc-gray-500}(((lp)))(((col.unit)))(((rp)))}((* endif *))}((* if not loop.last *)) & ((* endif *))((* endfor *))
 ((*- endmacro *))
 
 ((* macro body_row(spec, row) -*))
@@ -160,7 +161,7 @@
 \vspace{16pt}
 \begin{adjustwidth}{0pt}{-\scoverhang}
 ((* for s in stages *))
-\begin{scflowstage}{(((fills[s.state][0] | safe)))}{(((fills[s.state][1] | safe)))}
+\begin{scflowstage}{(((rails[s.state] | safe)))}
 \noindent\begin{tabular}[t]{@{}p{26pt}@{}p{\dimexpr\linewidth-26pt\relax}@{}}
 {\color{sc-gray-500}\fontsize{9}{12}\ttfamily\selectfont (((('%02d' % s.number))))} & {\fontsize{9}{12}\selectfont\bfseries\sctrack{\MakeUppercase{(((s.label)))}}}((* for line in s.detail *))\par{\fontsize{8.5}{13}\selectfont\color{sc-ink-soft}(((line)))}((* endfor *)) \\
 \end{tabular}%
@@ -185,11 +186,12 @@
 
 ((* macro bullets(items, ordered) *))
 ((* set env = 'enumerate' if ordered else 'itemize' *))
+{\scbody
 \begin{(((env | safe)))}
 ((* for item in items *))
 \item (((item)))
 ((* endfor *))
-\end{(((env | safe)))}
+\end{(((env | safe)))}}
 
 ((* endmacro *))
 
@@ -213,20 +215,20 @@
 ((* macro details(summary, body) *))
 \begin{scdetailsbox}
 {\bfseries (((summary)))}\par\vspace{8pt}
-(((body)))
+{\scbody (((body)))\par}
 \end{scdetailsbox}\par
 
 ((* endmacro *))
 
 ((* macro note(body) *))
 \begin{scnotebox}
-(((body)))
+\scbody (((body)))
 \end{scnotebox}\par
 
 ((* endmacro *))
 
 ((* macro paragraph(body) *))
-(((body)))
+{\scbody (((body)))\par}
 
 ((* endmacro *))
 

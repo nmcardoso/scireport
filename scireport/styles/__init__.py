@@ -160,12 +160,17 @@ def figure(
   layout: str = 'default',
   paper: str = 'a4',
   subplot_kw: dict[str, Any] | None = None,
+  constrained: bool = True,
 ) -> tuple[Figure, Any]:
   """Create a figure at its final size, as a fraction of the page frame, in the style of a layout.
 
   The size is physical: a figure of ``width=0.5`` is half the usable page width, so a font size
   of 8 pt is 8 pt on paper. The figure is made inside :func:`mplstyle`; draw on it inside a
   ``with scireport.mplstyle(layout):`` block too, so that later artists get the same style.
+
+  The figure uses matplotlib's constrained layout engine, which keeps axis labels, titles and
+  colour bars inside the figure at its final size. Pass ``constrained=False`` to place the axes
+  yourself (``fig.subplots_adjust``, ``fig.tight_layout()`` or a manual layout).
 
   Parameters
   ----------
@@ -181,6 +186,8 @@ def figure(
       The paper size of the report.
   subplot_kw : dict or None, default=None
       Passed to every subplot.
+  constrained : bool, default=True
+      Use the constrained layout engine. False leaves the figure without a layout engine.
 
   Returns
   -------
@@ -198,7 +205,7 @@ def figure(
     update={'width_mm': PAPER_MM[paper][0], 'height_mm': PAPER_MM[paper][1]}
   )
   with mplstyle(layout):
-    return new_figure(
+    made, axes = new_figure(
       width,
       height,
       nrows,
@@ -207,6 +214,9 @@ def figure(
       frame_height_in=page.frame_height_in,
       subplot_kw=subplot_kw,
     )
+  if constrained:
+    made.set_layout_engine('constrained')
+  return made, axes
 
 
 _probed = {'done': False}

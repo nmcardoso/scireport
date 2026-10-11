@@ -157,6 +157,9 @@ class Issue:
   def describe(self) -> str:
     """Return the issue without its code: location, message, expected and found, hint.
 
+    Only the parts that are set appear: ``(expected a, found b)``, ``(found b)`` or
+    ``(expected a)``.
+
     Returns
     -------
     str
@@ -166,8 +169,13 @@ class Issue:
     text = f'{self.pointer}: {self.message}' if self.pointer else self.message
     if self.location:
       text = f'{self.location}: {text}'
-    if self.expected is not None or self.found is not None:
-      text += f' (expected {self.expected}, found {self.found})'
+    seen = [
+      f'{label} {value}'
+      for label, value in (('expected', self.expected), ('found', self.found))
+      if value is not None
+    ]
+    if seen:
+      text += f' ({", ".join(seen)})'
     if self.hint:
       text += f'. {self.hint}'
     return text

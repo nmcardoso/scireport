@@ -109,11 +109,21 @@ def validate_definitions(
   for fmt in formats:
     if fmt not in template.definition.formats:
       issues.append(
-        Issue('E706', f'template {template.ref} does not support the {fmt} format', found=fmt)
+        Issue(
+          'E706',
+          f'template {template.ref} does not support the {fmt} format',
+          expected=', '.join(template.definition.formats),
+          found=fmt,
+        )
       )
     if fmt not in layout.definition.formats:
       issues.append(
-        Issue('E706', f'layout {layout.ref} does not support the {fmt} format', found=fmt)
+        Issue(
+          'E706',
+          f'layout {layout.ref} does not support the {fmt} format',
+          expected=', '.join(layout.definition.formats),
+          found=fmt,
+        )
       )
       continue
     files = layout.files(fmt)

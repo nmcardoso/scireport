@@ -9,6 +9,7 @@ import matplotlib
 import matplotlib.font_manager as fm
 import numpy as np
 import pytest
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 import scireport
 from scireport.errors import TemplateError
@@ -127,6 +128,34 @@ def test_letter_paper_has_a_wider_frame() -> None:
 def test_bad_figure_arguments_are_value_errors(kwargs: dict[str, object], message: str) -> None:
   with pytest.raises(ValueError, match=message):
     figure(**kwargs)  # type: ignore[arg-type]
+
+
+def test_a_figure_uses_the_constrained_layout_unless_told_not_to() -> None:
+  fig, _ = figure(0.5, 2.0)
+  assert type(fig.get_layout_engine()).__name__ == 'ConstrainedLayoutEngine'
+  bare, _ = figure(0.5, 2.0, constrained=False)
+  assert bare.get_layout_engine() is None
+
+
+def _ylabel_left_edge(constrained: bool) -> float:
+  """Return the left edge of the y label in pixels; negative means it is cut off."""
+  with mplstyle('default'):
+    fig, ax = figure(0.35, 2.0, constrained=constrained)
+    ax.plot([0, 1], [0, 123456789])
+    ax.set_ylabel('Number of objects per square degree')
+  canvas = FigureCanvasAgg(fig)
+  canvas.draw()  # type: ignore[no-untyped-call]
+  renderer = canvas.get_renderer()  # type: ignore[no-untyped-call]
+  return float(ax.yaxis.label.get_window_extent(renderer).x0)
+
+
+def test_axis_labels_are_not_clipped_by_the_default_figure() -> None:
+  assert _ylabel_left_edge(constrained=False) < 0
+  assert _ylabel_left_edge(constrained=True) >= 0
+
+
+def test_figure_bytes_are_identical_across_runs_with_the_constrained_layout() -> None:
+  assert figure_bytes(_drawn(), 'png') == figure_bytes(_drawn(), 'png')  # type: ignore[arg-type]
 
 
 def _drawn() -> object:

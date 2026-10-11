@@ -205,9 +205,7 @@ class Context:
     """
     from scireport.styles import figure
 
-    made, axes = figure(width, height, nrows, ncols, layout=self.layout, subplot_kw=subplot_kw)
-    made.set_layout_engine('constrained')
-    return made, axes
+    return figure(width, height, nrows, ncols, layout=self.layout, subplot_kw=subplot_kw)
 
   def save_figure(
     self,

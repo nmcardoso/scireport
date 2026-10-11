@@ -15,8 +15,14 @@ from scireport.agent.catalogue import (
 )
 from scireport.bundle import open_bundle
 from scireport.bundle.backends import DEFAULT_MAX_BYTES
-from scireport.cli._common import MEGABYTE, echo_json, reporting_errors
-from scireport.errors import TemplateError
+from scireport.cli._common import (
+  EXIT_VALIDATION,
+  MEGABYTE,
+  echo_json,
+  echo_validation,
+  reporting_errors,
+)
+from scireport.errors import ScireportError, TemplateError
 from scireport.logging_utils import get_logger
 from scireport.render.definition import FORMATS
 from scireport.render.office import OFFICE_FORMATS
@@ -27,6 +33,7 @@ from scireport.render.pipeline import (
   check_bundle,
   render_bundle,
 )
+from scireport.validate import ValidationReport
 
 log = get_logger(__name__)
 
@@ -115,35 +122,33 @@ def validate(
 ) -> None:
   """Check a bundle against a template and a layout; nothing is written.
 
-  Reports every problem at once, each with a stable code, the key, the template line and a
-  suggestion. Exit code 0: valid; 2: errors (with --strict also warnings).
+  Reports every problem it can find at once, each with a stable code, the key, the template line
+  and a suggestion. A problem in the data file itself (the spec stage) stops the template checks
+  that need its values, so they appear after it is fixed. Both stages print on stdout in the same
+  form. Exit code 0: valid; 2: errors (with --strict also warnings).
   """
-  with (
-    reporting_errors(as_json=as_json),
-    open_bundle(source, max_bytes=max_size * MEGABYTE) as bundle,
-  ):
-    report = check_bundle(
-      bundle,
-      template=template,
-      layout=layout,
-      formats=_formats(formats),
-      options=_options(option),
-      markup_engine=markup_engine,
-      office_source=office_source,
-      strict=strict,
-      render=dry_render,
-      preprocess=preprocess,
-      allow_import=allow_import,
-      cache_dir=cache_dir,
-    )
-    if as_json:
-      echo_json(report.to_dict())
-    else:
-      for issue in report.issues:
-        typer.echo(issue.format())
-      counts = report.to_dict()['counts']
-      verdict = 'valid' if report.ok else 'invalid'
-      typer.echo(f'{verdict}: {counts["errors"]} error(s), {counts["warnings"]} warning(s)')
+  with reporting_errors(as_json=as_json):
+    try:
+      with open_bundle(source, max_bytes=max_size * MEGABYTE) as bundle:
+        report = check_bundle(
+          bundle,
+          template=template,
+          layout=layout,
+          formats=_formats(formats),
+          options=_options(option),
+          markup_engine=markup_engine,
+          office_source=office_source,
+          strict=strict,
+          render=dry_render,
+          preprocess=preprocess,
+          allow_import=allow_import,
+          cache_dir=cache_dir,
+        )
+    except ScireportError as exc:
+      if exc.exit_code != EXIT_VALIDATION:
+        raise
+      report = ValidationReport(tuple(exc.issues), strict)
+    echo_validation(report, as_json=as_json)
     if not report.ok:
       raise typer.Exit(report.exit_code)
 

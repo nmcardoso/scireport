@@ -11,7 +11,8 @@ hint. A major bump ships a pure dict-to-dict migration (`spec/migrations/`) and 
 JSON Schemas (`spec/schemas/data-1.0.schema.json`, ...) are generated from pydantic and checked for drift.
 
 **Built-in layouts and templates are versioned and frozen** (`layouts/default/1/`). A visual change means a new
-version; the `default` alias points to the latest. `pack` pins the resolved version into the bundle, so a later
+version. A reference is `name` (the newest version) or `name@version`; `default` is the name of a layout, so the
+latest version is reached by leaving the version out. `pack` pins the resolved version into the bundle, so a later
 re-render is identical.
 
 **Compat corpus.** `tests/compat/spec-<v>/<case>/` holds bundles and their expected md, canonical HTML (port of

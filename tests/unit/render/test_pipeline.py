@@ -238,6 +238,26 @@ def test_a_template_for_other_specs_or_formats_is_refused(tmp_path: Path) -> Non
     render_bundle(bundle, template=old, layout='minimal', formats=['html'])
   assert sorted(codes(caught.value.issues)) == ['E505', 'E706']
   assert 'supports data-file spec >=2.0' in caught.value.issues[0].message
+  unsupported = next(i for i in caught.value.issues if i.code == 'E706')
+  assert unsupported.format().endswith('(expected md, found html)')
+
+
+def test_a_macro_called_with_the_wrong_arguments_points_at_the_layout(tmp_path: Path) -> None:
+  layout = write_layout(tmp_path / 'lay')
+  components = layout / 'md' / 'components.md.j2'
+  text = components.read_text(encoding='utf-8')
+  components.write_text(text.replace('macro metrics(entries)', 'macro metrics(entrees)'))
+  line = next(
+    n for n, row in enumerate(components.read_text().split('\n'), 1) if 'macro metrics' in row
+  )
+  template = write_template(tmp_path / 'tpl', body='a\n{{ c.metrics(data.m) }}')
+  bundle = Report('T').add_metrics('m', [('a', 1)]).build()
+  with pytest.raises(RenderError) as caught:
+    render_bundle(bundle, template=template, layout=layout, formats=['md'])
+  (issue,) = caught.value.issues
+  assert issue.code == 'E804'
+  assert issue.location == f'md/components.md.j2:{line}'
+  assert issue.hint is not None and 'layout' in issue.hint
 
 
 def test_a_layout_missing_a_component_is_reported_before_rendering(tmp_path: Path) -> None:
@@ -290,3 +310,18 @@ def test_dynamic_keys_are_warned_about_unless_the_template_declares_them(tmp_pat
   template = write_template(tmp_path / 'declared', body=body, extra='dynamic_keys: true')
   found = check_bundle(bundle, template=template, layout='minimal', formats=['md'])
   assert found.issues == ()
+
+
+def test_the_tie_of_a_number_survives_the_md_filter_in_latex(tmp_path: Path) -> None:
+  body = (
+    'a {% filter md %}d = {{ c.number(data.n) }}, 50% **x~y**{% endfilter %} '
+    'b {{ c.number(data.n) }}'
+  )
+  template = write_template(tmp_path / 'tpl', body=body)
+  bundle = Report('T').add_number('n', 3.5, unit='mag').build()
+  result = render_bundle(bundle, template=template, layout='minimal', formats=['tex', 'md'])
+  tex = result.files['tex/report.tex'].decode()
+  assert r'd = 3.5~mag, 50\% \textbf{x\textasciitilde{}y}' in tex
+  assert tex.count('3.5~mag') == 2
+  assert '\ue000' not in tex and 'textasciitilde{}mag' not in tex
+  assert 'd = 3.5 mag' in result.files['md/report.md'].decode()

@@ -73,6 +73,57 @@ def test_validate_text_output_lists_the_issues(bundle_zip: Path, broken_template
   assert result.stdout.strip().splitlines()[-1].startswith('invalid: ')
 
 
+@pytest.fixture
+def bad_manifest(tmp_path: Path) -> Path:
+  path = tmp_path / 'bad.json'
+  path.write_text(
+    json.dumps(
+      {
+        'scireport': '1.0',
+        'meta': {'title': 'T'},
+        'values': {'Bad Key': {'kind': 'text', 'text': 'x'}, 'x': {'kind': 'tabel'}},
+      }
+    ),
+    encoding='utf-8',
+  )
+  return path
+
+
+def test_validate_reports_spec_stage_errors_like_template_stage_ones(
+  bad_manifest: Path,
+  bundle_zip: Path,
+  broken_template: Path,
+  caplog: pytest.LogCaptureFixture,
+) -> None:
+  spec = runner.invoke(app, ['validate', str(bad_manifest)])
+  assert spec.exit_code == 2
+  assert spec.stderr == '' and caplog.records == []
+  lines = spec.stdout.strip().splitlines()
+  assert lines[0].startswith('E101 /values/Bad Key: ')
+  assert lines[1].startswith('E201 /values/x: ')
+  assert lines[-1] == 'invalid: 2 error(s), 0 warning(s)'
+  template = runner.invoke(app, ['validate', str(bundle_zip), '-t', str(broken_template)])
+  assert template.stdout.strip().splitlines()[-1].startswith('invalid: ')
+
+
+def test_validate_json_has_one_shape_for_both_stages(
+  bad_manifest: Path, bundle_zip: Path, broken_template: Path
+) -> None:
+  spec = json.loads(runner.invoke(app, ['validate', str(bad_manifest), '--json']).stdout)
+  template = json.loads(
+    runner.invoke(
+      app, ['validate', str(bundle_zip), '-t', str(broken_template), '--json', '-f', 'md']
+    ).stdout
+  )
+  assert spec.keys() == template.keys() == {'ok', 'strict', 'exit_code', 'counts', 'issues'}
+  assert spec['exit_code'] == 2 and spec['counts'] == {'errors': 2, 'warnings': 0}
+  first = spec['issues'][1]
+  assert (first['code'], first['key'], first['pointer']) == ('E201', 'x', '/values/x')
+  assert first['expected'] and first['found'] == 'tabel'
+  located = next(i for i in template['issues'] if i['code'] == 'E106')
+  assert ':' in located['location'] and located['pointer'] and located['key']
+
+
 def test_strict_turns_warnings_into_failures(tmp_path: Path) -> None:
   path = Report('T').add_text('t', 'x').add_text('unused', 'y').write(tmp_path / 'w.scireport.zip')
   template = write_template(

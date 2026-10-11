@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import html
+import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -31,6 +32,7 @@ from scireport.render.layout import Layout, OptionValue
 from scireport.render.locate import current_location, exception_location, syntax_location
 from scireport.render.markup import MarkupConverter
 from scireport.render.math import DEFAULT_COLOR, MathError, render_math
+from scireport.render.numbers import restore_ties
 from scireport.render.outline import Outline
 from scireport.render.safe import Safe
 from scireport.render.template import Template
@@ -38,6 +40,9 @@ from scireport.spec.kinds import BibliographyValue
 from scireport.spec.manifest import Manifest, OutlineNode, manifest_to_json
 
 log = get_logger(__name__)
+
+_MACRO_ERROR = re.compile(r"macro '([^']+)'")
+"""Start of the messages Jinja gives for a macro called with the wrong arguments."""
 
 
 @dataclass(frozen=True)
@@ -187,6 +192,8 @@ class RenderSession:
       document = self._render_document(body)
       if self.citations is not None and self.citations.used:
         document, body = self.citations.resolve(document, body)
+      if self.fmt == 'tex':
+        document, body = restore_ties(document), restore_ties(body)
     except (TemplateSyntaxError, UndefinedError, SecurityError, TemplateRuntimeError) as exc:
       self._record_exception(exc)
       return '', ''
@@ -415,7 +422,36 @@ class RenderSession:
       code, message = 'E803', str(exc)
     else:
       code, message = 'E804', f'{type(exc).__name__}: {exc}'
-    self.issues.append(Issue(code, message, location=location))
+    hint = None
+    macro_location = self._layout_macro_location(exc) if isinstance(exc, TypeError) else None
+    if macro_location is not None:
+      location = macro_location
+      hint = 'The macro is defined in the layout: its parameters must match the component table.'
+    self.issues.append(Issue(code, message, location=location, hint=hint))
+
+  def _layout_macro_location(self, exc: TypeError) -> str | None:
+    """Locate the layout macro that a call with the wrong arguments names.
+
+    Jinja raises ``TypeError: macro 'name' takes no keyword argument ...`` before the macro runs,
+    so the traceback ends in the template that called the component, although the macro's
+    signature in the layout is at fault.
+
+    Returns
+    -------
+    str or None
+        ``file:line`` of the macro in the layout's components file, or None when the error is not
+        about a macro that the layout defines.
+    """
+    found = _MACRO_ERROR.match(str(exc))
+    if found is None:
+      return None
+    name = found.group(1)
+    components = self.layout.files(self.fmt).components
+    pattern = re.compile(rf'{{%-?\s*macro\s+{re.escape(name)}\s*\(')
+    for number, line in enumerate(self.layout.read(components).split('\n'), start=1):
+      if pattern.search(line):
+        return f'{components}:{number}'
+    return None
 
 
 def effective_outline(manifest: Manifest) -> list[OutlineNode]:

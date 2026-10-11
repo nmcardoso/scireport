@@ -24,6 +24,8 @@ from collections.abc import Callable, Iterable
 from pathlib import Path
 from typing import Annotated, Any, ForwardRef, Literal, Union, get_args, get_origin
 
+from pydantic import BaseModel
+
 from scireport.agent import catalogue
 from scireport.agent.skill import SKILL_DIR
 from scireport.error_help import HELP
@@ -35,7 +37,7 @@ DOCS_DIR = Path(__file__).resolve().parents[2] / 'docs'
 _BLOCK_RE = re.compile(
   r'<!-- generated:(?P<name>[a-z0-9-]+) -->\n.*?<!-- /generated -->', re.DOTALL
 )
-_PARAM_RE = re.compile(r'^(?P<name>\*{0,2}\w+)\s*:\s*(?P<type>.+)$')
+_PARAM_RE = re.compile(r'^(?P<name>\*{0,2}\w+(?:\s*,\s*\*{0,2}\w+)*)\s*:\s*(?P<type>.+)$')
 
 
 def generated_blocks(text: str) -> list[str]:
@@ -148,7 +150,10 @@ def summary(doc: str | None) -> str:
 
 
 def numpy_params(doc: str | None) -> dict[str, tuple[str, str]]:
-  """Parse the ``Parameters`` section of a NumPy docstring into name to (type, description)."""
+  """Parse the ``Parameters`` section of a NumPy docstring into name to (type, description).
+
+  An entry that groups names (``width, height : float``) gives each name the same type and text.
+  """
   if not doc:
     return {}
   lines = inspect.cleandoc(doc).splitlines()
@@ -160,11 +165,16 @@ def numpy_params(doc: str | None) -> dict[str, tuple[str, str]]:
   name = ''
   kind = ''
   text: list[str] = []
+
+  def store() -> None:
+    for single in name.split(','):
+      found[single.strip()] = (kind, ' '.join(part for part in text if part))
+
   for line in lines[start:]:
     if line and not line.startswith(' '):
       if _PARAM_RE.match(line):
         if name:
-          found[name] = (kind, ' '.join(part for part in text if part))
+          store()
         match = _PARAM_RE.match(line)
         assert match is not None
         name, kind, text = match['name'], match['type'], []
@@ -172,7 +182,7 @@ def numpy_params(doc: str | None) -> dict[str, tuple[str, str]]:
       break
     text.append(line.strip())
   if name:
-    found[name] = (kind, ' '.join(part for part in text if part))
+    store()
   return found
 
 
@@ -444,12 +454,29 @@ def gen_palette() -> str:
   """Write the fields of a layout palette (``scireport.palette(...)``)."""
   from scireport.styles.palette import Palette
 
-  docs = numpy_params(Palette.__doc__)
-  rows = [
-    (f'`{name}`', f'`{_type(field.annotation)}`', docs.get(name, ('', ''))[1])
-    for name, field in Palette.model_fields.items()
-  ]
+  rows = _model_rows(Palette)
   return table(['Field', 'Type', 'Meaning'], rows)
+
+
+def _model_rows(model: type[BaseModel], prefix: str = '') -> list[tuple[str, str, str]]:
+  """List the fields of a model as rows; a field that is itself a model is spelled out.
+
+  A nested model such as ``Page`` gives a row for the field (type ``object``) followed by one
+  row per attribute (``page.width_mm``), with the default when there is one.
+  """
+  docs = numpy_params(model.__doc__)
+  rows: list[tuple[str, str, str]] = []
+  for name, field in model.model_fields.items():
+    meaning = docs.get(name, ('', ''))[1]
+    nested = field.annotation
+    if isinstance(nested, type) and issubclass(nested, BaseModel):
+      rows.append((f'`{prefix}{name}`', '`object`', meaning))
+      rows.extend(_model_rows(nested, f'{prefix}{name}.'))
+      continue
+    if not field.is_required():
+      meaning = f'{meaning} Default {field.default!r}.'.strip()
+    rows.append((f'`{prefix}{name}`', f'`{_type(field.annotation)}`', meaning))
+  return rows
 
 
 def gen_errors() -> str:

@@ -40,7 +40,7 @@ Options are set with `-O name=value`, in the bundle's `render.options`, or in Py
 <!-- generated:layouts -->
 ### `default@1`
 
-Default (MOSAICS look). Navy cover, chapter openers, a table of contents with page numbers, a running header and footer. Inter and IBM Plex Mono.
+Default (MOSAICS look). Navy cover, chapter openers, a table of contents with page numbers, a running header and footer. Inter, IBM Plex Serif and IBM Plex Mono.
 
 Formats: md, html, tex. PDF engines: weasyprint, latex.
 
@@ -69,7 +69,7 @@ Formats: md, html, tex. PDF engines: none.
 
 ### `modern@1`
 
-Modern (Signal). A white page with a vermilion cover band, giant chapter numerals, heavy rules and rule-only tables. Inter and IBM Plex Mono.
+Modern (Publication). A journal-style report. Steel-blue cover band with a gold stripe, numbered blue headings, justified Palatino-like text, booktabs tables and boxes with a coloured title bar. TeX Gyre Pagella, Heros and Cursor.
 
 Formats: md, html, tex. PDF engines: weasyprint, latex.
 
@@ -78,7 +78,7 @@ Formats: md, html, tex. PDF engines: weasyprint, latex.
 | `toc` | bool | `True` |  | Write a table of contents. |
 | `cover` | bool | `True` |  | Start with the cover page (otherwise a plain title block). |
 | `paper` | str | `a4` | a4\|letter | Paper size of the PDF and of the LaTeX project. |
-| `chapter_breaks` | bool | `True` |  | Start every chapter on a new page. |
+| `chapter_breaks` | bool | `False` |  | Start every chapter on a new page (by default chapters follow each other). |
 | `numbered_captions` | bool | `True` |  | Prefix captions with "Table N." and "Figure N.". |
 | `header` | bool | `True` |  | Print the running header and footer on the pages of a PDF. |
 <!-- /generated -->

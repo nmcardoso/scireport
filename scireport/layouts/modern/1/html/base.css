@@ -1,6 +1,7 @@
 /*
- * Page geometry, running header and footer, and base typography of default@1.
- * Ported from the MOSAICS report design system.
+ * Page geometry, running header and footer, and base typography of modern@1: the look of a journal
+ * report. A4 with 22 mm sides and 25 mm top and bottom, a small blue header over a hairline, the page
+ * number centred in the footer, justified text in a Palatino-like face and blue Helvetica-like headings.
  */
 
 * {
@@ -13,125 +14,116 @@ html, body {
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-serif);
   font-size: var(--text-body);
-  line-height: 1.55;
+  line-height: 1.32;
   color: var(--ink);
   background: var(--paper);
   counter-reset: chapter;
+  text-align: justify;
+  hyphens: auto;
 }
 
-/* A4 portrait (the document skeleton sets the size from the `paper` option), 18 mm top and
-   bottom and 9 mm left and right, a minimal running header and a footer with page counters. The
-   anonymous @page rule matches every page including @page cover, so the cover cancels it. */
+/* The anonymous @page rule matches every page including @page cover, so the cover cancels it. */
 @page {
-  margin: 18mm 9mm;
+  margin: 25mm 22mm;
+  padding-top: 4mm;
 
   @top-left {
+    width: 70%;
     content: string(pipeline-name);
     font-family: var(--font-sans);
-    font-size: 7.5pt;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--gray-500);
+    font-size: 9pt;
+    color: var(--navy);
     vertical-align: bottom;
     padding-bottom: 4pt;
-    border-bottom: 0.5pt solid var(--gray-200);
+    border-bottom: 0.4pt solid var(--navy);
   }
 
   @top-right {
-    content: string(doc-author);
+    width: 30%;
+    content: string(doc-date);
     font-family: var(--font-sans);
-    font-size: 7.5pt;
-    color: var(--gray-500);
+    font-size: 9pt;
+    color: var(--navy);
     vertical-align: bottom;
     padding-bottom: 4pt;
-    border-bottom: 0.5pt solid var(--gray-200);
+    border-bottom: 0.4pt solid var(--navy);
   }
 
-  @bottom-left {
-    content: string(footer-meta);
-    font-family: var(--font-mono);
-    font-size: 7.5pt;
-    color: var(--gray-500);
-  }
-
-  @bottom-right {
-    content: "Page " counter(page) " / " counter(pages);
-    font-family: var(--font-mono);
-    font-size: 7.5pt;
-    color: var(--gray-500);
+  @bottom-center {
+    content: counter(page);
+    font-family: var(--font-sans);
+    font-size: 9pt;
+    color: var(--ink);
   }
 }
 
-/* The cover is a full-bleed navy field, so its margins are cancelled. A named page rather than
-   @page :first, which breaks silently the day the cover runs to two pages. */
+/* The cover is a full-bleed page, so its margins are cancelled. A named page rather than @page
+   :first, which breaks silently the day the cover runs to two pages. */
 @page cover {
   margin: 0;
+  padding: 0;
 
-  @top-left { content: none; }
-  @top-right { content: none; }
-  @bottom-left { content: none; }
-  @bottom-right { content: none; }
+  @top-left { content: none; border: 0; }
+  @top-right { content: none; border: 0; }
+  @bottom-center { content: none; }
 }
 
 /* The running strings that every page's margin boxes read. They are set on <body> itself rather
    than on a leading sibling element: a box with `page: auto` before one with `page: cover` forces
    an implicit page break between them, which would waste a blank page ahead of the cover. */
 .running-strings {
-  string-set: pipeline-name attr(data-pipeline), doc-author attr(data-author),
+  string-set: pipeline-name attr(data-pipeline), doc-date attr(data-date),
     footer-meta attr(data-footer);
 }
 
-/* Typography hierarchy: weight and spacing carry it rather than large size jumps; headings keep
-   a tight line height. */
+/* Headings: blue, bold, sans; the number sits in a fixed-width run before the title. */
 h1, h2, h3, h4 {
   font-family: var(--font-sans);
+  font-weight: 700;
   color: var(--navy);
   line-height: 1.2;
   margin: 0;
+  text-align: left;
+  hyphens: manual;
+}
+
+.h-number {
+  display: inline-block;
+  min-width: 2.4em;
 }
 
 h1.h--chapter {
-  font-size: var(--text-title);
-  font-weight: 600;
+  font-size: var(--text-section);
+  margin-bottom: var(--space-3);
 }
 
 h2.h--section {
-  font-size: var(--text-section);
-  font-weight: 600;
-  margin-top: var(--space-6);
-  margin-bottom: var(--space-3);
-  padding-bottom: var(--space-2);
-  border-bottom: 1pt solid var(--gray-200);
+  font-size: var(--text-subsection);
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-2);
 }
 
 h3.h--subsection {
-  font-size: var(--text-subsection);
-  font-weight: 600;
-  color: var(--ink);
+  font-size: 12pt;
   margin-top: var(--space-4);
   margin-bottom: var(--space-2);
 }
 
 h4.h--minor {
   font-size: var(--text-body);
-  font-weight: 600;
-  color: var(--ink-soft);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  color: var(--accent-ink);
   margin-top: var(--space-3);
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
 }
 
 p {
-  margin: 0 0 var(--space-3);
-  max-width: 68ch;
+  margin: 0 0 var(--space-2);
 }
 
-/* There is no 700 face: bold text uses the 600 one instead of whatever bold the machine has. */
 strong, b, th {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 code, kbd, pre, samp {
@@ -149,15 +141,14 @@ table {
 }
 
 th, td {
-  padding: 3pt 10pt 3pt 0;
+  padding: 2pt 10pt 2pt 0;
   text-align: left;
   vertical-align: top;
-  border-bottom: 0.5pt solid var(--gray-200);
 }
 
 th {
-  color: var(--ink-soft);
-  border-bottom: 1pt solid var(--gray-300);
+  font-family: var(--font-sans);
+  border-bottom: 0.5pt solid var(--ink);
 }
 
 blockquote {
@@ -172,13 +163,19 @@ p.p--muted {
 }
 
 p.p--caption {
-  font-size: var(--text-metadata);
-  color: var(--ink-soft);
+  font-size: 9.5pt;
+  line-height: 1.3;
+  text-align: left;
   margin: var(--space-2) 0 var(--space-4);
 }
 
+p.p--caption-top {
+  margin: 0 0 var(--space-2);
+}
+
 a {
-  color: inherit;
+  color: var(--blue);
+  text-decoration: none;
 }
 
 .mono {

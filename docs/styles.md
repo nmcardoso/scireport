@@ -36,7 +36,6 @@ with scireport.mplstyle(LAYOUT):
   ax.set_xlabel(r'separation ($\mathrm{arcsec}$)')
   ax.set_ylabel('pairs')
   ax.legend()
-  fig.set_layout_engine('constrained')  # keeps labels inside the physical size
 
 print(f'figure size: {fig.get_figwidth():.2f} x {fig.get_figheight():.2f} in')
 save_figure(fig, 'out/separations.png')
@@ -81,7 +80,7 @@ The figure is 80 % of the page frame of `modern@1` on A4 (7.01 in between the ma
 | `scireport.mplstyle(layout='default', *, rc=None)` | a context manager: registers the vendored fonts, applies the style of the layout, restores matplotlib's parameters on exit. `rc={...}` adds one-off overrides. Draw everything of a figure (axes, labels, legends) inside it |
 | `scireport.mplstyle_path(layout='default')` | the `.mplstyle` file of a layout, a `pathlib.Path` |
 | `scireport.palette(layout='default')` | colours, chart roles, status colours, the colour cycle, colour maps, fonts and page geometry, from the layout's `palette.yaml` |
-| `scireport.figure(width=1.0, height=3.6, nrows=1, ncols=1, *, layout='default', paper='a4', subplot_kw=None)` | `(Figure, axes)` at the **final physical size** (below) |
+| `scireport.figure(width=1.0, height=3.6, nrows=1, ncols=1, *, layout='default', paper='a4', subplot_kw=None, constrained=True)` | `(Figure, axes)` at the **final physical size** (below), with the constrained layout engine |
 | `scireport.styles.save_figure(fig, path, *, dpi=200, tight=True, close=False)` | writes PNG, PDF or SVG chosen by the suffix, with no run-varying bytes |
 | `scireport.styles.figure_bytes(fig, format='png', *, dpi=200, tight=True)` | the same file as bytes |
 | `scireport.styles.fonts.register()` | makes the vendored fonts known to matplotlib (`mplstyle()` does it for you) |
@@ -140,13 +139,22 @@ level, and a figure that carries a verdict should add a marker or a label too. T
 | `role` | `dict[str, str]` | Colour with a fixed meaning in a chart (``failed``, ``success`` ...) to a colour token. |
 | `status` | `dict[str, str]` | Level of the status component to a colour token. |
 | `cycle` | `list[str]` | Colour tokens that tell series apart, in order. |
-| `cmap` | `Cmaps` | Sequential and diverging colour maps. |
-| `fonts` | `Fonts` | Font stacks. |
+| `cmap` | `object` | Sequential and diverging colour maps. |
+| `cmap.sequential` | `str` | matplotlib colour map names. |
+| `cmap.diverging` | `str` | matplotlib colour map names. |
+| `fonts` | `object` | Font stacks. |
+| `fonts.sans` | `list[str]` | Family names in order of preference. |
+| `fonts.mono` | `list[str]` | Family names in order of preference. |
+| `fonts.serif` | `list[str]` | The same for the body text of a layout that sets it in a serif face; empty when the layout sets its body text in sans. Default PydanticUndefined. |
 | `spacing` | `list[int]` | The spacing scale in points. |
 | `type_scale` | `dict[str, float]` | Point size per typographic rung. |
-| `body_line_height` | `float` |  |
-| `heading_line_height` | `float` |  |
-| `page` | `Page` |  |
+| `body_line_height` | `float` | Line heights as multiples of the font size. |
+| `heading_line_height` | `float` | Line heights as multiples of the font size. |
+| `page` | `object` | Page geometry, A4 unless the file says otherwise. |
+| `page.width_mm` | `float` | Paper size. Default 210.0. |
+| `page.height_mm` | `float` | Paper size. Default 297.0. |
+| `page.margin_x_mm` | `float` | Left and right, top and bottom margins; the frame is what remains. Default 9.0. |
+| `page.margin_y_mm` | `float` | Left and right, top and bottom margins; the frame is what remains. Default 18.0. |
 <!-- /generated -->
 
 `pal.hex('accent')` is the same as `pal.colors['accent']`. `pal.page` gives the page geometry in millimetres, with
@@ -160,15 +168,13 @@ example compares two calls; run twice on one machine and the SHA-256 of the PNG 
 files of a bundle reproducible, so use them rather than `fig.savefig` for a file that goes into a report.
 
 `Report.add_figure(key, fig, alt=..., data=...)` renders a matplotlib figure the same way, to PNG and PDF by default
-(`formats=('png', 'pdf', 'svg')` chooses, `dpi=200` is the PNG resolution). Three details differ from a plain
-`save_figure`:
+(`formats=('png', 'pdf', 'svg')` chooses, `dpi=200` is the PNG resolution). It renders exactly as `save_figure` does
+with its defaults (cropped to the content, `tight=True`), so the same figure gives the same bytes from both. Two details
+to know:
 
-- `add_figure` keeps the **physical size** (it does not crop the figure to its content), while `save_figure` crops by
-  default (`tight=True`). The same figure therefore gives a different PNG from the two. Pass `tight=False` to
-  `save_figure` to match the bundle's file byte for byte.
-- A figure that is not cropped needs its labels to fit inside it. The style does not choose a layout engine, so call
-  `fig.set_layout_engine('constrained')` (or `fig.tight_layout()`) before you hand the figure to `add_figure`. Without
-  it, an x label of the example is cut off at the bottom of the picture.
+- `scireport.figure()` gives the figure matplotlib's **constrained layout engine**, so axis labels, titles and colour
+  bars stay inside the physical size. Pass `constrained=False` to place the axes yourself. A figure made some other way
+  (`plt.figure()`) has no layout engine: call `fig.set_layout_engine('constrained')` (or `fig.tight_layout()`) on it.
 - `alt` is required, and a blank one is `E205`: the alternative text is what a reader of the Markdown output and of a
   screen reader sees.
 
@@ -247,10 +253,10 @@ The built-in `mplstyle: default` value names a style shipped in `scireport/style
 
 ## Fonts
 
-The style uses **Inter** (text) and **IBM Plex Mono** (code). Both ship inside the package as small OpenType subsets
-under the SIL Open Font License, with `OFL.txt` next to them, and `mplstyle()` registers them, so nothing has to be
-installed. The subsets cover Basic Latin, Latin-1 and a few symbols (dashes, `×`, `·`, `→`, `−`, `∞`, `°`, `±`). They
-have **no Greek letters and no `≤ ≥ ≈ √`**. In a figure write those as math text, which matplotlib draws with its own
+The `default` style uses **Inter** (text) and **IBM Plex Mono** (code), the `modern` style **TeX Gyre Heros** and **TeX Gyre
+Cursor**. They ship inside the package as small OpenType subsets (SIL Open Font License, `OFL.txt`; GUST Font Licence,
+`GFL.txt`), and `mplstyle()` registers them, so nothing has to be installed. The Inter and IBM Plex Mono subsets cover Basic Latin, Latin-1 and a few symbols (dashes, `×`, `·`, `→`, `−`, `∞`, `°`,
+`±`). They have **no Greek letters and no `≤ ≥ ≈ √`** (the TeX Gyre subsets of the `modern` style have them). In a figure write those as math text, which matplotlib draws with its own
 bundled fonts: `r'$\alpha$'`, `r'$\leq$'`, `r'$\sqrt{n}$'`, and `r'$\mathrm{arcsec}$'` for an upright unit. A bare
 `α` in a label is drawn with whatever font the machine offers for it, so the figure depends on the machine: a computer
 with the full Inter family installed may draw it and another may not.
@@ -267,7 +273,7 @@ with the full Inter family installed may draw it and another may not.
   10}` overrides a parameter for the block.
 - **`figure()` returns a `matplotlib.figure.Figure`, not a pyplot figure.** Nothing to `plt.close`, and `plt.show()`
   does not know it. `save_figure(..., close=True)` closes a pyplot figure only.
-- **Add a layout engine** before `add_figure` (see above), or labels are clipped.
+- **A figure from `plt.figure()` has no layout engine** (see above): add one before `add_figure`, or labels can be clipped.
 - **Keep Greek and `≤ ≥ ≈ √` in math text.**
 - **Save with the helpers, not `fig.savefig`,** for any file that should be reproducible.
 - **`Report.write` refuses to replace a bundle** (`E410`) unless `overwrite=True`.

@@ -6,9 +6,12 @@
 ## Decision
 
 Errors are aggregated, never first-fail. Each has a stable **code** (`E1xx` missing key, `E2xx` wrong kind,
-`E3xx` table schema, `E4xx` asset or hash, `E5xx` version, `W4xx` unused key, `W6xx` math), the key and its JSON
-pointer in the manifest, the expected and the found value, the template `file:line` where the key is used, and a
-"did you mean" suggestion (difflib).
+`E3xx` table schema, `E4xx` asset or hash, `E5xx` version, `E6xx` pre-processing, `E7xx` template and layout
+definitions, `E8xx` rendering and export, `E9xx` PDF engines and optional extras, `W4xx` unused key, `W5xx` pandoc
+version, `W6xx` math, `W7xx` Markdown prose, `W9xx` PDF engine warnings), the key and its JSON pointer in the
+manifest, the expected and the found value, the template `file:line` where the key is used, and a "did you mean"
+suggestion (difflib). The catalogue is `scireport.errors.CODES`; `tests/compat/error-codes.json` freezes the title of
+every released code.
 
 Template lint walks the Jinja AST (`v("key")` and `data.a.b` chains). Dynamic keys are checked at render time
 through usage tracking (the MOSAICS `take`/`peek`/`leftovers` idea).

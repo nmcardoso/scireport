@@ -153,7 +153,13 @@ def test_pin_manifest_pins_names_and_keeps_versions(caplog: pytest.LogCaptureFix
   unset = manifest.model_copy(
     update={'render': manifest.render.model_copy(update={'template': None, 'layout': None})}
   )
-  assert pin_manifest(unset) is unset
+  defaults = pin_manifest(unset)
+  assert (defaults.render.template, defaults.render.layout) == ('generic@1', 'default@1')
+  assert pin_manifest(defaults) is defaults
+  half = manifest.model_copy(
+    update={'render': manifest.render.model_copy(update={'template': 'generic', 'layout': None})}
+  )
+  assert pin_manifest(half).render.layout == 'default@1'
   unknown = manifest.model_copy(
     update={'render': manifest.render.model_copy(update={'template': 'plugin-not-installed'})}
   )

@@ -16,6 +16,8 @@ from scireport.render.escape import (
   tex_escape,
 )
 from scireport.render.markup import default_converter
+from scireport.render.numbers import TIE_MARK, format_number_value, mark_ties, restore_ties
+from scireport.spec.kinds import NumberValue
 
 TEXT = st.text(max_size=60)
 TEX_CONTROL = re.compile(r'[\x00-\x08\x0b-\x1f\x7f]')
@@ -93,3 +95,13 @@ def test_md_code_span_is_one_span_that_holds_the_text(text: str) -> None:
   assert span.endswith(fence.group(0))
   inner = span[len(fence.group(0)) : -len(fence.group(0))]
   assert ' '.join(text.split()) in ' '.join(inner.split()) or not text.strip()
+
+
+@given(st.text(alphabet=st.characters(blacklist_characters=TIE_MARK, blacklist_categories=['Cs'])))
+@settings(max_examples=200)
+def test_the_tie_mark_round_trips_a_typeset_number(unit: str) -> None:
+  value = NumberValue(kind='number', value=3.5, unit=unit)
+  typeset = format_number_value(value, 'tex')
+  marked = mark_ties(typeset)
+  assert '~' not in marked
+  assert restore_ties(marked) == typeset

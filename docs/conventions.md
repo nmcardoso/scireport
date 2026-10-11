@@ -31,7 +31,9 @@ Core: jinja2, pydantic 2, pyyaml, typer, numpy, pyarrow, matplotlib, mistletoe. 
 
 ## Fonts
 
-The Inter and IBM Plex Mono subsets are copied from datex together with `OFL.txt`.
+The Inter and IBM Plex Mono subsets are copied from datex together with `OFL.txt`. IBM Plex Serif (OFL) and TeX Gyre
+Pagella, Heros and Cursor (GUST Font Licence, `GFL.txt`) were subset from the upstream releases with `pyftsubset` to the
+same character range plus the Greek letters and `≤ ≥ ≈ ≠ √`.
 
 ## Continuous integration
 

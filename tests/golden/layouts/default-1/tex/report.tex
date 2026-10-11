@@ -11,11 +11,11 @@ pdflang={en},%
 \sccover{scireport demo}{Kitchen Sink: Every Component and Hard Case}{One of each component and the cases a layout has to survive}{N. Cardoso\par A. Reviewer (Example Institute)\par }{Date & 2026-10-09\\Version & 1.0.0\\Keywords & layout, regression, demo\\}
 
 \par{\fontsize{14}{17}\selectfont\bfseries Abstract}\par\vspace{4pt}
-A synthetic report that exercises every component of a layout: \textbf{five} status levels, the flow states, tables with long paths and missing values, equations such as $\chi^2_\nu = 1.02$, and figures at three widths. It holds no real data.
+{\scbody A synthetic report that exercises every component of a layout: \textbf{five} status levels, the flow states, tables with long paths and missing values, equations such as $\chi^2_\nu = 1.02$, and figures at three widths. It holds no real data.\par}
 \clearpage
 \scanchor{sc-toc}{Contents}{}%
 {\fontsize{20}{24}\selectfont\bfseries\color{sc-navy}Contents\par}%
-\vspace{2pt}\scrule{sc-gray-200}{1pt}\vspace{4pt}
+\vspace{4pt}\scrule{sc-gray-200}{1pt}\vspace{4pt}
 \sctocrow{0}{01}{Quality Control Results Overview}{a1}
 \sctocrow{1}{}{Status levels}{a2}
 \sctocrow{1}{}{Reproducibility metadata}{a3}
@@ -31,6 +31,7 @@ A synthetic report that exercises every component of a layout: \textbf{five} sta
 \sctocrow{1}{}{Long identifiers}{a13}
 \sctocrow{1}{}{Missing values}{a14}
 \sctocrow{1}{}{A 250-row profile table}{a15}
+\clearpage
 
 \begin{adjustwidth}{0pt}{-\scoverhang}
 \vspace{16pt}\noindent
@@ -105,37 +106,37 @@ in grey scale: the colour is never the only signal.
 
 \vspace{16pt}
 \begin{adjustwidth}{0pt}{-\scoverhang}
-\begin{scflowstage}{sc-green}{sc-green}
+\begin{scflowstage}{sc-green}
 \noindent\begin{tabular}[t]{@{}p{26pt}@{}p{\dimexpr\linewidth-26pt\relax}@{}}
 {\color{sc-gray-500}\fontsize{9}{12}\ttfamily\selectfont 01} & {\fontsize{9}{12}\selectfont\bfseries\sctrack{\MakeUppercase{INGESTION}}}\par{\fontsize{8.5}{13}\selectfont\color{sc-ink-soft}12,483,921 objects} \\
 \end{tabular}%
 \end{scflowstage}\par
-\begin{scflowstage}{sc-blue}{sc-blue}
+\begin{scflowstage}{sc-blue}
 \noindent\begin{tabular}[t]{@{}p{26pt}@{}p{\dimexpr\linewidth-26pt\relax}@{}}
 {\color{sc-gray-500}\fontsize{9}{12}\ttfamily\selectfont 02} & {\fontsize{9}{12}\selectfont\bfseries\sctrack{\MakeUppercase{CATALOGUE QUERY}}} \\
 \end{tabular}%
 \end{scflowstage}\par
-\begin{scflowstage}{sc-green}{sc-green}
+\begin{scflowstage}{sc-green}
 \noindent\begin{tabular}[t]{@{}p{26pt}@{}p{\dimexpr\linewidth-26pt\relax}@{}}
 {\color{sc-gray-500}\fontsize{9}{12}\ttfamily\selectfont 03} & {\fontsize{9}{12}\selectfont\bfseries\sctrack{\MakeUppercase{PHOTOMETRY EXTRACTION}}}\par{\fontsize{8.5}{13}\selectfont\color{sc-ink-soft}8,021,433 rows}\par{\fontsize{8.5}{13}\selectfont\color{sc-ink-soft}99.8\% success} \\
 \end{tabular}%
 \end{scflowstage}\par
-\begin{scflowstage}{sc-paper}{sc-gray-500}
+\begin{scflowstage}{sc-gray-200}
 \noindent\begin{tabular}[t]{@{}p{26pt}@{}p{\dimexpr\linewidth-26pt\relax}@{}}
 {\color{sc-gray-500}\fontsize{9}{12}\ttfamily\selectfont 04} & {\fontsize{9}{12}\selectfont\bfseries\sctrack{\MakeUppercase{CROSS-MATCH / VIZIER}}} \\
 \end{tabular}%
 \end{scflowstage}\par
-\begin{scflowstage}{sc-cyan}{sc-cyan}
+\begin{scflowstage}{sc-cyan}
 \noindent\begin{tabular}[t]{@{}p{26pt}@{}p{\dimexpr\linewidth-26pt\relax}@{}}
 {\color{sc-gray-500}\fontsize{9}{12}\ttfamily\selectfont 05} & {\fontsize{9}{12}\selectfont\bfseries\sctrack{\MakeUppercase{CAST RECONCILIATION}}} \\
 \end{tabular}%
 \end{scflowstage}\par
-\begin{scflowstage}{sc-paper}{sc-cyan}
+\begin{scflowstage}{sc-cyan-light}
 \noindent\begin{tabular}[t]{@{}p{26pt}@{}p{\dimexpr\linewidth-26pt\relax}@{}}
 {\color{sc-gray-500}\fontsize{9}{12}\ttfamily\selectfont 06} & {\fontsize{9}{12}\selectfont\bfseries\sctrack{\MakeUppercase{VALIDATION}}}\par{\fontsize{8.5}{13}\selectfont\color{sc-ink-soft}waiting on the archive} \\
 \end{tabular}%
 \end{scflowstage}\par
-\begin{scflowstage}{sc-red}{sc-red}
+\begin{scflowstage}{sc-red}
 \noindent\begin{tabular}[t]{@{}p{26pt}@{}p{\dimexpr\linewidth-26pt\relax}@{}}
 {\color{sc-gray-500}\fontsize{9}{12}\ttfamily\selectfont 07} & {\fontsize{9}{12}\selectfont\bfseries\sctrack{\MakeUppercase{PUBLISHED OUTPUT}}}\par{\fontsize{8.5}{13}\selectfont\color{sc-ink-soft}stage 5 failed once} \\
 \end{tabular}%
@@ -231,32 +232,36 @@ Euclid Q1 & 87 & spectra \\
 \end{tabular}
 \end{center}
 
+{\scbody
 \begin{itemize}
 \item A bullet list item
 \item One with `inline\_code`
-\item \begin{itemize}
+\item {\scbody
+\begin{itemize}
 \item a
 \item nested
 \item list
-\end{itemize}
+\end{itemize}}
 
-\end{itemize}
+\end{itemize}}
 
+{\scbody
 \begin{enumerate}
 \item Fetch the cell
 \item Match against sweeps
 \item Rescue spectra
-\end{enumerate}
+\end{enumerate}}
 
 \begin{scnotebox}
-A muted remark, such as the reason a value is missing.
+\scbody {\scbody A muted remark, such as the reason a value is missing.\par}
 
 \end{scnotebox}\par
 
 \begin{scdetailsbox}
 {\bfseries A collapsible block}\par\vspace{8pt}
-This text sits inside a collapsible block.
+{\scbody {\scbody This text sits inside a collapsible block.\par}
 
+\par}
 \end{scdetailsbox}\par
 
 \vspace{12pt}
@@ -273,7 +278,7 @@ WHERE brick = :brick
 
 \scheading{2}{A nine-hundred-word paragraph}{a11}{A nine-hundred-word paragraph}{1}{0}
 
-The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded.
+{\scbody The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded. The extraction phase resolves each candidate against the Legacy Survey DR11 sweep catalogues before any spectroscopic cross-match is attempted, because a photometric non-detection changes what a missing spectrum means. A cell that has already been fetched is never re-requested: the ledger records success and failure independently of the rows themselves, so a crash part-way through a wide declination band costs only the cells still in flight when it happened, and a retry pass touches nothing that already succeeded.\par}
 
 \scchapter{02}{Detailed Cross-Match Reconciliation Between Legacy Sweep Catalogues and Euclid Q1 Spectra.}{a12}{Detailed Cross-Match Reconciliation Between Legacy Sweep Catalogues and Euclid Q1 Spectra.}{0}
 
@@ -281,10 +286,10 @@ The extraction phase resolves each candidate against the Legacy Survey DR11 swee
 
 {\fontsize{8}{11}\selectfont\renewcommand{\arraystretch}{1.45}
 \setlength{\sctablew}{\scfullwidth}\begin{longtable}{>{\raggedright\arraybackslash}p{\dimexpr 0.15\sctablew-2\tabcolsep\relax}>{\raggedright\arraybackslash\ttfamily}p{\dimexpr 0.65\sctablew-2\tabcolsep\relax}>{\raggedleft\arraybackslash\ttfamily}p{\dimexpr 0.2\sctablew-2\tabcolsep\relax}}
-\rowcolor{sc-gray-50}{\bfseries\color{sc-ink-soft}Artifact} & {\bfseries\color{sc-ink-soft}Path} & {\bfseries\color{sc-ink-soft}Size {\mdseries\color{sc-gray-500}(bytes)}} \\
+\rowcolor{sc-gray-50}{\bfseries\color{sc-ink-soft}Artifact} & {\bfseries\color{sc-ink-soft}Path} & {\bfseries\color{sc-ink-soft}Size\par{\mdseries\color{sc-gray-500}(bytes)}} \\
 \scheadrule
 \endfirsthead
-\rowcolor{sc-gray-50}{\bfseries\color{sc-ink-soft}Artifact} & {\bfseries\color{sc-ink-soft}Path} & {\bfseries\color{sc-ink-soft}Size {\mdseries\color{sc-gray-500}(bytes)}} \\
+\rowcolor{sc-gray-50}{\bfseries\color{sc-ink-soft}Artifact} & {\bfseries\color{sc-ink-soft}Path} & {\bfseries\color{sc-ink-soft}Size\par{\mdseries\color{sc-gray-500}(bytes)}} \\
 \scheadrule
 \endhead
 spectra & store/\allowbreak{}spec/\allowbreak{}euclid\_\allowbreak{}q1\_\allowbreak{}merged\_\allowbreak{}objects/\allowbreak{}partition\_\allowbreak{}0042/\allowbreak{}cell\_\allowbreak{}03215\_\allowbreak{}dec\_\allowbreak{}-\allowbreak{}042.\allowbreak{}500\_\allowbreak{}to\_\allowbreak{}-\allowbreak{}042.\allowbreak{}417/\allowbreak{}shard\_\allowbreak{}00007\_\allowbreak{}of\_\allowbreak{}00128/\allowbreak{}euclid\_\allowbreak{}q1\_\allowbreak{}merged\_\allowbreak{}objects.\allowbreak{}spectra.\allowbreak{}rescue.\allowbreak{}lance & \ensuremath{4.20\times10^{9}} \\
@@ -300,10 +305,10 @@ rescue & store/\allowbreak{}spec/\allowbreak{}euclid\_\allowbreak{}q1\_\allowbre
 
 {\fontsize{8}{11}\selectfont\renewcommand{\arraystretch}{1.45}
 \setlength{\sctablew}{\scfullwidth}\begin{longtable}{>{\raggedright\arraybackslash}p{\dimexpr 0.5\sctablew-2\tabcolsep\relax}>{\raggedleft\arraybackslash\ttfamily}p{\dimexpr 0.2\sctablew-2\tabcolsep\relax}>{\raggedleft\arraybackslash\ttfamily}p{\dimexpr 0.3\sctablew-2\tabcolsep\relax}}
-\rowcolor{sc-gray-50}{\bfseries\color{sc-ink-soft}Source} & {\bfseries\color{sc-ink-soft}Redshift} & {\bfseries\color{sc-ink-soft}Flux {\mdseries\color{sc-gray-500}(Jy)}} \\
+\rowcolor{sc-gray-50}{\bfseries\color{sc-ink-soft}Source} & {\bfseries\color{sc-ink-soft}Redshift} & {\bfseries\color{sc-ink-soft}Flux\par{\mdseries\color{sc-gray-500}(Jy)}} \\
 \scheadrule
 \endfirsthead
-\rowcolor{sc-gray-50}{\bfseries\color{sc-ink-soft}Source} & {\bfseries\color{sc-ink-soft}Redshift} & {\bfseries\color{sc-ink-soft}Flux {\mdseries\color{sc-gray-500}(Jy)}} \\
+\rowcolor{sc-gray-50}{\bfseries\color{sc-ink-soft}Source} & {\bfseries\color{sc-ink-soft}Redshift} & {\bfseries\color{sc-ink-soft}Flux\par{\mdseries\color{sc-gray-500}(Jy)}} \\
 \scheadrule
 \endhead
 Sloan Digital Sky Survey Data Release 17 Spectroscopic Catalogue of Quasars, Emission-Line Galaxies and Standard Stars & 0.1234 & \ensuremath{1.50\times10^{-5}} \\

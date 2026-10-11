@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import sys
 from enum import StrEnum
 from pathlib import Path
 from typing import Annotated
@@ -72,3 +74,28 @@ def main(
 ) -> None:
   """Scientific report engine."""
   setup_logging(level=log_level.value, log_file=log_file)
+
+
+def run() -> None:
+  """Run the command line (the ``scireport`` console script).
+
+  Behaves like calling `app`, except that a closed pipe is not an error: when the reader of
+  stdout stops early (``scireport layouts | head``), the command exits with status 1 and prints
+  nothing. Standard output is pointed at the null device first, so that the interpreter does not
+  complain about the unflushed data when it shuts down.
+  """
+  try:
+    try:
+      app()
+    finally:
+      sys.stdout.flush()
+  except BrokenPipeError:
+    _silence_stdout()
+    sys.exit(1)
+
+
+def _silence_stdout() -> None:
+  """Point the standard output file descriptor at the null device."""
+  devnull = os.open(os.devnull, os.O_WRONLY)
+  os.dup2(devnull, sys.stdout.fileno())
+  os.close(devnull)

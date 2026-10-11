@@ -50,13 +50,14 @@ cmap:
 fonts:
   sans: [Inter, Source Sans 3, Helvetica Neue, Arial, sans-serif]
   mono: [IBM Plex Mono, Inter, JetBrains Mono, DejaVu Sans Mono, monospace]
+  serif: [IBM Plex Serif, Source Serif 4, Georgia, serif]
 # Points.
 spacing: [4, 8, 12, 16, 24, 32, 48, 64]
 type_scale:
   title: 33.0
   section: 20.0
   subsection: 14.0
-  body: 10.0
+  body: 11.0
   metadata: 8.5
   table: 8.0
 body_line_height: 1.55

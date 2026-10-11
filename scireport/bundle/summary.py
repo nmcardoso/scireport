@@ -5,7 +5,8 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
-from scireport.bundle.reader import Bundle
+from scireport.bundle.reader import Bundle, table_from_value
+from scireport.errors import BundleError
 from scireport.spec.kinds import (
   AlertValue,
   BibliographyValue,
@@ -30,13 +31,16 @@ from scireport.spec.walk import iter_assets
 SUMMARY_CHARS = 60
 
 
-def summarise_value(value: Envelope) -> str:
+def summarise_value(value: Envelope, bundle: Bundle | None = None) -> str:
   """Describe one value in a short line.
 
   Parameters
   ----------
   value : Envelope
       Any value.
+  bundle : Bundle or None, default=None
+      The bundle that holds ``value``. A table that does not record ``n_rows`` (a hand-written
+      one) has its rows counted from the file's metadata; without a bundle they print as ``?``.
 
   Returns
   -------
@@ -66,7 +70,8 @@ def summarise_value(value: Envelope) -> str:
   if isinstance(value, MappingValue):
     return f'{len(value.entries)} entries'
   if isinstance(value, TableValue):
-    rows = '?' if value.n_rows is None else f'{value.n_rows:,}'
+    count = _row_count(value, bundle)
+    rows = '?' if count is None else f'{count:,}'
     cols = f'{len(value.columns)} columns, ' if value.columns else ''
     return f'{rows} rows, {cols}{value.format}'
   if isinstance(value, FigureValue):
@@ -126,7 +131,7 @@ def inspect_bundle(bundle: Bundle, *, verify: bool = True) -> dict[str, Any]:
       {
         'key': key,
         'kind': manifest.values[key].kind,
-        'summary': summarise_value(manifest.values[key]),
+        'summary': summarise_value(manifest.values[key], bundle),
         'assets': sorted(set(assets_by_key.get(key, []))),
       }
       for key in sorted(manifest.values)
@@ -136,6 +141,29 @@ def inspect_bundle(bundle: Bundle, *, verify: bool = True) -> dict[str, Any]:
     'issues': issues,
     'ok': not any(issue['severity'] == 'error' for issue in issues),
   }
+
+
+def _row_count(value: TableValue, bundle: Bundle | None) -> int | None:
+  """Return the number of rows of a table: recorded, inline, or counted from the file.
+
+  A Parquet file is counted from its footer; a CSV file is read. None when the count is not
+  recorded and cannot be read (no bundle, a missing or unreadable file).
+  """
+  if value.n_rows is not None:
+    return value.n_rows
+  if value.rows is not None:
+    return len(value.rows)
+  if bundle is None or value.asset is None:
+    return None
+  import pyarrow as pa
+  import pyarrow.parquet as pq
+
+  try:
+    if value.format == 'parquet':
+      return int(pq.ParquetFile(pa.BufferReader(bundle.read_asset(value.asset))).metadata.num_rows)
+    return int(table_from_value(value, bundle.read_asset).num_rows)
+  except (BundleError, pa.ArrowException):
+    return None
 
 
 def _clip(text: str) -> str:

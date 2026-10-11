@@ -15,7 +15,7 @@
 ((( c.cover() )))
 ((* if meta.abstract *))
 \par{\fontsize{14}{17}\selectfont\bfseries Abstract}\par\vspace{4pt}
-(((meta.abstract | md)))
+{\scbody (((meta.abstract | md)))\par}
 ((* endif *))
 ((* if options.toc *))
 ((( c.contents() )))

@@ -133,7 +133,52 @@ def test_pack_and_unpack_round_trip(tmp_path: Path, bundle_zip: Path) -> None:
     app, ['pack', str(directory), '-o', str(tmp_path / 'again.scireport.zip')]
   )
   assert repacked.exit_code == 0, repacked.output
-  assert (tmp_path / 'again.scireport.zip').read_bytes() == bundle_zip.read_bytes()
+  with open_bundle(tmp_path / 'again.scireport.zip') as again, open_bundle(bundle_zip) as first:
+    assert again.manifest.values == first.manifest.values
+    assert again.asset_paths == first.asset_paths
+  twice = tmp_path / 'twice.scireport.zip'
+  assert runner.invoke(app, ['pack', str(tmp_path / 'again.scireport.zip'), '-o', str(twice)])
+  assert twice.read_bytes() == (tmp_path / 'again.scireport.zip').read_bytes()
+
+
+def test_pack_pins_the_defaults_of_an_unset_render_block(tmp_path: Path, bundle_zip: Path) -> None:
+  with open_bundle(bundle_zip) as source:
+    assert (source.manifest.render.template, source.manifest.render.layout) == (None, None)
+  packed = tmp_path / 'packed.scireport.zip'
+  assert runner.invoke(app, ['pack', str(bundle_zip), '-o', str(packed)]).exit_code == 0
+  with open_bundle(packed) as bundle:
+    assert bundle.manifest.render.template == 'generic@1'
+    assert bundle.manifest.render.layout == 'default@1'
+
+
+def test_inspect_counts_the_rows_of_a_hand_written_table(tmp_path: Path, bundle_zip: Path) -> None:
+  directory = tmp_path / 'hand'
+  runner.invoke(app, ['unpack', str(bundle_zip), '-o', str(directory)])
+  manifest = directory / 'scireport.json'
+  data = json.loads(manifest.read_text(encoding='utf-8'))
+  del data['values']['t.pairs']['n_rows']
+  manifest.write_text(json.dumps(data), encoding='utf-8')
+  packed = tmp_path / 'hand.scireport.zip'
+  assert runner.invoke(app, ['pack', str(directory), '-o', str(packed)]).exit_code == 0
+  with open_bundle(packed) as bundle:
+    assert bundle.manifest.values['t.pairs'].n_rows is None  # type: ignore[union-attr]
+  result = runner.invoke(app, ['inspect', str(packed)])
+  assert result.exit_code == 0, result.output
+  assert '2 rows, 2 columns, parquet' in result.stdout
+  assert '?' not in result.stdout.split('t.pairs')[1].splitlines()[0]
+
+
+def test_inspect_counts_the_rows_of_a_csv_table(tmp_path: Path) -> None:
+  directory = tmp_path / 'csv'
+  (directory / 'assets' / 'tables').mkdir(parents=True)
+  (directory / 'assets' / 'tables' / 'x.csv').write_text('a,b\n1,2\n3,4\n5,6\n', encoding='utf-8')
+  (directory / 'scireport.yaml').write_text(
+    "scireport: '1.0'\nmeta: {title: T}\nvalues:\n  x: {kind: table, asset: assets/tables/x.csv}\n",
+    encoding='utf-8',
+  )
+  result = runner.invoke(app, ['inspect', str(directory)])
+  assert result.exit_code == 0, result.output
+  assert '3 rows, csv' in result.stdout
 
 
 def test_pack_default_destination_and_json(tmp_path: Path, bundle_zip: Path) -> None:
