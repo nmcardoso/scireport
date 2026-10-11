@@ -10,7 +10,8 @@ abstract: >-
 type: software
 authors:
   - family-names: Cardoso
-    given-names: N.
+    given-names: N. M.
+    orcid: "https://orcid.org/0000-0002-2238-9665"
 version: 1.0.0
 license: GPL-3.0-only
 repository-code: "https://github.com/nmcardoso/scireport"

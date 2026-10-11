@@ -17,6 +17,10 @@ subsets in `scireport/styles/fonts/`:
 | `default@1` | **IBM Plex Serif** (OFL, `OFL.txt`) | **Inter** (OFL) | **IBM Plex Mono** (OFL) |
 | `modern@1` | **TeX Gyre Pagella** (a Palatino clone; GUST Font Licence, `GFL.txt`) | **TeX Gyre Heros** (a Helvetica clone; GFL) | **TeX Gyre Cursor** (a Courier clone; GFL) |
 
+The TeX Gyre files are subsets, so they are renamed as the GUST Font Licence asks (family and file names end in
+`Subset`, for example `TeXGyrePagellaSubset-Regular.otf`) and listed in `MANIFEST-TeXGyreSubset.txt`, which travels
+with `GFL.txt`.
+
 The HTML inlines the fonts as `data:` URIs, so a report is one file; the LaTeX project gets a `fonts/`
 folder that `fontspec` loads, with the licence files beside it. pdfLaTeX loads the TeX Gyre families of
 `modern@1` from TeX Live (`tgpagella`, `tgheros`, `tgcursor`) and so needs no fallback there.

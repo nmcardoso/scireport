@@ -1,9 +1,40 @@
 # STATUS
 
-**Phase:** S7 (freeze and release 1.0.0) is done up to the gate. Branch `s7/release`, pull request
-[#2](https://github.com/nmcardoso/scireport/pull/2), **not merged into `main` yet** (the merge was refused by the permission
-system of the session: merge the pull request, all its checks are green). The package says `1.0.0`; the **tag `v1.0.0` is
-not pushed**. **Blocked on gate HG-S2** (release sign-off), written below. Next phase after the tag: S8 (nothing started).
+**Phase:** S7 (freeze and release 1.0.0) is done except the tag. Gate HG-S2 was **answered** and its answers are **applied**
+(session of 2026-10-11, see "Applied after HG-S2" below). Branch `s7/release`, pull request
+[#2](https://github.com/nmcardoso/scireport/pull/2). The package says `1.0.0`; the **tag `v1.0.0` is not pushed**: the next step
+is to set the dates, tag and push (below). Next phase: Part B (the `2_dataset` migration M0 to M5), then S8 (the `images` extra),
+whose kickoff (`prompts/scireport/s8_kickoff.md`) was **not started** because its precondition (v1.0.0 released, HG-M2 answered)
+is not met.
+
+## Applied after HG-S2
+
+- **(2a)(b)** TeX Gyre subsets renamed `TeXGyre{Pagella,Heros,Cursor}Subset` in the files, file names, CSS, `.sty`, palette and
+  matplotlib style; `MANIFEST-TeXGyreSubset.txt` added and shipped with `GFL.txt`; `CLAUDE.md` rule 6 names the GFL files.
+- **(2c)(b)** `default@1` verdict rows have a solid 3 pt strip for all three verdicts.
+- **(4)** `CITATION.cff` (name N. M. Cardoso, ORCID), `pyproject.toml`, `docs/conf.py`. **(3)(c)**: no DOI.
+- Regenerated before the tag: the render folders of `default@1` and `modern@1` in the five cases of `tests/compat/spec-1.0/`
+  (both markup engines; HTML, and the font folder of `modern@1`), the golden files, and both freeze lists. **No PDF-text hash
+  and no `minimal@1` file changed.** `FROZEN.sha256` has 498 lines (was 488; +10 manifests), `FROZEN-builtins.sha256` 65 (was 64;
+  +1 manifest).
+
+| Check after the changes (local, 2026-10-11) | Result |
+|---|---|
+| `make check` | 1617 passed; coverage 95.25 % |
+| `pytest -m integration`, `SCIREPORT_REQUIRE_TOOLCHAIN=1` | 242 passed, 0 skipped |
+| `make docs` (`-W`) | pass; 34 pages |
+| CI on the pushed branch | see the pull request (not polled yet: `gh` is not logged in) |
+
+| File | SHA-256 now |
+|---|---|
+| `tests/compat/spec-1.0/FROZEN.sha256` | `59e8073031c6ca2bcfa9450a99f8505ff1f3e59e2bb295a5d8cf6245d6ab7d02` |
+| `tests/compat/FROZEN-builtins.sha256` | `91d4b74897105757b4ff053b7906e2e5ec50a43849c81e6228dd146fe92579f9` |
+| `scireport/spec/schemas/data-1.0.schema.json` | unchanged |
+
+**To tag (needs a person or a session that has your go-ahead):** check that CI on the pull request is green, merge it, set
+the date in `CHANGELOG.md` (`[1.0.0] - unreleased`) and `date-released` in `CITATION.cff`, commit, create the annotated tag
+`v1.0.0` on the merge commit and push it. The numbers in the HG-S2 evidence table below date from before these changes; the
+two hashes in its "File" table are superseded by the table above.
 
 ## Gate HG-S2: release sign-off for scireport 1.0.0
 
@@ -140,8 +171,8 @@ edited out of the archived version.
 
 ### Mechanics that you may want to know
 
-- Until pull request #2 is merged, `main` still says `0.1.0.dev0` and has no freeze lists; the tag must be created on the
-  merge commit. The freeze check in CI is skipped until the first tag exists, so a change requested at this gate is not blocked.
+- Until pull request #2 is merged on GitHub, `origin/main` still says `0.1.0.dev0` and has no freeze lists; the tag must be
+  created on the merge commit. The freeze check in CI is skipped until the first tag exists.
 - To change a frozen layout before the tag: edit it, regenerate its corpus folders (a one-off script like
   `make_render_layouts_1_0.py`, which refuses to overwrite: remove the folder first), delete and rewrite its lines in
   `FROZEN.sha256` and `FROZEN-builtins.sha256`, and run `make check` and `make test-integration`.

@@ -6,7 +6,7 @@ readme = "README.md"
 license = "GPL-3.0-only"
 license-files = ["LICENSE"]
 requires-python = ">=3.12"
-authors = [{ name = "N. Cardoso" }]
+authors = [{ name = "N. M. Cardoso" }]
 dependencies = [
     "jinja2>=3.1.6",
     "matplotlib>=3.11.2",

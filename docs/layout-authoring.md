@@ -704,15 +704,16 @@ A changed colour is a changed look, so for a published layout it is a new versio
 
 Layouts use the vendored fonts: **Inter**, **IBM Plex Serif** and **IBM Plex Mono** (SIL Open Font License,
 `OFL.txt`) and **TeX Gyre Pagella**, **Heros** and **Cursor** (GUST Font Licence, `GFL.txt`), seventeen OpenType faces in
-the package (`Inter-Regular.otf`, `IBMPlexSerif-Regular.otf`, `TeXGyrePagella-Regular.otf` and so on; the E703 message below
-lists them all). The licence texts sit next to them and are copied next to any LaTeX project that ships the faces they cover. Listing a face under `fonts:` has three effects: the HTML inlines it as a `data:` font
+the package (`Inter-Regular.otf`, `IBMPlexSerif-Regular.otf`, `TeXGyrePagellaSubset-Regular.otf` and so on; the E703 message below
+lists them all). The TeX Gyre faces are subsets and are renamed with the suffix `Subset`, as the GUST Font Licence asks; its manifest
+`MANIFEST-TeXGyreSubset.txt` travels with `GFL.txt`. The licence texts sit next to them and are copied next to any LaTeX project that ships the faces they cover. Listing a face under `fonts:` has three effects: the HTML inlines it as a `data:` font
 (`fonts_css`), and the LaTeX project gets a `fonts/` folder with the face and `OFL.txt` (the `.sty` loads it through
 `fontspec` with `Path=./fonts/`). The names must be vendored files: any other name is `E703`,
 and the message lists the faces there are:
 
 ```console
 $ scireport validate bundle -t ./tpl -l ./lf -f md
-E703 layout lab-notes@1 lists the font 'Fira-Regular.otf', which the package does not ship. The vendored faces are in fonts/: IBMPlexMono-Medium.otf, IBMPlexMono-Regular.otf, IBMPlexSerif-Italic.otf, IBMPlexSerif-Regular.otf, IBMPlexSerif-SemiBold.otf, Inter-Italic.otf, Inter-Medium.otf, Inter-Regular.otf, Inter-SemiBold.otf, TeXGyreCursor-Regular.otf, TeXGyreHeros-Bold.otf, TeXGyreHeros-Italic.otf, TeXGyreHeros-Regular.otf, TeXGyrePagella-Bold.otf, TeXGyrePagella-BoldItalic.otf, TeXGyrePagella-Italic.otf, TeXGyrePagella-Regular.otf.
+E703 layout lab-notes@1 lists the font 'Fira-Regular.otf', which the package does not ship. The vendored faces are in fonts/: IBMPlexMono-Medium.otf, IBMPlexMono-Regular.otf, IBMPlexSerif-Italic.otf, IBMPlexSerif-Regular.otf, IBMPlexSerif-SemiBold.otf, Inter-Italic.otf, Inter-Medium.otf, Inter-Regular.otf, Inter-SemiBold.otf, TeXGyreCursorSubset-Regular.otf, TeXGyreHerosSubset-Bold.otf, TeXGyreHerosSubset-Italic.otf, TeXGyreHerosSubset-Regular.otf, TeXGyrePagellaSubset-Bold.otf, TeXGyrePagellaSubset-BoldItalic.otf, TeXGyrePagellaSubset-Italic.otf, TeXGyrePagellaSubset-Regular.otf.
 ```
 
 A layout therefore cannot ship a font of its own through `fonts:`. To use another family, name it in the CSS stack and

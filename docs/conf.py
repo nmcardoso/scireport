@@ -10,8 +10,8 @@ import scireport
 sys.path.insert(0, str(Path(__file__).resolve().parent / '_ext'))
 
 project = 'scireport'
-author = 'N. Cardoso'
-copyright = '2026, N. Cardoso'
+author = 'N. M. Cardoso'
+copyright = '2026, N. M. Cardoso'
 release = scireport.__version__
 version = '.'.join(release.split('.')[:2])
 

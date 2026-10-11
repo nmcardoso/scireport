@@ -13,6 +13,19 @@ It freezes data-file specification 1.0, the built-in templates (`generic@1`, `ki
 (`minimal@1`, `default@1`, `modern@1`), the 17 value kinds, the error codes and the public Python API
 (`scireport.__all__`, 37 names). Everything below, grouped by development phase, is part of this release.
 
+### Changed (answers to gate HG-S2, before the tag)
+
+- **TeX Gyre subsets renamed.** The GUST Font Licence asks that a modified font and its files get new names and be listed in
+  a manifest. The eight faces of `modern@1` are now `TeXGyrePagellaSubset`, `TeXGyreHerosSubset` and
+  `TeXGyreCursorSubset` (family and PostScript names inside the files, file names, `@font-face` families, the `.sty`,
+  the palette and the matplotlib style); `MANIFEST-TeXGyreSubset.txt` lists them and is copied with `GFL.txt` into LaTeX
+  projects. The HTML and matplotlib font stacks keep the full TeX Gyre family and then the system fonts as fallbacks.
+- **`default@1` HTML tables**: rows with a verdict now have a solid 3 pt strip on the left for all three verdicts (it was
+  solid, dashed and double), the same strip the LaTeX table draws.
+- Author metadata: `CITATION.cff` and `pyproject.toml` name N. M. Cardoso; `CITATION.cff` gives the ORCID.
+- The compat renders of `default@1` and `modern@1` (HTML, and the LaTeX font folder of `modern@1`), the golden files and
+  both freeze lists were regenerated for these changes. The PDF-text hashes and every `minimal@1` render came out unchanged.
+
 ### Added (phase S7: the 1.0 freeze)
 
 - **The compat corpus `tests/compat/spec-1.0/` is complete** (ADR-0008): every one of the 17 kinds, both designed

@@ -63,8 +63,9 @@ Planned layout (`docs/conventions.md`). Phase S0 ships only the skeleton; the re
    consequences, a recommendation and why, and self-contained wording.
 5. **Never commit** `.env`, `.mcp.json`, tokens, `docs/_build/`, example outputs, or PDFs of papers. Never copy
    a `.mcp.json` from another repository (the monorepo one holds a token).
-6. **Licences.** The package is GPL-3.0-only. Vendored fonts (Inter, IBM Plex Mono) are OFL: keep `OFL.txt` next
-   to them.
+6. **Licences.** The package is GPL-3.0-only. Vendored fonts (Inter, IBM Plex Mono, IBM Plex Serif) are OFL: keep
+   `OFL.txt` next to them. The TeX Gyre subsets are under the GUST Font Licence: keep `GFL.txt` and
+   `MANIFEST-TeXGyreSubset.txt` next to them, and keep the `Subset` suffix in their family and file names.
 7. **Scope discipline.** Port from MOSAICS only what the plan lists. Runtime-specific pieces of datex (node
    timeline, HTTP ledgers, `photometry.assess`, ...) are not ported.
 
