@@ -1,11 +1,8 @@
 # STATUS
 
-**Phase:** S7 (freeze and release 1.0.0) is done except the tag. Gate HG-S2 was **answered** and its answers are **applied**
-(session of 2026-10-11, see "Applied after HG-S2" below). Branch `s7/release`, pull request
-[#2](https://github.com/nmcardoso/scireport/pull/2). The package says `1.0.0`; the **tag `v1.0.0` is not pushed**: the next step
-is to set the dates, tag and push (below). Next phase: Part B (the `2_dataset` migration M0 to M5), then S8 (the `images` extra),
-whose kickoff (`prompts/scireport/s8_kickoff.md`) was **not started** because its precondition (v1.0.0 released, HG-M2 answered)
-is not met.
+**Phase:** S7 is done: pull request #2 is merged, the dates are set (2026-10-11) and the tag `v1.0.0` is pushed from `main`
+(see the `release` workflow for the build, the frozen-file check and the clean room). Next: Part B (the `2_dataset` migration,
+M0 to M5), then S8 (the `images` extra; kickoff `prompts/scireport/s8_kickoff.md`, which needs HG-M2 answered).
 
 ## Applied after HG-S2
 
@@ -31,10 +28,7 @@ is not met.
 | `tests/compat/FROZEN-builtins.sha256` | `91d4b74897105757b4ff053b7906e2e5ec50a43849c81e6228dd146fe92579f9` |
 | `scireport/spec/schemas/data-1.0.schema.json` | unchanged |
 
-**To tag (needs a person or a session that has your go-ahead):** check that CI on the pull request is green, merge it, set
-the date in `CHANGELOG.md` (`[1.0.0] - unreleased`) and `date-released` in `CITATION.cff`, commit, create the annotated tag
-`v1.0.0` on the merge commit and push it. The numbers in the HG-S2 evidence table below date from before these changes; the
-two hashes in its "File" table are superseded by the table above.
+Gate HG-S2 is closed. The sections below are its record; the numbers in its evidence table date from before the answers were applied.
 
 ## Gate HG-S2: release sign-off for scireport 1.0.0
 

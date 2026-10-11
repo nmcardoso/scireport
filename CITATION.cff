@@ -13,6 +13,7 @@ authors:
     given-names: N. M.
     orcid: "https://orcid.org/0000-0002-2238-9665"
 version: 1.0.0
+date-released: 2026-10-11
 license: GPL-3.0-only
 repository-code: "https://github.com/nmcardoso/scireport"
 url: "https://nmcardoso.github.io/scireport/"

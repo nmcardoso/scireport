@@ -6,9 +6,9 @@ specification (ADR-0008).
 
 ## [Unreleased]
 
-## [1.0.0] - unreleased
+## [1.0.0] - 2026-10-11
 
-The first release, prepared in phase S7 and pending sign-off (gate HG-S2); the date is set when the tag is pushed.
+The first release, prepared in phase S7 and signed off at gate HG-S2.
 It freezes data-file specification 1.0, the built-in templates (`generic@1`, `kitchen-sink@1`) and layouts
 (`minimal@1`, `default@1`, `modern@1`), the 17 value kinds, the error codes and the public Python API
 (`scireport.__all__`, 37 names). Everything below, grouped by development phase, is part of this release.
