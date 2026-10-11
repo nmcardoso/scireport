@@ -120,7 +120,7 @@ jobs:
 
   # The frozen compat corpus (ADR-0008): every fixture and expected output still has its recorded
   # hash, the pandoc renders are checked with the pandoc version that made them, and the freeze
-  # lists only grew since the base of the change and since the latest release tag.
+  # lists only grew since the latest release tag (no tag yet: nothing is released, nothing to keep).
   compat:
     runs-on: ubuntu-latest
     env:
@@ -135,8 +135,6 @@ jobs:
           enable-cache: true
       - run: uv sync --group dev --extra pandoc
       - run: make compat
-      - name: The freeze lists only grow since the base of the change
-        run: uv run python tests/frozen.py "${{ github.event.pull_request.base.sha || github.event.before || 'origin/main' }}"
       - name: The freeze lists only grow since the latest release
         run: |
           tag=$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || true)

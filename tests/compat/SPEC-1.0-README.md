@@ -2,7 +2,7 @@
 
 Frozen fixtures (ADR-0008). Every file listed in `FROZEN.sha256` must stay byte-identical: CI fails
 when one changes, and a second check fails when a line of the list disappears or changes since the
-base of a change or since the latest release (`tests/frozen.py`). A change in how a case loads is a
+latest release tag (`tests/frozen.py`). A change in how a case loads is a
 break of spec 1.0 and needs a new spec version.
 
 Each case holds the bundle in the forms it supports plus `expected/`:

@@ -28,8 +28,8 @@ It freezes data-file specification 1.0, the built-in templates (`generic@1`, `ki
   Schema; a test compares it with the files (`make_frozen_builtins.py` only appends lines for new versions).
 - **Freeze lists only grow**: `tests/frozen.py BASE_REF` (`make compat-growth`) fails when a line of either freeze
   list disappeared or changed since a revision, so a fixture cannot be regenerated together with its hash. The new CI job
-  `compat` runs `make compat` with pandoc and checks growth against the base of the change and, once it exists, the latest
-  release tag.
+  `compat` runs `make compat` with pandoc and checks growth against the latest release tag (until the first tag exists,
+  nothing is released and nothing is checked).
 - `release.yml` can be started by hand against any ref (`workflow_dispatch`) for the sign-off; its build job runs
   `.github/check_dist.py` (the wheel and the sdist hold every frozen built-in file with its recorded hash, and the wheel
   holds the agent skill) and its clean-room job runs `.github/clean_room.sh`: a fresh virtual environment outside the

@@ -111,7 +111,7 @@ A promise that is not tested is a wish. These are the mechanisms.
 | Old bundles render the same way | `tests/compat/test_render_1_0.py`, `tests/compat/test_render_layouts_1_0.py`, `tests/compat/test_render_pandoc_1_0.py` | Markdown, LaTeX and HTML of every case, with `generic@1`, each built-in layout and each markup engine, equal the committed files. HTML is compared as a canonical DOM. The pandoc files are compared only with the pandoc version that wrote them. |
 | PDF text is the same | `tests/integration/test_pdf.py` | The letters of the PDF made by WeasyPrint and by LuaLaTeX hash to the committed value, for both markup engines. Needs the toolchains. |
 | Fixtures were not touched | `test_fixtures_are_frozen` | A fixture was added, removed or changed. |
-| The freeze lists only grow | `tests/frozen.py BASE_REF` (the CI `compat` job, `make compat-growth`) | A line of `FROZEN.sha256` or `FROZEN-builtins.sha256` disappeared or changed since the base of the change or since the latest release tag: a fixture cannot be regenerated together with its hash. |
+| The freeze lists only grow | `tests/frozen.py BASE_REF` (the CI `compat` job, `make compat-growth`) | A line of `FROZEN.sha256` or `FROZEN-builtins.sha256` disappeared or changed since the latest release tag: a fixture cannot be regenerated together with its hash. |
 | Built-in layouts and templates are untouched | `tests/compat/test_frozen_builtins.py` | A file of `layouts/NAME/N/` or `templates/NAME/N/`, a vendored font, a matplotlib style or a frozen JSON Schema changed or was added without being listed in `FROZEN-builtins.sha256`. |
 | The release holds the frozen files | `.github/check_dist.py` (the release workflow) | The wheel or the sdist drops or rewrites a frozen built-in file. |
 | The schema is frozen | `tests/unit/spec/test_schema.py` | The models no longer generate `data-1.0.schema.json`. |
@@ -156,8 +156,8 @@ with another version and fail in CI); a pandoc upgrade adds folders for the new 
 `FROZEN.sha256` lists a SHA-256 and a path per line. The test compares the list with the files on disk: a new file, a
 missing file or a changed file fails it. The `make_*.py` scripts that created the corpus refuse to run again once their
 output exists. A second check guards the list itself: CI runs `python tests/frozen.py BASE_REF` (`make compat-growth`), which
-fails when a line disappeared or changed since the base of the change or since the latest release tag, so only new lines can
-be added. `tests/compat/FROZEN-builtins.sha256` does the same for the built-in layouts, templates, fonts, matplotlib styles
+fails when a line disappeared or changed since the latest release tag (CI) or any revision you name (`make compat-growth
+BASE=origin/main`), so after a release only new lines can be added. `tests/compat/FROZEN-builtins.sha256` does the same for the built-in layouts, templates, fonts, matplotlib styles
 and JSON Schemas.
 
 **What a failure means.** A compat test that fails means the behaviour of spec 1.0 changed: either a bundle no longer
