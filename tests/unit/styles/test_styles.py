@@ -220,6 +220,18 @@ def test_registered_families_resolve_to_a_same_named_font() -> None:
   assert fonts.probe() == []
 
 
+def test_every_probed_family_is_in_the_vendored_files_themselves() -> None:
+  """A machine with no system fonts (a CI runner) must still resolve every family."""
+  manager = fm.FontManager()
+  manager.ttflist = []
+  manager.afmlist = []
+  for name in fonts.FACES.values():
+    manager.addfont(str(fonts.face_path(name)))
+  for family in fonts._PROBED_FAMILIES:
+    found = manager.findfont(fm.FontProperties(family=family), fallback_to_default=False)
+    assert fm.get_font(found).family_name.replace(' ', '') == family.replace(' ', '')
+
+
 def test_font_face_css_inlines_the_listed_faces_in_a_fixed_order() -> None:
   css = fonts.font_face_css(['Inter-SemiBold.otf', 'Inter-Regular.otf', 'unknown.otf'])
   assert css.count('@font-face') == 2

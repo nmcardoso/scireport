@@ -69,13 +69,15 @@ CSS_FACES: tuple[tuple[str, str, int, str], ...] = (
 )
 """``@font-face`` rows: family, file, weight and style."""
 
+# The names matplotlib reads from the vendored files: Heros and Cursor spell them without spaces
+# (TeX Live installs them with spaces; the probe ignores spaces).
 _PROBED_FAMILIES = (
   'Inter',
   'IBM Plex Mono',
   'IBM Plex Serif',
   'TeX Gyre Pagella',
-  'TeX Gyre Heros',
-  'TeX Gyre Cursor',
+  'TeXGyreHeros',
+  'TeXGyreCursor',
 )
 _state = {'registered': False}
 
@@ -180,8 +182,8 @@ def probe() -> list[str]:
   Returns
   -------
   list of str
-      The families that did not resolve to a face of the same name, each logged as a warning.
-      Empty when both are found.
+      The families that did not resolve to a face of the same name (spaces ignored), each logged
+      as a warning. Empty when all are found.
   """
   import matplotlib.font_manager as fm
 
@@ -195,7 +197,7 @@ def probe() -> list[str]:
       log.warning('font family %r did not resolve to any installed face', family)
       fallbacks.append(family)
       continue
-    if resolved_family != family:
+    if resolved_family.replace(' ', '') != family.replace(' ', ''):
       log.warning(
         'font family %r resolved to %s (%s) instead of a matching face',
         family,

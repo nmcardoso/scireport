@@ -5,8 +5,8 @@
 # tests/unit/styles/test_consistency.py; the file is frozen with the layout (ADR-0008).
 
 font.family: sans-serif
-font.sans-serif: TeX Gyre Heros, Helvetica Neue, Arial, sans-serif
-font.monospace: TeX Gyre Cursor, Courier New, Courier, monospace
+font.sans-serif: TeXGyreHeros, TeX Gyre Heros, Helvetica Neue, Arial, sans-serif
+font.monospace: TeXGyreCursor, TeX Gyre Cursor, Courier New, Courier, monospace
 font.size: 8.0
 
 axes.facecolor: "#ffffff"
