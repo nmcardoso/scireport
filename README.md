@@ -56,7 +56,7 @@ Exit codes: 0 ok, 1 runtime error, 2 invalid input (every problem is listed, eac
 
 ```bash
 uv pip install "scireport @ git+https://github.com/nmcardoso/scireport@v1.0.0"
-# with extras: pdf (WeasyPrint), astro (HEALPix sky maps), pandoc (citations, Word/ODT/EPUB), mcp (agent server)
+# with extras: pdf (WeasyPrint), astro (HEALPix sky maps), pandoc (citations, Word/ODT/EPUB)
 uv pip install "scireport[pdf,astro] @ git+https://github.com/nmcardoso/scireport@v1.0.0"
 ```
 
@@ -75,7 +75,7 @@ code 3 and print an install hint.
 | `pdf` extra (WeasyPrint) | pango and HarfBuzz: `apt install libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0` |
 | LaTeX PDF engine (`--pdf-engine latex`) | TeX Live with `latexmk`, `lualatex` (or `xelatex`, `pdflatex`) and the packages in [`.github/tl_packages`](.github/tl_packages); `biber` for citations |
 | `pandoc` extra | nothing (`pypandoc-binary` bundles pandoc) |
-| `astro` extra, `mcp` extra | nothing (Python wheels) |
+| `astro` extra | nothing (Python wheels) |
 
 ## Develop
 

@@ -40,3 +40,19 @@ the site agree.
 | The **MCP server** | the agent should call scireport as tools (describe a template, validate, render) inside a directory you choose: see [MCP server](mcp.md) |
 
 Every page of the site also has a Markdown twin: replace `.html` by `.md` in its address.
+
+## For language models and coding agents
+
+This site is written to be read by agents as well as by people. Everything below is served from the same address as
+this site, and every page has a Markdown twin next to its HTML (replace `.html` by `.md`).
+
+| What | Where |
+|---|---|
+| Index of the site, one line per page | [llms.txt](https://nmcardoso.github.io/scireport/llms.txt) |
+| The whole site as one text file | [llms-full.txt](https://nmcardoso.github.io/scireport/llms-full.txt) |
+| This page as Markdown (every other page likewise) | [agent.md](https://nmcardoso.github.io/scireport/agent.md) |
+| The agent skill as a ZIP, to unpack into `.claude/skills/` | [scireport-skill.zip](https://nmcardoso.github.io/scireport/downloads/scireport-skill.zip) |
+| The JSON Schema of the data file | [data-1.0.schema.json](https://nmcardoso.github.io/scireport/schemas/data-1.0.schema.json) |
+
+`llms-full.txt` is built from the page sources, so the tables that are generated from the code (commands, value kinds,
+error codes, pre-processors) are in it as plain text. See [MCP server](mcp.md) for the MCP server.

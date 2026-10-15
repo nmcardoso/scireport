@@ -398,7 +398,7 @@ The MCP server.
 
 Serve the scireport tools over the Model Context Protocol (standard input and output).
 
-Needs scireport[mcp]. Logs go to standard error; standard output belongs to the protocol.
+Logs go to standard error; standard output belongs to the protocol.
 
 | Option | Type | Default | Meaning |
 |---|---|---|---|

@@ -8,16 +8,15 @@ server also has the instructions.
 
 ## Install and start
 
-The server is an optional extra and uses the official `mcp` SDK (2.x; the class that SDK 1.x called `FastMCP` is
-`MCPServer`):
+The server uses the official `mcp` SDK (2.x; the class that SDK 1.x called `FastMCP` is `MCPServer`), which is
+included in the core dependencies:
 
 ```console
-$ uv add "scireport[mcp] @ git+https://github.com/nmcardoso/scireport"
+$ uv add "scireport @ git+https://github.com/nmcardoso/scireport"
 $ scireport mcp serve --root .
 ```
 
-Without the extra, the command exits with code 3 and error `E904` with the install line. Logs go to standard error;
-standard output belongs to the protocol, so never print to it.
+Logs go to standard error; standard output belongs to the protocol, so never print to it.
 
 ## Configure a client
 
@@ -50,7 +49,7 @@ $ scireport agent mcp-config --uvx --ref main
     "scireport": {
       "command": "uvx",
       "args": [
-        "--from", "scireport[mcp] @ git+https://github.com/nmcardoso/scireport@main",
+        "--from", "scireport @ git+https://github.com/nmcardoso/scireport@main",
         "scireport", "mcp", "serve", "--root", "."
       ]
     }

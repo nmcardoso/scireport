@@ -2512,6 +2512,7 @@ source = { editable = "." }
 dependencies = [
     { name = "jinja2" },
     { name = "matplotlib" },
+    { name = "mcp" },
     { name = "mistletoe" },
     { name = "numpy" },
     { name = "pyarrow" },
@@ -2524,9 +2525,6 @@ dependencies = [
 astro = [
     { name = "astropy" },
     { name = "astropy-healpix" },
-]
-mcp = [
-    { name = "mcp" },
 ]
 pandoc = [
     { name = "pypandoc-binary" },
@@ -2564,7 +2562,7 @@ requires-dist = [
     { name = "astropy-healpix", marker = "extra == 'astro'", specifier = ">=2.0.1" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "matplotlib", specifier = ">=3.11.2" },
-    { name = "mcp", marker = "extra == 'mcp'", specifier = ">=2.3.0" },
+    { name = "mcp", specifier = ">=2.3.0" },
     { name = "mistletoe", specifier = ">=1.6.0" },
     { name = "numpy", specifier = ">=2.5.3" },
     { name = "pyarrow", specifier = ">=26.0.0" },
@@ -2574,7 +2572,7 @@ requires-dist = [
     { name = "typer", specifier = ">=0.27.3" },
     { name = "weasyprint", marker = "extra == 'pdf'", specifier = ">=70.0" },
 ]
-provides-extras = ["pdf", "astro", "pandoc", "mcp"]
+provides-extras = ["pdf", "astro", "pandoc"]
 
 [package.metadata.requires-dev]
 dev = [

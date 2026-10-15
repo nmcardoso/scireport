@@ -175,7 +175,7 @@ def test_mcp_config_prints_a_snippet_and_never_writes_a_file(
   uvx = json.loads(invoke('agent', 'mcp-config', '--uvx', '--ref', 'v1.0.0rc1').stdout)
   args = uvx['mcpServers']['scireport']['args']
   assert uvx['mcpServers']['scireport']['command'] == 'uvx'
-  assert 'scireport[mcp] @ git+https://github.com/nmcardoso/scireport@v1.0.0rc1' in args
+  assert 'scireport @ git+https://github.com/nmcardoso/scireport@v1.0.0rc1' in args
   assert list(tmp_path.iterdir()) == []
 
 

@@ -4,6 +4,14 @@
 (see the `release` workflow for the build, the frozen-file check and the clean room). Next: Part B (the `2_dataset` migration,
 M0 to M5), then S8 (the `images` extra; kickoff `prompts/scireport/s8_kickoff.md`, which needs HG-M2 answered).
 
+## Recent changes (MCP dependency and documentation)
+
+- Included `mcp` into core dependencies (`dependencies` in `pyproject.toml`, updated `uv.lock`); removed `mcp` from optional extras.
+- Moved the coding agents / language models section and resource table off the documentation homepage (`docs/index.md`) to its dedicated page under the "For coding agents" section (`docs/agent.md`), keeping the documentation homepage focused on scireport itself.
+- `scireport agent mcp-config --uvx` now references `scireport` directly.
+- Updated `docs/check_site.py` to verify agent resources on `agent.md`.
+- Regenerated CLI reference tables via `skillgen.py`.
+
 ## Applied after HG-S2
 
 - **(2a)(b)** TeX Gyre subsets renamed `TeXGyre{Pagella,Heros,Cursor}Subset` in the files, file names, CSS, `.sty`, palette and

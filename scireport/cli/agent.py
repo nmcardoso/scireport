@@ -102,7 +102,7 @@ def mcp_config(
   """
   command = ['scireport', 'mcp', 'serve', '--root', root]
   if uvx:
-    source = f'scireport[mcp] @ git+{REPOSITORY_URL}@{ref}'
+    source = f'scireport @ git+{REPOSITORY_URL}@{ref}'
     command = ['uvx', '--from', source, *command]
   snippet = {'mcpServers': {'scireport': {'command': command[0], 'args': command[1:]}}}
   typer.echo(json.dumps(snippet, indent=2))
@@ -119,7 +119,7 @@ def serve(
 ) -> None:
   """Serve the scireport tools over the Model Context Protocol (standard input and output).
 
-  Needs scireport[mcp]. Logs go to standard error; standard output belongs to the protocol.
+  Logs go to standard error; standard output belongs to the protocol.
   """
   with reporting_errors():
     from scireport.agent.mcp_server import serve as run_server

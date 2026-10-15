@@ -6,7 +6,7 @@ into the same directory). It fails (exit code 1, one line per problem on stderr)
 * ``llms.txt`` and ``llms-full.txt`` exist, and ``llms.txt`` lists every page except those marked
   ``llms-txt-ignore: true`` in their front matter;
 * every page has an ``.html`` and an ``.md`` twin that is not empty;
-* the index page links ``llms.txt``, ``llms-full.txt``, the skill zip and its own ``.md`` twin,
+* the agent page links ``llms.txt``, ``llms-full.txt``, the skill zip and its own ``.md`` twin,
   in both the HTML and the Markdown version;
 * the skill zip holds ``scireport/SKILL.md`` and the schema files of the package are published
   under ``schemas/`` (their ``$id`` points there);
@@ -83,7 +83,7 @@ def check_site(site: Path, *, require_gallery: bool) -> list[str]:
   problems: list[str] = []
   problems += _check_llms(site)
   problems += _check_pages(site)
-  problems += _check_index(site)
+  problems += _check_agent(site)
   problems += _check_downloads(site)
   problems += _check_local_links(site, require_gallery=require_gallery)
   return problems
@@ -118,15 +118,15 @@ def _check_pages(site: Path) -> list[str]:
   return problems
 
 
-def _check_index(site: Path) -> list[str]:
-  """Check that the index links the llms files, the skill zip and its own Markdown twin."""
+def _check_agent(site: Path) -> list[str]:
+  """Check that the agent page links the llms files, the skill zip and its own Markdown twin."""
   problems = []
-  wanted = ('llms.txt', 'llms-full.txt', 'downloads/scireport-skill.zip', 'index.md')
+  wanted = ('llms.txt', 'llms-full.txt', 'downloads/scireport-skill.zip', 'agent.md')
   for suffix in ('html', 'md'):
-    path = site / f'index.{suffix}'
+    path = site / f'agent.{suffix}'
     text = path.read_text(encoding='utf-8') if path.is_file() else ''
     problems += [
-      f'index.{suffix}: does not link {target}' for target in wanted if target not in text
+      f'agent.{suffix}: does not link {target}' for target in wanted if target not in text
     ]
   return problems
 

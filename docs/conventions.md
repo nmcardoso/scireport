@@ -25,8 +25,8 @@ prefixes; scireport loggers therefore show their full dotted names.
 
 ## Dependencies
 
-Core: jinja2, pydantic 2, pyyaml, typer, numpy, pyarrow, matplotlib, mistletoe. Extras: `pdf` (weasyprint),
-`astro` (astropy, astropy-healpix), `pandoc` (pypandoc-binary), `mcp`; `images` arrives in phase S8. Groups: `dev`,
+Core: jinja2, pydantic 2, pyyaml, typer, numpy, pyarrow, matplotlib, mistletoe, mcp. Extras: `pdf` (weasyprint),
+`astro` (astropy, astropy-healpix), `pandoc` (pypandoc-binary); `images` arrives in phase S8. Groups: `dev`,
 `docs`. pandas is optional. Dependencies are added with `uv add`, so the latest versions become the lower bounds.
 
 ## Fonts

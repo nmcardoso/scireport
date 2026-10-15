@@ -110,9 +110,9 @@ def build_fake_site(site_assets: ModuleType, check_site: ModuleType, site: Path)
       target = site / f'{name}.{suffix}'
       target.parent.mkdir(parents=True, exist_ok=True)
       target.write_text(f'page {name}', encoding='utf-8')
-  links = 'llms.txt llms-full.txt downloads/scireport-skill.zip index.md'
+  links = 'llms.txt llms-full.txt downloads/scireport-skill.zip agent.md'
   for suffix in ('html', 'md'):
-    (site / f'index.{suffix}').write_text(links, encoding='utf-8')
+    (site / f'agent.{suffix}').write_text(links, encoding='utf-8')
   (site / 'llms-full.txt').write_text('all', encoding='utf-8')
   base = 'https://nmcardoso.github.io/scireport'
   (site / 'llms.txt').write_text(
@@ -133,14 +133,14 @@ def test_the_check_names_what_is_missing(
   build_fake_site(site_assets, check_site, tmp_path)
   (tmp_path / 'llms-full.txt').unlink()
   (tmp_path / 'guide.md').unlink()
-  (tmp_path / 'index.md').write_text('no links', encoding='utf-8')
+  (tmp_path / 'agent.md').write_text('no links', encoding='utf-8')
   (tmp_path / 'index.html').write_text(
     '<a href="https://nmcardoso.github.io/scireport/gallery/x/y/report.md">', encoding='utf-8'
   )
   problems = check_site.check_site(tmp_path, require_gallery=True)
   assert 'llms-full.txt: missing or empty' in problems
   assert 'guide.md: missing or empty' in problems
-  assert 'index.md: does not link llms.txt' in problems
+  assert 'agent.md: does not link llms.txt' in problems
   assert 'linked file missing: gallery/x/y/report.md' in problems
   assert 'linked file missing: gallery/x/y/report.md' not in check_site.check_site(
     tmp_path, require_gallery=False

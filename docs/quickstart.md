@@ -23,7 +23,6 @@ To fix the version, add a tag or a commit after the URL (`...scireport@<tag>`; t
 | `pdf` | PDF through WeasyPrint (`-f pdf`, the default PDF engine) | the pango libraries |
 | `pandoc` | Word, ODT and EPUB output, citations (it bundles a pandoc binary) | nothing |
 | `astro` | HEALPix sky maps in the `astro.*` pre-processors | nothing |
-| `mcp` | the MCP server for coding agents | nothing |
 
 ```console
 $ uv add "scireport[pdf,pandoc] @ git+https://github.com/nmcardoso/scireport"

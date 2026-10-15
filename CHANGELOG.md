@@ -6,6 +6,13 @@ specification (ADR-0008).
 
 ## [Unreleased]
 
+### Changed
+
+- Included `mcp` into core dependencies (`dependencies` in `pyproject.toml`); removed `mcp` from optional extras.
+- Moved the coding agents / language models section and resource table from the documentation homepage (`docs/index.md`) to its dedicated page under the "For coding agents" section (`docs/agent.md`).
+- `scireport agent mcp-config --uvx` now references `scireport` directly instead of `scireport[mcp]`.
+- Updated documentation and site checker (`docs/check_site.py`) to verify agent resource links on `agent.md` rather than the homepage.
+
 ## [1.0.0] - 2026-10-11
 
 The first release, prepared in phase S7 and signed off at gate HG-S2.
