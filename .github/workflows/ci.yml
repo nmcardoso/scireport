@@ -150,7 +150,7 @@ jobs:
         with:
           python-version: "3.12"
           enable-cache: true
-      - run: uv sync --group dev --extra mcp
+      - run: uv sync --group dev
       - run: uv run pytest -m mcp
 
   examples:
